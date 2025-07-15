@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
-import { FileText, User, Calendar, DollarSign, Plus, Trash2, Edit3 } from 'lucide-react';
+import { FileText, User, Calendar, DollarSign, Plus, Trash2, Edit3, Search, Pill, Stethoscope, Activity } from 'lucide-react';
 
 interface InvoiceGeneratorProps {
   onInvoiceGenerated: () => void;
@@ -8,6 +8,8 @@ interface InvoiceGeneratorProps {
 
 interface CustomItem {
   id: string;
+  type: 'custom' | 'medication' | 'exam' | 'care';
+  catalogItemId?: string; // ID of the catalog item if type is not 'custom'
   name: string;
   description: string;
   quantity: number;
@@ -21,8 +23,10 @@ export function InvoiceGenerator({ onInvoiceGenerated }: InvoiceGeneratorProps) 
     patients, 
     invoices,
     medicalCares,
+    medications,
+    medicalExams,
     getConsultationCares,
-    generateInvoice 
+    generateCustomInvoice 
   } = useApp();
   
   const [selectedConsultationId, setSelectedConsultationId] = useState('');
@@ -30,11 +34,14 @@ export function InvoiceGenerator({ onInvoiceGenerated }: InvoiceGeneratorProps) 
   const [showItemForm, setShowItemForm] = useState(false);
   const [editingItem, setEditingItem] = useState<CustomItem | null>(null);
   const [itemForm, setItemForm] = useState({
+    type: 'custom' as 'custom' | 'medication' | 'exam' | 'care',
+    catalogItemId: '',
     name: '',
     description: '',
     quantity: 1,
     unitPrice: 0
   });
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Get completed consultations that don't have invoices yet
   const availableConsultations = consultations.filter(consultation => {
@@ -50,19 +57,86 @@ export function InvoiceGenerator({ onInvoiceGenerated }: InvoiceGeneratorProps) 
   // Get consultation cares for preview
   const consultationCares = selectedConsultation ? getConsultationCares(selectedConsultation.id) : [];
 
+  // Get filtered catalog items based on type and search
+  const getFilteredCatalogItems = () => {
+    const searchLower = searchTerm.toLowerCase();
+    
+    switch (itemForm.type) {
+      case 'medication':
+        return medications.filter(med => 
+          med.isActive && 
+          (med.name.toLowerCase().includes(searchLower) || 
+           med.genericName?.toLowerCase().includes(searchLower))
+        );
+      case 'exam':
+        return medicalExams.filter(exam => 
+          exam.isActive && 
+          exam.name.toLowerCase().includes(searchLower)
+        );
+      case 'care':
+        return medicalCares.filter(care => 
+          care.isActive && 
+          care.name.toLowerCase().includes(searchLower)
+        );
+      default:
+        return [];
+    }
+  };
+
+  const getCatalogItemDetails = (type: string, itemId: string) => {
+    switch (type) {
+      case 'medication':
+        return medications.find(m => m.id === itemId);
+      case 'exam':
+        return medicalExams.find(e => e.id === itemId);
+      case 'care':
+        return medicalCares.find(c => c.id === itemId);
+      default:
+        return null;
+    }
+  };
+
   const handleItemFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setItemForm(prev => ({
-      ...prev,
-      [name]: name === 'quantity' || name === 'unitPrice' ? parseFloat(value) || 0 : value
+    setItemForm(prev => ({ 
+      ...prev, 
+      [name]: name === 'quantity' || name === 'unitPrice' ? parseFloat(value) || 0 : value 
     }));
   };
 
+  const handleTypeChange = (newType: 'custom' | 'medication' | 'exam' | 'care') => {
+    setItemForm(prev => ({
+      ...prev,
+      type: newType,
+      catalogItemId: '',
+      name: newType === 'custom' ? prev.name : '',
+      description: newType === 'custom' ? prev.description : '',
+      unitPrice: newType === 'custom' ? prev.unitPrice : 0
+    }));
+    setSearchTerm('');
+  };
+
+  const handleCatalogItemSelect = (itemId: string) => {
+    const catalogItem = getCatalogItemDetails(itemForm.type, itemId);
+    if (catalogItem) {
+      setItemForm(prev => ({
+        ...prev,
+        catalogItemId: itemId,
+        name: catalogItem.name,
+        description: catalogItem.description || '',
+        unitPrice: catalogItem.unitPrice
+      }));
+    }
+  };
+
   const handleAddItem = () => {
-    if (!itemForm.name.trim()) return;
+    if (itemForm.type !== 'custom' && !itemForm.catalogItemId) return;
+    if (itemForm.type === 'custom' && !itemForm.name.trim()) return;
 
     const newItem: CustomItem = {
-      id: Date.now().toString(),
+      id: editingItem?.id || Date.now().toString(),
+      type: itemForm.type,
+      catalogItemId: itemForm.catalogItemId || undefined,
       name: itemForm.name.trim(),
       description: itemForm.description.trim(),
       quantity: itemForm.quantity,
@@ -81,17 +155,22 @@ export function InvoiceGenerator({ onInvoiceGenerated }: InvoiceGeneratorProps) 
 
     // Reset form
     setItemForm({
+      type: 'custom',
+      catalogItemId: '',
       name: '',
       description: '',
       quantity: 1,
       unitPrice: 0
     });
+    setSearchTerm('');
     setShowItemForm(false);
   };
 
   const handleEditItem = (item: CustomItem) => {
     setEditingItem(item);
     setItemForm({
+      type: item.type,
+      catalogItemId: item.catalogItemId || '',
       name: item.name,
       description: item.description,
       quantity: item.quantity,
@@ -125,73 +204,62 @@ export function InvoiceGenerator({ onInvoiceGenerated }: InvoiceGeneratorProps) 
   };
 
   const handleGenerateInvoice = () => {
-    if (selectedConsultationId) {
-      // Generate invoice with custom items
-      const consultation = consultations.find(c => c.id === selectedConsultationId);
-      if (!consultation) return;
+    if (selectedConsultationId && generateCustomInvoice) {
+      // Convert custom items to invoice items format
+      const customInvoiceItems = customItems.map(item => ({
+        id: item.id,
+        name: item.name,
+        description: item.description,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+        total: item.total
+      }));
 
-      const items: any[] = [
-        {
-          id: '1',
-          name: 'Consultation',
-          description: `Consultation ${consultation.type}`,
-          quantity: 1,
-          unitPrice: 100,
-          total: 100
-        }
-      ];
-
-      // Add consultation cares
-      consultationCares.forEach(care => {
-        const careDetails = medicalCares.find(mc => mc.id === care.careId);
-        items.push({
-          id: care.id,
-          name: careDetails?.name || 'Soin inconnu',
-          description: careDetails?.description || '',
-          quantity: care.quantity,
-          unitPrice: care.unitPrice,
-          total: care.totalPrice
-        });
-      });
-
-      // Add custom items
-      customItems.forEach(item => {
-        items.push({
-          id: item.id,
-          name: item.name,
-          description: item.description,
-          quantity: item.quantity,
-          unitPrice: item.unitPrice,
-          total: item.total
-        });
-      });
-
-      const subtotal = items.reduce((sum, item) => sum + item.total, 0);
-      const tax = subtotal * 0.08;
-      const total = subtotal + tax;
-
-      // Create invoice manually since we need custom items
-      const newInvoice = {
-        id: Date.now().toString(),
-        patientId: consultation.patientId,
-        consultationId: consultation.id,
-        items,
-        subtotal,
-        tax,
-        total,
-        status: 'pending' as const,
-        createdAt: new Date().toISOString(),
-        dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-      };
-
-      // Add to invoices (we'll need to update the context)
-      // For now, we'll call the existing generateInvoice and then update it
-      generateInvoice(selectedConsultationId);
+      generateCustomInvoice(selectedConsultationId, customInvoiceItems);
       
       // Reset form
       setSelectedConsultationId('');
       setCustomItems([]);
       onInvoiceGenerated();
+    }
+  };
+
+  const getItemTypeIcon = (type: string) => {
+    switch (type) {
+      case 'medication':
+        return <Pill className="w-4 h-4 text-blue-600" />;
+      case 'exam':
+        return <Search className="w-4 h-4 text-green-600" />;
+      case 'care':
+        return <Stethoscope className="w-4 h-4 text-purple-600" />;
+      default:
+        return <Activity className="w-4 h-4 text-gray-600" />;
+    }
+  };
+
+  const getItemTypeColor = (type: string) => {
+    switch (type) {
+      case 'medication':
+        return 'bg-blue-50 border-blue-200 text-blue-800';
+      case 'exam':
+        return 'bg-green-50 border-green-200 text-green-800';
+      case 'care':
+        return 'bg-purple-50 border-purple-200 text-purple-800';
+      default:
+        return 'bg-gray-50 border-gray-200 text-gray-800';
+    }
+  };
+
+  const getItemTypeText = (type: string) => {
+    switch (type) {
+      case 'medication':
+        return 'Médicament';
+      case 'exam':
+        return 'Examen';
+      case 'care':
+        return 'Soin';
+      default:
+        return 'Article personnalisé';
     }
   };
 
@@ -319,10 +387,16 @@ export function InvoiceGenerator({ onInvoiceGenerated }: InvoiceGeneratorProps) 
 
                 {/* Custom items */}
                 {customItems.map((item) => (
-                  <div key={item.id} className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+                  <div key={item.id} className={`flex items-center justify-between p-3 rounded-lg border ${getItemTypeColor(item.type)}`}>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900">{item.name}</p>
-                      <p className="text-sm text-gray-500">{item.description}</p>
+                      <div className="flex items-center space-x-2">
+                        {getItemTypeIcon(item.type)}
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">{item.name}</p>
+                          <p className="text-sm text-gray-500">{item.description}</p>
+                          <span className="text-xs font-medium">{getItemTypeText(item.type)}</span>
+                        </div>
+                      </div>
                     </div>
                     <div className="text-right mr-3">
                       <p className="text-sm font-medium text-gray-900">{item.total.toLocaleString()} €</p>
@@ -382,7 +456,7 @@ export function InvoiceGenerator({ onInvoiceGenerated }: InvoiceGeneratorProps) 
       {/* Add/Edit Item Modal */}
       {showItemForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+          <div className="bg-white rounded-lg p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-medium text-gray-900">
                 {editingItem ? 'Modifier l\'article' : 'Ajouter un article'}
@@ -391,7 +465,8 @@ export function InvoiceGenerator({ onInvoiceGenerated }: InvoiceGeneratorProps) 
                 onClick={() => {
                   setShowItemForm(false);
                   setEditingItem(null);
-                  setItemForm({ name: '', description: '', quantity: 1, unitPrice: 0 });
+                  setItemForm({ type: 'custom', catalogItemId: '', name: '', description: '', quantity: 1, unitPrice: 0 });
+                  setSearchTerm('');
                 }}
                 className="text-gray-400 hover:text-gray-600"
               >
@@ -402,96 +477,175 @@ export function InvoiceGenerator({ onInvoiceGenerated }: InvoiceGeneratorProps) 
               </button>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-6">
+              {/* Type Selection */}
               <div>
-                <label htmlFor="itemName" className="block text-sm font-medium text-gray-700 mb-1">
-                  Nom de l'article *
-                </label>
-                <input
-                  type="text"
-                  id="itemName"
-                  name="name"
-                  value={itemForm.name}
-                  onChange={handleItemFormChange}
-                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  placeholder="Ex: Médicament, Matériel médical..."
-                />
+                <label className="block text-sm font-medium text-gray-700 mb-3">Type d'article</label>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {[
+                    { value: 'custom', label: 'Article personnalisé', icon: Activity },
+                    { value: 'medication', label: 'Médicament', icon: Pill },
+                    { value: 'exam', label: 'Examen', icon: Search },
+                    { value: 'care', label: 'Soin', icon: Stethoscope }
+                  ].map((type) => {
+                    const Icon = type.icon;
+                    return (
+                      <button
+                        key={type.value}
+                        type="button"
+                        onClick={() => handleTypeChange(type.value as any)}
+                        className={`p-3 border-2 rounded-lg text-sm font-medium transition-colors flex flex-col items-center space-y-2 ${
+                          itemForm.type === type.value
+                            ? 'border-blue-500 bg-blue-50 text-blue-700'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <Icon className="w-5 h-5" />
+                        <span>{type.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
-              <div>
-                <label htmlFor="itemDescription" className="block text-sm font-medium text-gray-700 mb-1">
-                  Description
-                </label>
-                <textarea
-                  id="itemDescription"
-                  name="description"
-                  rows={2}
-                  value={itemForm.description}
-                  onChange={handleItemFormChange}
-                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  placeholder="Description détaillée de l'article..."
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
+              {/* Catalog Item Selection */}
+              {itemForm.type !== 'custom' && (
                 <div>
-                  <label htmlFor="itemQuantity" className="block text-sm font-medium text-gray-700 mb-1">
-                    Quantité *
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Rechercher un {itemForm.type === 'medication' ? 'médicament' : itemForm.type === 'exam' ? 'examen' : 'soin'}
                   </label>
+                  <div className="relative mb-3">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                    <input
+                      type="text"
+                      placeholder={`Rechercher un ${itemForm.type === 'medication' ? 'médicament' : itemForm.type === 'exam' ? 'examen' : 'soin'}...`}
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="max-h-48 overflow-y-auto border border-gray-200 rounded-lg">
+                    {getFilteredCatalogItems().map((catalogItem: any) => (
+                      <button
+                        key={catalogItem.id}
+                        type="button"
+                        onClick={() => handleCatalogItemSelect(catalogItem.id)}
+                        className={`w-full p-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-b-0 ${
+                          itemForm.catalogItemId === catalogItem.id ? 'bg-blue-50 border-blue-200' : ''
+                        }`}
+                      >
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <div className="font-medium text-gray-900">{catalogItem.name}</div>
+                            <div className="text-sm text-gray-500">
+                              {catalogItem.description || 
+                               (catalogItem.genericName && `(${catalogItem.genericName})`) ||
+                               (catalogItem.form && `${catalogItem.form} - ${catalogItem.strength}`)}
+                            </div>
+                          </div>
+                          <div className="text-sm font-medium text-gray-900 ml-4">
+                            {catalogItem.unitPrice.toLocaleString()} €
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                    {getFilteredCatalogItems().length === 0 && (
+                      <div className="p-4 text-center text-gray-500">
+                        Aucun élément trouvé
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Item Details Form */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Nom de l'article *</label>
                   <input
-                    type="number"
-                    id="itemQuantity"
-                    name="quantity"
-                    min="1"
-                    value={itemForm.quantity}
+                    type="text"
+                    value={itemForm.name}
                     onChange={handleItemFormChange}
-                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    name="name"
+                    disabled={itemForm.type !== 'custom'}
+                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 disabled:bg-gray-100"
+                    placeholder="Nom de l'article"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="itemUnitPrice" className="block text-sm font-medium text-gray-700 mb-1">
-                    Prix unitaire (€) *
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Prix unitaire (€) *</label>
                   <input
                     type="number"
-                    id="itemUnitPrice"
-                    name="unitPrice"
                     min="0"
                     step="0.01"
                     value={itemForm.unitPrice}
                     onChange={handleItemFormChange}
+                    name="unitPrice"
+                    disabled={itemForm.type !== 'custom'}
+                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 disabled:bg-gray-100"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Quantité *</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={itemForm.quantity}
+                    onChange={handleItemFormChange}
+                    name="quantity"
                     className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Total</label>
+                  <input
+                    type="text"
+                    value={`${(itemForm.quantity * itemForm.unitPrice).toLocaleString()} €`}
+                    disabled
+                    className="w-full rounded-md border-gray-300 shadow-sm bg-gray-100 font-medium"
                   />
                 </div>
               </div>
 
-              {itemForm.quantity > 0 && itemForm.unitPrice > 0 && (
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Total:</span>
-                    <span className="font-medium text-gray-900">
-                      {(itemForm.quantity * itemForm.unitPrice).toLocaleString()} €
-                    </span>
-                  </div>
-                </div>
-              )}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea
+                  value={itemForm.description}
+                  onChange={handleItemFormChange}
+                  name="description"
+                  rows={3}
+                  disabled={itemForm.type !== 'custom'}
+                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 disabled:bg-gray-100"
+                  placeholder="Description de l'article"
+                />
+              </div>
             </div>
 
             <div className="flex justify-end space-x-3 mt-6">
               <button
+                type="button"
                 onClick={() => {
                   setShowItemForm(false);
                   setEditingItem(null);
-                  setItemForm({ name: '', description: '', quantity: 1, unitPrice: 0 });
+                  setItemForm({ type: 'custom', catalogItemId: '', name: '', description: '', quantity: 1, unitPrice: 0 });
+                  setSearchTerm('');
                 }}
                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200"
               >
                 Annuler
               </button>
               <button
+                type="button"
                 onClick={handleAddItem}
-                disabled={!itemForm.name.trim() || itemForm.quantity <= 0 || itemForm.unitPrice <= 0}
+                disabled={
+                  (itemForm.type === 'custom' && (!itemForm.name.trim() || itemForm.unitPrice <= 0)) ||
+                  (itemForm.type !== 'custom' && !itemForm.catalogItemId) ||
+                  itemForm.quantity <= 0
+                }
                 className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {editingItem ? 'Modifier' : 'Ajouter'}
