@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Profile } from '../../types';
+import { Profile, ProfileFormData } from '../../types';
 import { X, Eye, EyeOff } from 'lucide-react';
 
 interface ProfileFormProps {
   profile?: Profile | null;
-  onSubmit: (profile: Omit<Profile, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  onSubmit: (profileData: ProfileFormData) => void;
   onCancel: () => void;
 }
 

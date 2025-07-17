@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { ProfileForm } from './ProfileForm';
 import { Plus, Search, Edit, Trash2, Shield, UserCheck, Receipt, Eye, EyeOff, Key } from 'lucide-react';
-import { Profile } from '../../types';
+import { Profile, ProfileFormData } from '../../types';
 
 export function ProfileManagement() {
   const { profiles, addProfile, updateProfile, deleteProfile, currentProfile } = useApp();
@@ -30,7 +30,12 @@ export function ProfileManagement() {
     setShowForm(false);
   };
 
-  const handleUpdateProfile = (profileData: Omit<Profile, 'id' | 'createdAt' | 'updatedAt'>) => {
+  const handleAddProfile = (profileData: ProfileFormData) => {
+    addProfile(profileData);
+    setShowForm(false);
+  };
+
+  const handleUpdateProfile = (profileData: ProfileFormData) => {
     if (editingProfile) {
       updateProfile(editingProfile.id, profileData);
       setEditingProfile(null);

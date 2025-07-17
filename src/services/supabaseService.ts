@@ -1,6 +1,7 @@
 import { supabase, handleSupabaseError } from '../lib/supabase';
 import { 
-  Profile, 
+  Profile,
+  ProfileFormData,
   Patient, 
   Consultation, 
   MedicalCare, 
@@ -142,7 +143,7 @@ const transformInvoice = (row: any): Invoice => ({
   id: row.id,
   patientId: row.patient_id,
   consultationId: row.consultation_id,
-  prescriptionId: row.prescription_id,
+  prescriptionId: row.prescription_id || undefined,
   items: row.items,
   subtotal: row.subtotal,
   tax: row.tax,
@@ -273,11 +274,26 @@ export const createProfile = async (profileData: Omit<Profile, 'id' | 'createdAt
   }
 };
 
-export const updateProfile = async (id: string, profileData: Partial<Profile>): Promise<Profile> => {
+export const createProfile = async (profileData: ProfileFormData): Promise<Profile> => {
   try {
+    // First, create the user in Supabase Auth
+    if (!profileData.password) {
+      throw new Error('Password is required for new profile creation');
+    }
+
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email: profileData.email,
+      password: profileData.password,
+    });
+
+    if (authError) throw authError;
+    if (!authData.user) throw new Error('Failed to create user');
+
+    // Then create the profile record using the auth user ID
     const { data, error } = await supabase
       .from('profiles')
-      .update({
+      .insert({
+        id: authData.user.id, // Use the auth user ID
         name: profileData.name,
         email: profileData.email,
         role: profileData.role,
@@ -285,7 +301,41 @@ export const updateProfile = async (id: string, profileData: Partial<Profile>): 
         specialization: profileData.specialization,
         phone: profileData.phone,
         is_active: profileData.isActive,
-        last_login_at: profileData.lastLoginAt,
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return transformProfile(data);
+  } catch (error) {
+    handleSupabaseError(error);
+    throw error;
+  }
+};
+
+export const updateProfile = async (id: string, profileData: Partial<ProfileFormData>): Promise<Profile> => {
+  try {
+    // If password is provided, update it in Supabase Auth
+    if (profileData.password) {
+      const { error: authError } = await supabase.auth.updateUser({
+        password: profileData.password
+      });
+      
+      if (authError) throw authError;
+    }
+
+    // Update the profile record (excluding password)
+    const { password, ...profileUpdateData } = profileData;
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({
+        name: profileUpdateData.name,
+        email: profileUpdateData.email,
+        role: profileUpdateData.role,
+        avatar: profileUpdateData.avatar,
+        specialization: profileUpdateData.specialization,
+        phone: profileUpdateData.phone,
+        is_active: profileUpdateData.isActive,
         updated_at: new Date().toISOString(),
       })
       .eq('id', id)
@@ -832,7 +882,7 @@ export const createInvoice = async (invoiceData: Omit<Invoice, 'id'>): Promise<I
       .insert({
         patient_id: invoiceData.patientId,
         consultation_id: invoiceData.consultationId,
-        prescription_id: invoiceData.prescriptionId,
+        prescription_id: invoiceData.prescriptionId || null,
         items: invoiceData.items,
         subtotal: invoiceData.subtotal,
         tax: invoiceData.tax,
@@ -863,7 +913,7 @@ export const updateInvoice = async (id: string, invoiceData: Partial<Invoice>): 
       .update({
         patient_id: invoiceData.patientId,
         consultation_id: invoiceData.consultationId,
-        prescription_id: invoiceData.prescriptionId,
+        prescription_id: invoiceData.prescriptionId || null,
         items: invoiceData.items,
         subtotal: invoiceData.subtotal,
         tax: invoiceData.tax,

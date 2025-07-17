@@ -186,7 +186,8 @@ export function InvoiceEditor({ invoiceId, onClose, onSave }: InvoiceEditorProps
 
   const calculateTotals = () => {
     const subtotal = items.reduce((sum, item) => sum + item.total, 0);
-    const tax = subtotal * 0.08; // 8% tax
+    const taxRate = systemSettings?.system?.taxRate || 8;
+    const tax = subtotal * (taxRate / 100);
     const total = subtotal + tax;
     return { subtotal, tax, total };
   };
@@ -306,7 +307,7 @@ export function InvoiceEditor({ invoiceId, onClose, onSave }: InvoiceEditorProps
                       onClick={() => setEditingItemId(item.id)}
                       className="text-blue-600 hover:text-blue-800 p-1"
                     >
-                      <Edit3 className="w-4 h-4" />
+                      <span className="text-gray-600">TVA ({systemSettings?.system?.taxRate || 8}%):</span>
                     </button>
                   )}
                   

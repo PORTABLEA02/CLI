@@ -59,6 +59,14 @@ export function InvoiceGenerator({ onInvoiceGenerated }: InvoiceGeneratorProps) 
   // Get consultation cares for preview
   const consultationCares = selectedConsultation ? getConsultationCares(selectedConsultation.id) : [];
 
+  // Get associated prescription for preview
+  const associatedPrescription = selectedConsultation 
+    ? prescriptions.find(p => 
+        p.consultationId === selectedConsultation.id && 
+        (p.status === 'active' || p.status === 'completed')
+      )
+    : null;
+
   // Get filtered catalog items based on type and search
   const getFilteredCatalogItems = () => {
     const searchLower = searchTerm.toLowerCase();
@@ -194,12 +202,19 @@ export function InvoiceGenerator({ onInvoiceGenerated }: InvoiceGeneratorProps) 
       subtotal += care.totalPrice;
     });
 
+    // Add prescription items if prescription exists
+    if (associatedPrescription) {
+      associatedPrescription.items.forEach(item => {
+        subtotal += item.totalPrice;
+      });
+    }
     // Add custom items
     customItems.forEach(item => {
       subtotal += item.total;
     });
 
-    const tax = subtotal * 0.08; // 8% tax
+    const taxRate = systemSettings?.system?.taxRate || 8;
+    const tax = subtotal * (taxRate / 100);
     const total = subtotal + tax;
 
     return { subtotal, tax, total };
@@ -365,7 +380,7 @@ export function InvoiceGenerator({ onInvoiceGenerated }: InvoiceGeneratorProps) 
                     <p className="text-sm text-gray-500">Consultation {selectedConsultation.type}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-medium text-gray-900">100,00 €</p>
+                    <p className="text-sm font-medium text-gray-900">{formatCurrencyWithSettings(100, systemSettings)}</p>
                     <p className="text-xs text-gray-500">1 × {formatCurrencyWithSettings(100, systemSettings)}</p>
                   </div>
                 </div>
@@ -387,6 +402,30 @@ export function InvoiceGenerator({ onInvoiceGenerated }: InvoiceGeneratorProps) 
                   );
                 })}
 
+                {/* Prescription items */}
+                {associatedPrescription && associatedPrescription.items.map((prescItem) => {
+                  const itemDetails = getCatalogItemDetails(prescItem.type, prescItem.itemId);
+                  return (
+                    <div key={`prescription-${prescItem.id}`} className="flex items-center justify-between p-3 bg-purple-50 rounded-lg border border-purple-200">
+                      <div>
+                        <div className="flex items-center space-x-2">
+                          <span className="px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded-full">
+                            Prescription
+                          </span>
+                          <p className="text-sm font-medium text-gray-900">{itemDetails?.name}</p>
+                        </div>
+                        <p className="text-sm text-gray-500">{itemDetails?.description || prescItem.instructions}</p>
+                        {prescItem.dosage && (
+                          <p className="text-xs text-gray-400">Dosage: {prescItem.dosage}</p>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-medium text-gray-900">{formatCurrencyWithSettings(prescItem.totalPrice, systemSettings)}</p>
+                        <p className="text-xs text-gray-500">{prescItem.quantity} × {formatCurrencyWithSettings(prescItem.unitPrice, systemSettings)}</p>
+                      </div>
+                    </div>
+                  );
+                })}
                 {/* Custom items */}
                 {customItems.map((item) => (
                   <div key={item.id} className={`flex items-center justify-between p-3 rounded-lg border ${getItemTypeColor(item.type)}`}>
@@ -429,7 +468,7 @@ export function InvoiceGenerator({ onInvoiceGenerated }: InvoiceGeneratorProps) 
                       <span className="font-medium">{formatCurrencyWithSettings(subtotal, systemSettings)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">TVA (8%):</span>
+                      <span className="text-gray-600">TVA ({systemSettings?.system?.taxRate || 8}%):</span>
                       <span className="font-medium">{formatCurrencyWithSettings(tax, systemSettings)}</span>
                     </div>
                     <div className="flex justify-between text-lg font-bold border-t pt-2">
@@ -442,6 +481,26 @@ export function InvoiceGenerator({ onInvoiceGenerated }: InvoiceGeneratorProps) 
             </div>
           )}
 
+          {/* Prescription Information */}
+          {selectedConsultation && associatedPrescription && (
+            <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+              <div className="flex items-center space-x-2 mb-2">
+                <span className="px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded-full">
+                  Prescription Associée
+                </span>
+                <span className="text-sm font-medium text-gray-900">
+                  #{associatedPrescription.id.slice(-6).toUpperCase()}
+                </span>
+              </div>
+              <p className="text-sm text-gray-600">
+                Cette consultation a une prescription associée qui sera automatiquement incluse dans la facture.
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                {associatedPrescription.items.length} élément(s) • 
+                Valide jusqu'au {new Date(associatedPrescription.validUntil).toLocaleDateString('fr-FR')}
+              </p>
+            </div>
+          )}
           <div className="flex justify-end space-x-3">
             <button
               onClick={handleGenerateInvoice}

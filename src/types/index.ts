@@ -12,6 +12,17 @@ export interface Profile {
   updatedAt: string;
 }
 
+export interface ProfileFormData {
+  name: string;
+  email: string;
+  role: 'admin' | 'doctor' | 'cashier';
+  avatar?: string;
+  specialization?: string;
+  phone?: string;
+  isActive: boolean;
+  password?: string; // Optional for updates, required for creation
+}
+
 export interface SystemSettings {
   clinic: {
     name: string;

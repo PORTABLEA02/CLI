@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Profile, Patient, Consultation, Treatment, Prescription, Invoice, DashboardStats, MedicalCare, ConsultationCare, Payment, Medication, MedicalExam, MedicalSupply, ConsultationSupply, SystemSettings } from '../types';
+import { Profile, ProfileFormData, Patient, Consultation, Treatment, Prescription, Invoice, DashboardStats, MedicalCare, ConsultationCare, Payment, Medication, MedicalExam, MedicalSupply, ConsultationSupply, SystemSettings } from '../types';
 import { generateStockAlert } from '../utils/businessRules';
 import { supabase } from '../lib/supabase';
 import * as supabaseService from '../services/supabaseService';
@@ -24,8 +24,8 @@ interface AppContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
-  addProfile: (profile: Omit<Profile, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
-  updateProfile: (id: string, profile: Partial<Profile>) => Promise<void>;
+  addProfile: (profileData: ProfileFormData) => Promise<void>;
+  updateProfile: (id: string, profileData: Partial<ProfileFormData>) => Promise<void>;
   deleteProfile: (id: string) => Promise<void>;
   addPatient: (patient: Omit<Patient, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
   updatePatient: (id: string, patient: Partial<Patient>) => Promise<void>;
@@ -273,7 +273,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const updateProfile = async (id: string, profileData: Partial<Profile>) => {
+  const addProfile = async (profileData: ProfileFormData) => {
+    try {
+      const newProfile = await supabaseService.createProfile(profileData);
+      setProfiles(prev => [newProfile, ...prev]);
+    } catch (error) {
+      console.error('Error adding profile:', error);
+      throw error;
+    }
+  };
+
+  const updateProfile = async (id: string, profileData: Partial<ProfileFormData>) => {
     try {
       const updatedProfile = await supabaseService.updateProfile(id, profileData);
       setProfiles(prev => prev.map(p => p.id === id ? updatedProfile : p));
@@ -527,13 +537,33 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const relatedCares = consultationCares.filter(c => c.consultationId === consultationId);
     const relatedSupplies = consultationSupplies.filter(s => s.consultationId === consultationId);
     
+    // Find associated prescription
+    const associatedPrescription = prescriptions.find(p => 
+      p.consultationId === consultationId && 
+      (p.status === 'active' || p.status === 'completed')
+    );
+    
     if (!consultation) return;
+
+    // Helper function to get item details from catalogs
+    const getItemDetails = (type: string, itemId: string) => {
+      switch (type) {
+        case 'medication':
+          return medications.find(m => m.id === itemId);
+        case 'exam':
+          return medicalExams.find(e => e.id === itemId);
+        case 'care':
+          return medicalCares.find(c => c.id === itemId);
+        default:
+          return null;
+      }
+    };
 
     const items: any[] = [
       {
         id: '1',
         name: 'Consultation',
-        description: `${consultation.type} consultation`,
+        description: `Consultation ${consultation.type}`,
         quantity: 1,
         unitPrice: 100,
         total: 100
@@ -570,6 +600,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
       })
     ];
 
+    // Add prescription items if prescription exists
+    if (associatedPrescription) {
+      const prescriptionItems = associatedPrescription.items.map(prescItem => {
+        const itemDetails = getItemDetails(prescItem.type, prescItem.itemId);
+        return {
+          id: `prescription-${prescItem.id}`,
+          name: itemDetails?.name || 'Article inconnu',
+          description: itemDetails?.description || prescItem.instructions || '',
+          quantity: prescItem.quantity,
+          unitPrice: prescItem.unitPrice,
+          total: prescItem.totalPrice
+        };
+      });
+      items.push(...prescriptionItems);
+    }
     const subtotal = items.reduce((sum, item) => sum + item.total, 0);
     const tax = subtotal * (systemSettings.system.taxRate / 100);
     const total = subtotal + tax;
@@ -601,8 +646,27 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const relatedCares = consultationCares.filter(c => c.consultationId === consultationId);
     const relatedSupplies = consultationSupplies.filter(s => s.consultationId === consultationId);
     
+    // Find associated prescription
+    const associatedPrescription = prescriptions.find(p => 
+      p.consultationId === consultationId && 
+      (p.status === 'active' || p.status === 'completed')
+    );
+    
     if (!consultation) return null;
 
+    // Helper function to get item details from catalogs
+    const getItemDetails = (type: string, itemId: string) => {
+      switch (type) {
+        case 'medication':
+          return medications.find(m => m.id === itemId);
+        case 'exam':
+          return medicalExams.find(e => e.id === itemId);
+        case 'care':
+          return medicalCares.find(c => c.id === itemId);
+        default:
+          return null;
+      }
+    };
     const items: any[] = [
       {
         id: '1',
@@ -645,13 +709,32 @@ export function AppProvider({ children }: { children: ReactNode }) {
       ...customItems
     ];
 
+    // Add prescription items if prescription exists
+    if (associatedPrescription) {
+      const prescriptionItems = associatedPrescription.items.map(prescItem => {
+        const itemDetails = getItemDetails(prescItem.type, prescItem.itemId);
+        return {
+          id: `prescription-${prescItem.id}`,
+          name: itemDetails?.name || 'Article inconnu',
+          description: itemDetails?.description || prescItem.instructions || '',
+          quantity: prescItem.quantity,
+          unitPrice: prescItem.unitPrice,
+          total: prescItem.totalPrice
+        };
+      });
+      items.push(...prescriptionItems);
+    }
     const subtotal = items.reduce((sum, item) => sum + item.total, 0);
-    const tax = subtotal * (systemSettings.system.taxRate / 100);
+    const taxRate = systemSettings?.system?.taxRate || 8;
+    const tax = subtotal * (taxRate / 100);
+    const tax = subtotal * (taxRate / 100);
     const total = subtotal + tax;
 
     const newInvoice: Omit<Invoice, 'id'> = {
       patientId: consultation.patientId,
       consultationId: consultation.id,
+      prescriptionId: associatedPrescription?.id,
+      prescriptionId: associatedPrescription?.id,
       items,
       subtotal,
       tax,
@@ -664,6 +747,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
     try {
       const createdInvoice = await supabaseService.createInvoice(newInvoice);
       setInvoices(prev => [createdInvoice, ...prev]);
+      
+      // Mark prescription as billed if it exists
+      if (associatedPrescription) {
+        await updatePrescription(associatedPrescription.id, { 
+          status: 'billed',
+          billedAt: new Date().toISOString()
+        });
+      }
+      
+      
+      // Mark prescription as billed if it exists
+      if (associatedPrescription) {
+        await updatePrescription(associatedPrescription.id, { 
+          status: 'billed',
+          billedAt: new Date().toISOString()
+        });
+      }
       return createdInvoice;
     } catch (error) {
       console.error('Error generating custom invoice:', error);
