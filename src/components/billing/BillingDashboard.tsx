@@ -4,6 +4,7 @@ import { formatCurrencyWithSettings } from '../../utils/formatters';
 import { InvoiceGenerator } from './InvoiceGenerator';
 import { PaymentProcessor } from './PaymentProcessor';
 import { InvoicePrintView } from './InvoicePrintView';
+import { InvoiceEditor } from '../invoices/InvoiceEditor';
 import { 
   CreditCard, 
   DollarSign, 
@@ -13,6 +14,7 @@ import {
   Search,
   Filter,
   Eye,
+  Edit,
   Printer,
   Download
 } from 'lucide-react';
@@ -34,6 +36,7 @@ export function BillingDashboard() {
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [selectedInvoice, setSelectedInvoice] = useState<string | null>(null);
   const [showPrintView, setShowPrintView] = useState(false);
+  const [editingInvoice, setEditingInvoice] = useState<string | null>(null);
 
   // Filter invoices based on search and status
   const filteredInvoices = invoices.filter(invoice => {
@@ -47,6 +50,12 @@ export function BillingDashboard() {
     
     return matchesSearch && matchesStatus;
   });
+
+  // Contrôle d'accès : seuls les admins et caissiers peuvent modifier les factures en attente
+  const canEditInvoice = (invoice: any) => {
+    return (currentUser?.role === 'admin' || currentUser?.role === 'cashier') && 
+           invoice.status === 'pending';
+  };
 
   // Calculate statistics
   const todayInvoices = invoices.filter(inv => 
@@ -325,6 +334,15 @@ export function BillingDashboard() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <div className="flex justify-end space-x-2">
+                            {canEditInvoice(invoice) && (
+                              <button
+                                onClick={() => setEditingInvoice(invoice.id)}
+                                className="text-green-600 hover:text-green-900 p-1 rounded"
+                                title="Modifier la facture"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+                            )}
                             <button
                               onClick={() => handlePrintInvoice(invoice.id)}
                               className="text-blue-600 hover:text-blue-900 p-1 rounded"
@@ -361,6 +379,22 @@ export function BillingDashboard() {
               onClose={() => {
                 setShowPrintView(false);
                 setSelectedInvoice(null);
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Invoice Editor Modal */}
+      {editingInvoice && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg w-full max-w-6xl max-h-[90vh] overflow-y-auto">
+            <InvoiceEditor
+              invoiceId={editingInvoice}
+              onClose={() => setEditingInvoice(null)}
+              onSave={() => {
+                // Optionally show a success message
+                console.log('Facture modifiée avec succès');
               }}
             />
           </div>

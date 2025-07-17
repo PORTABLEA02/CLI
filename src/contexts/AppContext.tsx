@@ -51,6 +51,7 @@ interface AppContextType {
   updateInvoiceStatus: (id: string, status: Invoice['status']) => void;
   addPayment: (payment: Omit<Payment, 'id' | 'createdAt'>) => void;
   updateSystemSettings: (settings: SystemSettings) => Promise<void>;
+  updateInvoiceContent: (invoiceId: string, newItems: any[]) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -959,6 +960,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
     ));
   };
 
+  const updateInvoiceContent = (invoiceId: string, newItems: any[]) => {
+    setInvoices(prev => prev.map(invoice => {
+      if (invoice.id === invoiceId) {
+        const subtotal = newItems.reduce((sum, item) => sum + item.total, 0);
+        const tax = subtotal * 0.08; // 8% tax
+        const total = subtotal + tax;
+        
+        return {
+          ...invoice,
+          items: newItems,
+          subtotal,
+          tax,
+          total,
+          updatedAt: new Date().toISOString()
+        };
+      }
+      return invoice;
+    }));
+  };
+
   return (
     <AppContext.Provider value={{
       currentUser,
@@ -1007,7 +1028,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       generateCustomInvoice,
       updateInvoiceStatus,
       addPayment,
-      updateSystemSettings
+      updateSystemSettings,
+      updateInvoiceContent
     }}>
       {children}
     </AppContext.Provider>

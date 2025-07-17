@@ -2,13 +2,15 @@ import React, { useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { formatCurrencyWithSettings } from '../../utils/formatters';
 import { InvoiceDetails } from './InvoiceDetails';
-import { Search, Eye, DollarSign, Calendar, AlertCircle, CheckCircle } from 'lucide-react';
+import { InvoiceEditor } from './InvoiceEditor';
+import { Search, Eye, Edit, DollarSign, Calendar, AlertCircle, CheckCircle } from 'lucide-react';
 
 export function InvoiceList() {
   const { invoices, patients, consultations, updateInvoiceStatus, currentUser, systemSettings } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [viewingInvoice, setViewingInvoice] = useState<string | null>(null);
+  const [editingInvoice, setEditingInvoice] = useState<string | null>(null);
 
   const filteredInvoices = invoices.filter(invoice => {
     const patient = patients.find(p => p.id === invoice.patientId);
@@ -27,6 +29,13 @@ export function InvoiceList() {
     return (currentUser?.role === 'admin' || currentUser?.role === 'cashier') && 
            invoice.status === 'pending';
   };
+
+  // Contrôle d'accès : seuls les admins et caissiers peuvent modifier les factures en attente
+  const canEditInvoice = (invoice: any) => {
+    return (currentUser?.role === 'admin' || currentUser?.role === 'cashier') && 
+           invoice.status === 'pending';
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending':
@@ -221,13 +230,24 @@ export function InvoiceList() {
                         <button
                           onClick={() => setViewingInvoice(invoice.id)}
                           className="text-blue-600 hover:text-blue-900 p-1 rounded"
+                          title="Voir les détails"
                         >
                           <Eye className="w-4 h-4" />
                         </button>
+                        {canEditInvoice(invoice) && (
+                          <button
+                            onClick={() => setEditingInvoice(invoice.id)}
+                            className="text-green-600 hover:text-green-900 p-1 rounded"
+                            title="Modifier la facture"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </button>
+                        )}
                         {canMarkAsPaid(invoice) && (
                           <button
                             onClick={() => updateInvoiceStatus(invoice.id, 'paid')}
                             className="text-green-600 hover:text-green-900 text-xs bg-green-50 px-2 py-1 rounded"
+                            title="Marquer comme payée"
                           >
                             Marquer Payée
                           </button>
@@ -249,6 +269,22 @@ export function InvoiceList() {
             <InvoiceDetails
               invoiceId={viewingInvoice}
               onClose={() => setViewingInvoice(null)}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Invoice Editor Modal */}
+      {editingInvoice && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg w-full max-w-6xl max-h-[90vh] overflow-y-auto">
+            <InvoiceEditor
+              invoiceId={editingInvoice}
+              onClose={() => setEditingInvoice(null)}
+              onSave={() => {
+                // Optionally show a success message
+                console.log('Facture modifiée avec succès');
+              }}
             />
           </div>
         </div>

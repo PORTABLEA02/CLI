@@ -6,7 +6,7 @@ import { Plus, Search, Edit, Eye, Filter } from 'lucide-react';
 import { Medication } from '../../types';
 
 export function MedicationCatalog() {
-  const { medications, addMedication, updateMedication, currentUser } = useApp();
+  const { medications, addMedication, updateMedication, currentUser, systemSettings } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingMedication, setEditingMedication] = useState<Medication | null>(null);

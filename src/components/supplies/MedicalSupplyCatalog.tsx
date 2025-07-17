@@ -6,7 +6,7 @@ import { Plus, Search, Edit, Eye, Package, AlertTriangle, Filter } from 'lucide-
 import { MedicalSupply } from '../../types';
 
 export function MedicalSupplyCatalog() {
-  const { medicalSupplies, addMedicalSupply, updateMedicalSupply, currentUser } = useApp();
+  const { medicalSupplies, addMedicalSupply, updateMedicalSupply, currentUser, systemSettings } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingSupply, setEditingSupply] = useState<MedicalSupply | null>(null);
