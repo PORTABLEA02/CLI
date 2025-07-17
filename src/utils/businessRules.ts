@@ -1,6 +1,6 @@
 // Utilitaires pour les règles métier de la clinique
 
-import { Patient, Medication, Prescription, MedicalSupply } from '../types';
+import { Patient, Prescription, MedicalSupply } from '../types';
 
 /**
  * Vérifie si une prescription est encore valide
@@ -104,7 +104,7 @@ export const formatAllergyWarning = (patient: Patient, medications: any[]): stri
  * Vérifie les interactions médicamenteuses basiques
  * (Implémentation simplifiée - dans un vrai système, ceci serait plus complexe)
  */
-export const checkBasicDrugInteractions = (medications: Medication[]): string[] => {
+export const checkBasicDrugInteractions = (medications: any[]): string[] => {
   const interactions: string[] = [];
   
   // Exemple d'interaction simple : antibiotiques + anticoagulants

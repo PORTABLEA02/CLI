@@ -3,7 +3,7 @@ import { useApp } from '../../contexts/AppContext';
 import { formatCurrencyWithSettings } from '../../utils/formatters';
 import { Prescription, PrescriptionItem, Medication, MedicalExam, MedicalCare } from '../../types';
 import { Plus, Trash2, Search, X } from 'lucide-react';
-import { validatePrescriptionDate, formatAllergyWarning } from '../../utils/businessRules';
+import { validatePrescriptionDate, formatAllergyWarning, checkMedicationAllergy } from '../../utils/businessRules';
 
 interface PrescriptionFormProps {
   prescription?: Prescription | null;
