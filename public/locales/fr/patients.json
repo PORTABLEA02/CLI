@@ -1,0 +1,50 @@
+{
+  "title": "Gestion des Patients",
+  "newPatient": "Nouveau Patient",
+  "editPatient": "Modifier le Patient",
+  "patientDetails": "Détails du Patient",
+  "searchPlaceholder": "Rechercher un patient...",
+  "list": "Liste des Patients ({{count}})",
+  "fields": {
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "fullName": "Nom Complet",
+    "dateOfBirth": "Date de naissance",
+    "gender": "Genre",
+    "phone": "Téléphone",
+    "email": "Email",
+    "address": "Adresse",
+    "emergencyContact": "Contact d'urgence",
+    "bloodType": "Groupe sanguin",
+    "allergies": "Allergies",
+    "medicalHistory": "Historique médical",
+    "age": "Âge",
+    "lastVisit": "Dernière Visite"
+  },
+  "gender": {
+    "male": "Homme",
+    "female": "Femme",
+    "other": "Autre"
+  },
+  "bloodTypes": {
+    "select": "Sélectionner",
+    "aPositive": "A+",
+    "aNegative": "A-",
+    "bPositive": "B+",
+    "bNegative": "B-",
+    "abPositive": "AB+",
+    "abNegative": "AB-",
+    "oPositive": "O+",
+    "oNegative": "O-"
+  },
+  "placeholders": {
+    "emergencyContact": "Nom - Téléphone",
+    "allergies": "Allergies connues du patient",
+    "medicalHistory": "Historique médical du patient"
+  },
+  "messages": {
+    "notSpecified": "Non spécifié",
+    "patientNotFound": "Patient introuvable",
+    "ageYears": "{{age}} ans"
+  }
+}
