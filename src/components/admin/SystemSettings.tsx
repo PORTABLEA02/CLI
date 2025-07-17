@@ -52,6 +52,7 @@ export function SystemSettings() {
     billing: {
       invoicePrefix: 'INV',
       invoiceNumbering: 'auto',
+      baseConsultationPrice: 100,
       paymentTerms: 30,
       lateFee: 5,
       defaultTaxRate: 8,

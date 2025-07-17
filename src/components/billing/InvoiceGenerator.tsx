@@ -196,7 +196,7 @@ export function InvoiceGenerator({ onInvoiceGenerated }: InvoiceGeneratorProps) 
 
   const calculateTotals = () => {
     // Base consultation cost
-    let subtotal = 100; // Base consultation fee
+    let subtotal = systemSettings?.billing?.baseConsultationPrice || 100; // Base consultation fee
 
     // Add consultation cares
     consultationCares.forEach(care => {

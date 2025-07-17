@@ -90,6 +90,7 @@ const defaultSystemSettings: SystemSettings = {
   billing: {
     invoicePrefix: 'INV',
     invoiceNumbering: 'auto',
+    baseConsultationPrice: 100,
     paymentTerms: 30,
     lateFee: 5,
     defaultTaxRate: 8,
@@ -555,8 +556,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         name: 'Consultation',
         description: `Consultation ${consultation.type}`,
         quantity: 1,
-        unitPrice: 100,
-        total: 100
+        unitPrice: systemSettings.billing.baseConsultationPrice,
+        total: systemSettings.billing.baseConsultationPrice
       },
       ...consultationTreatments.map(t => ({
         id: t.id,
@@ -663,8 +664,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         name: 'Consultation',
         description: `Consultation ${consultation.type}`,
         quantity: 1,
-        unitPrice: 100,
-        total: 100
+        unitPrice: systemSettings.billing.baseConsultationPrice,
+        total: systemSettings.billing.baseConsultationPrice
       },
       ...consultationTreatments.map(t => ({
         id: t.id,

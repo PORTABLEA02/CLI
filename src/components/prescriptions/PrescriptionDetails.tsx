@@ -363,7 +363,7 @@ export function PrescriptionDetails({ prescriptionId, onClose }: PrescriptionDet
         <div className="text-center text-sm text-gray-500 border-t pt-4">
           <p>Cette ordonnance est valide jusqu'au {new Date(prescription.validUntil).toLocaleDateString('fr-FR')}</p>
           <p className="mt-2">
-            Dr. {/* Doctor name would be fetched from users */} - ClinicPro
+            Dr. {/* Doctor name would be fetched from users */} - {systemSettings?.clinic?.name || 'ClinicPro'}
           </p>
           <p className="mt-2">
             Cette ordonnance a été générée électroniquement et est valide sans signature.

@@ -333,7 +333,7 @@ export function InvoiceEditor({ invoiceId, onClose, onSave }: InvoiceEditorProps
               <span className="font-medium">{formatCurrencyWithSettings(subtotal, systemSettings)}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">TVA (8%):</span>
+              <span className="text-gray-600">TVA ({systemSettings?.system?.taxRate || 8}%):</span>
               <span className="font-medium">{formatCurrencyWithSettings(tax, systemSettings)}</span>
             </div>
             <div className="border-t pt-2">

@@ -55,6 +55,7 @@ export interface SystemSettings {
   billing: {
     invoicePrefix: string;
     invoiceNumbering: string;
+    baseConsultationPrice: number;
     paymentTerms: number;
     lateFee: number;
     defaultTaxRate: number;
