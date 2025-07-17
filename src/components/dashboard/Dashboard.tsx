@@ -18,14 +18,14 @@ import {
 } from 'lucide-react';
 
 export function Dashboard() {
-  const { currentUser, stats, consultations, patients, invoices, prescriptions, medicalSupplies, systemSettings } = useApp();
+  const { currentProfile, stats, consultations, patients, invoices, prescriptions, medicalSupplies, systemSettings } = useApp();
 
   const getRecentConsultations = () => {
     let filteredConsultations = consultations;
     
     // Filter by role
-    if (currentUser?.role === 'doctor') {
-      filteredConsultations = consultations.filter(c => c.doctorId === currentUser.id);
+    if (currentProfile?.role === 'doctor') {
+      filteredConsultations = consultations.filter(c => c.doctorId === currentProfile.id);
     }
     
     return filteredConsultations
@@ -40,7 +40,7 @@ export function Dashboard() {
   };
 
   const getRoleSpecificStats = () => {
-    switch (currentUser?.role) {
+    switch (currentProfile?.role) {
       case 'admin':
         return [
           {
@@ -85,8 +85,8 @@ export function Dashboard() {
         ];
 
       case 'doctor':
-        const myConsultations = consultations.filter(c => c.doctorId === currentUser.id);
-        const myPrescriptions = prescriptions.filter(p => p.doctorId === currentUser.id);
+        const myConsultations = consultations.filter(c => c.doctorId === currentProfile.id);
+        const myPrescriptions = prescriptions.filter(p => p.doctorId === currentProfile.id);
         const todayConsultations = myConsultations.filter(c => 
           new Date(c.date).toDateString() === new Date().toDateString()
         );
@@ -166,7 +166,7 @@ export function Dashboard() {
   const roleStats = getRoleSpecificStats();
 
   const getDashboardTitle = () => {
-    switch (currentUser?.role) {
+    switch (currentProfile?.role) {
       case 'admin':
         return 'Tableau de Bord - Administration';
       case 'doctor':
@@ -186,7 +186,7 @@ export function Dashboard() {
     else if (hour < 18) greeting = 'Bon après-midi';
     else greeting = 'Bonsoir';
 
-    return `${greeting}, ${currentUser?.name}`;
+    return `${greeting}, ${currentProfile?.name}`;
   };
 
   return (
@@ -236,7 +236,7 @@ export function Dashboard() {
         {/* Recent Consultations */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h3 className="text-lg font-medium text-gray-900 mb-4">
-            {currentUser?.role === 'doctor' ? 'Mes Prochaines Consultations' : 'Consultations Récentes'}
+            {currentProfile?.role === 'doctor' ? 'Mes Prochaines Consultations' : 'Consultations Récentes'}
           </h3>
           <div className="space-y-3">
             {getRecentConsultations().map((consultation) => {
@@ -278,7 +278,7 @@ export function Dashboard() {
 
         {/* Recent Patients or Role-specific content */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          {currentUser?.role === 'cashier' ? (
+          {currentProfile?.role === 'cashier' ? (
             <>
               <h3 className="text-lg font-medium text-gray-900 mb-4">Factures Récentes</h3>
               <div className="space-y-3">
@@ -348,7 +348,7 @@ export function Dashboard() {
       </div>
 
       {/* Role-specific quick actions */}
-      {currentUser?.role === 'admin' && medicalSupplies.filter(s => s.stockQuantity <= s.minStockLevel).length > 0 && (
+      {currentProfile?.role === 'admin' && medicalSupplies.filter(s => s.stockQuantity <= s.minStockLevel).length > 0 && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <div className="flex items-center">
             <div className="flex-shrink-0">

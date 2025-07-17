@@ -6,7 +6,7 @@ import { Plus, Search, Edit, Eye, Clock, User, Euro, Filter } from 'lucide-react
 import { MedicalCare } from '../../types';
 
 export function MedicalCareList() {
-  const { medicalCares, addMedicalCare, updateMedicalCare, currentUser, systemSettings } = useApp();
+  const { medicalCares, addMedicalCare, updateMedicalCare, currentProfile, systemSettings } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingCare, setEditingCare] = useState<MedicalCare | null>(null);
@@ -38,7 +38,7 @@ export function MedicalCareList() {
   };
 
   // Contrôle d'accès : seuls les admins peuvent ajouter/modifier des soins
-  const canManageCares = currentUser?.role === 'admin';
+  const canManageCares = currentProfile?.role === 'admin';
   const getCategoryColor = (category: string) => {
     switch (category) {
       case 'nursing':

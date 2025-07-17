@@ -5,7 +5,7 @@ import { Plus, Search, Edit, Eye, Phone, Mail } from 'lucide-react';
 import { Patient } from '../../types';
 
 export function PatientList() {
-  const { patients, addPatient, updatePatient, currentUser } = useApp();
+  const { patients, addPatient, updatePatient, currentProfile } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
@@ -43,9 +43,9 @@ export function PatientList() {
   };
 
   // Contrôle d'accès : seuls les admins et médecins peuvent ajouter/modifier des patients
-  const canAddPatient = currentUser?.role === 'admin' || currentUser?.role === 'doctor';
+  const canAddPatient = currentProfile?.role === 'admin' || currentProfile?.role === 'doctor';
   const canEditPatient = (patient: Patient) => {
-    return currentUser?.role === 'admin' || currentUser?.role === 'doctor';
+    return currentProfile?.role === 'admin' || currentProfile?.role === 'doctor';
   };
   return (
     <div className="space-y-6">

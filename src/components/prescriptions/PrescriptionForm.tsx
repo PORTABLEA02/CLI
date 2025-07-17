@@ -16,7 +16,7 @@ export function PrescriptionForm({ prescription, consultationId, onSubmit, onCan
   const { 
     consultations, 
     patients, 
-    currentUser, 
+    currentProfile, 
     medications, 
     medicalExams, 
     medicalCares,
@@ -44,8 +44,8 @@ export function PrescriptionForm({ prescription, consultationId, onSubmit, onCan
 
   // Get available consultations
   const availableConsultations = consultations.filter(consultation => {
-    if (currentUser?.role === 'doctor') {
-      return consultation.status === 'completed' && consultation.doctorId === currentUser.id;
+    if (currentProfile?.role === 'doctor') {
+      return consultation.status === 'completed' && consultation.doctorId === currentProfile.id;
     }
     return consultation.status === 'completed';
   });
@@ -162,7 +162,7 @@ export function PrescriptionForm({ prescription, consultationId, onSubmit, onCan
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!selectedConsultation || !currentUser) return;
+    if (!selectedConsultation || !currentProfile) return;
 
     // Validation de la date de validité
     const dateValidation = validatePrescriptionDate(formData.validUntil);
@@ -196,7 +196,7 @@ export function PrescriptionForm({ prescription, consultationId, onSubmit, onCan
     const prescriptionData: Omit<Prescription, 'id' | 'createdAt' | 'updatedAt'> = {
       consultationId: formData.consultationId,
       patientId: selectedConsultation.patientId,
-      doctorId: currentUser.id,
+      doctorId: currentProfile.id,
       items,
       instructions: formData.instructions.trim(),
       status: 'active',

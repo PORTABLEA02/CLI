@@ -217,15 +217,6 @@ export const signOut = async () => {
   }
 };
 
-export const getCurrentProfile = async () => {
-  try {
-    const { data: { user } } = await supabase.auth.getUser();
-    return user;
-  } catch (error) {
-    handleSupabaseError(error);
-  }
-};
-
 // Profiles
 export const getProfiles = async (): Promise<Profile[]> => {
   try {

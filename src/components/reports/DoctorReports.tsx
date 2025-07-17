@@ -20,7 +20,7 @@ import {
 
 export function DoctorReports() {
   const { 
-    currentUser, 
+    currentProfile, 
     consultations, 
     patients, 
     prescriptions, 
@@ -32,12 +32,12 @@ export function DoctorReports() {
 
   // Filter data for current doctor
   const myConsultations = useMemo(() => {
-    return consultations.filter(c => c.doctorId === currentUser?.id);
-  }, [consultations, currentUser?.id]);
+    return consultations.filter(c => c.doctorId === currentProfile?.id);
+  }, [consultations, currentProfile?.id]);
 
   const myPrescriptions = useMemo(() => {
-    return prescriptions.filter(p => p.doctorId === currentUser?.id);
-  }, [prescriptions, currentUser?.id]);
+    return prescriptions.filter(p => p.doctorId === currentProfile?.id);
+  }, [prescriptions, currentProfile?.id]);
 
   // Calculate date ranges
   const getDateRange = () => {

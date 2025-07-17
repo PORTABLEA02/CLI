@@ -6,7 +6,7 @@ import { Plus, Search, Edit, Eye, Package, AlertTriangle, Filter } from 'lucide-
 import { MedicalSupply } from '../../types';
 
 export function MedicalSupplyCatalog() {
-  const { medicalSupplies, addMedicalSupply, updateMedicalSupply, currentUser, systemSettings } = useApp();
+  const { medicalSupplies, addMedicalSupply, updateMedicalSupply, currentProfile, systemSettings } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingSupply, setEditingSupply] = useState<MedicalSupply | null>(null);
@@ -47,7 +47,7 @@ export function MedicalSupplyCatalog() {
   };
 
   // Contrôle d'accès : seuls les admins peuvent ajouter/modifier des fournitures
-  const canManageSupplies = currentUser?.role === 'admin';
+  const canManageSupplies = currentProfile?.role === 'admin';
   const getCategoryText = (category: string) => {
     switch (category) {
       case 'disposable': return 'Jetable';

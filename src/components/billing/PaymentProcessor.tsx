@@ -11,7 +11,7 @@ export function PaymentProcessor({ onPaymentProcessed }: PaymentProcessorProps) 
   const { 
     invoices, 
     patients, 
-    currentUser,
+    currentProfile,
     updateInvoiceStatus,
     addPayment,
     systemSettings
@@ -32,7 +32,7 @@ export function PaymentProcessor({ onPaymentProcessed }: PaymentProcessorProps) 
     : null;
 
   const handleProcessPayment = async () => {
-    if (!selectedInvoice || !currentUser) return;
+    if (!selectedInvoice || !currentProfile) return;
 
     setIsProcessing(true);
     
@@ -47,7 +47,7 @@ export function PaymentProcessor({ onPaymentProcessed }: PaymentProcessorProps) 
         method: paymentMethod,
         reference: paymentReference.trim() || undefined,
         notes: notes.trim() || undefined,
-        cashierId: currentUser.id
+        cashierId: currentProfile?.id || ''
       });
 
       // Reset form

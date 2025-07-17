@@ -17,7 +17,7 @@ export function ConsultationCareManager({
   onAddCare, 
   onRemoveCare 
 }: ConsultationCareManagerProps) {
-  const { medicalCares, currentUser, systemSettings } = useApp();
+  const { medicalCares, currentProfile, systemSettings } = useApp();
   const [selectedCareId, setSelectedCareId] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [notes, setNotes] = useState('');
@@ -26,7 +26,7 @@ export function ConsultationCareManager({
   const selectedCare = activeCares.find(care => care.id === selectedCareId);
 
   const handleAddCare = () => {
-    if (!selectedCare || !currentUser) return;
+    if (!selectedCare || !currentProfile) return;
 
     const newCare: Omit<ConsultationCare, 'id' | 'createdAt'> = {
       consultationId,
@@ -35,7 +35,7 @@ export function ConsultationCareManager({
       unitPrice: selectedCare.unitPrice,
       totalPrice: selectedCare.unitPrice * quantity,
       notes: notes.trim() || undefined,
-      performedBy: currentUser.id,
+      performedBy: currentProfile.id,
       performedAt: new Date().toISOString(),
     };
 

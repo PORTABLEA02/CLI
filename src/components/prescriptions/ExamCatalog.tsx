@@ -6,7 +6,7 @@ import { Plus, Search, Edit, Eye, Clock } from 'lucide-react';
 import { MedicalExam } from '../../types';
 
 export function ExamCatalog() {
-  const { medicalExams, addMedicalExam, updateMedicalExam, currentUser, systemSettings } = useApp();
+  const { medicalExams, addMedicalExam, updateMedicalExam, currentProfile, systemSettings } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingExam, setEditingExam] = useState<MedicalExam | null>(null);
@@ -38,7 +38,7 @@ export function ExamCatalog() {
   };
 
   // Contrôle d'accès : seuls les admins peuvent ajouter/modifier des examens
-  const canManageExams = currentUser?.role === 'admin';
+  const canManageExams = currentProfile?.role === 'admin';
   const getCategoryText = (category: string) => {
     switch (category) {
       case 'radiology': return 'Radiologie';

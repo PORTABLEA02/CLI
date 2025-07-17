@@ -6,7 +6,7 @@ import { Plus, Search, Edit, Eye, Filter } from 'lucide-react';
 import { Medication } from '../../types';
 
 export function MedicationCatalog() {
-  const { medications, addMedication, updateMedication, currentUser, systemSettings } = useApp();
+  const { medications, addMedication, updateMedication, currentProfile, systemSettings } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingMedication, setEditingMedication] = useState<Medication | null>(null);
@@ -41,7 +41,7 @@ export function MedicationCatalog() {
   };
 
   // Contrôle d'accès : seuls les admins peuvent ajouter/modifier des médicaments
-  const canManageMedications = currentUser?.role === 'admin';
+  const canManageMedications = currentProfile?.role === 'admin';
   const getFormText = (form: string) => {
     switch (form) {
       case 'tablet': return 'Comprimé';

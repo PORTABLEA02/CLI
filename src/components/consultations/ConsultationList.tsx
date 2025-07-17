@@ -5,7 +5,7 @@ import { Plus, Calendar, Clock, User, Search, Edit, CheckCircle } from 'lucide-r
 import { Consultation } from '../../types';
 
 export function ConsultationList() {
-  const { consultations, patients, currentUser, addConsultation, updateConsultation } = useApp();
+  const { consultations, patients, currentProfile, addConsultation, updateConsultation } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingConsultation, setEditingConsultation] = useState<Consultation | null>(null);
@@ -41,10 +41,10 @@ export function ConsultationList() {
 
   const canCompleteConsultation = (consultation: Consultation) => {
     // Only doctors can complete consultations
-    if (currentUser?.role !== 'doctor') return false;
+    if (currentProfile?.role !== 'doctor') return false;
     
     // Only the doctor assigned to the consultation can complete it
-    if (consultation.doctorId !== currentUser.id) return false;
+    if (consultation.doctorId !== currentProfile.id) return false;
     
     // Consultation must not already be completed or cancelled
     if (consultation.status === 'completed' || consultation.status === 'cancelled') return false;
@@ -59,7 +59,7 @@ export function ConsultationList() {
   };
 
   const canAddConsultation = () => {
-    return currentUser?.role === 'admin' || currentUser?.role === 'doctor';
+    return currentProfile?.role === 'admin' || currentProfile?.role === 'doctor';
   };
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -108,8 +108,8 @@ export function ConsultationList() {
 
   const isConsultationEditable = (consultation: Consultation) => {
     // Only allow editing if user is admin or the assigned doctor
-    return currentUser?.role === 'admin' || 
-           (currentUser?.role === 'doctor' && consultation.doctorId === currentUser.id);
+    return currentProfile?.role === 'admin' || 
+           (currentProfile?.role === 'doctor' && consultation.doctorId === currentProfile.id);
   };
 
   return (
@@ -256,7 +256,7 @@ export function ConsultationList() {
       </div>
 
       {/* Information for doctors */}
-      {currentUser?.role === 'doctor' && (
+      {currentProfile?.role === 'doctor' && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <div className="flex items-start">
             <div className="flex-shrink-0">

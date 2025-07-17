@@ -6,7 +6,7 @@ import { InvoiceEditor } from './InvoiceEditor';
 import { Search, Eye, Edit, DollarSign, Calendar, AlertCircle, CheckCircle } from 'lucide-react';
 
 export function InvoiceList() {
-  const { invoices, patients, consultations, updateInvoiceStatus, currentUser, systemSettings } = useApp();
+  const { invoices, patients, consultations, updateInvoiceStatus, currentProfile, systemSettings } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [viewingInvoice, setViewingInvoice] = useState<string | null>(null);
@@ -26,13 +26,13 @@ export function InvoiceList() {
 
   // Contrôle d'accès : seuls les admins et caissiers peuvent marquer les factures comme payées
   const canMarkAsPaid = (invoice: any) => {
-    return (currentUser?.role === 'admin' || currentUser?.role === 'cashier') && 
+    return (currentProfile?.role === 'admin' || currentProfile?.role === 'cashier') && 
            invoice.status === 'pending';
   };
 
   // Contrôle d'accès : seuls les admins et caissiers peuvent modifier les factures en attente
   const canEditInvoice = (invoice: any) => {
-    return (currentUser?.role === 'admin' || currentUser?.role === 'cashier') && 
+    return (currentProfile?.role === 'admin' || currentProfile?.role === 'cashier') && 
            invoice.status === 'pending';
   };
 

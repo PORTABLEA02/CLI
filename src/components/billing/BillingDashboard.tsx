@@ -24,7 +24,7 @@ export function BillingDashboard() {
     invoices, 
     patients, 
     consultations, 
-    currentUser,
+    currentProfile,
     systemSettings,
     generateInvoice,
     updateInvoiceStatus,
@@ -53,7 +53,7 @@ export function BillingDashboard() {
 
   // Contrôle d'accès : seuls les admins et caissiers peuvent modifier les factures en attente
   const canEditInvoice = (invoice: any) => {
-    return (currentUser?.role === 'admin' || currentUser?.role === 'cashier') && 
+    return (currentProfile?.role === 'admin' || currentProfile?.role === 'cashier') && 
            invoice.status === 'pending';
   };
 
@@ -127,7 +127,7 @@ export function BillingDashboard() {
       method: paymentData.method,
       reference: paymentData.reference,
       notes: paymentData.notes,
-      cashierId: currentUser?.id || ''
+      cashierId: currentProfile?.id || ''
     });
   };
 
@@ -136,7 +136,7 @@ export function BillingDashboard() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Module Facturation</h1>
         <div className="text-sm text-gray-500">
-          Caissier: {currentUser?.name}
+          Caissier: {currentProfile?.name}
         </div>
       </div>
 

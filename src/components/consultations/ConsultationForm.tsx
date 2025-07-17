@@ -10,10 +10,10 @@ interface ConsultationFormProps {
 }
 
 export function ConsultationForm({ consultation, onSubmit, onCancel }: ConsultationFormProps) {
-  const { patients, currentUser, addConsultationCare, removeConsultationCare, getConsultationCares } = useApp();
+  const { patients, currentProfile, addConsultationCare, removeConsultationCare, getConsultationCares } = useApp();
   const [formData, setFormData] = useState({
     patientId: consultation?.patientId || '',
-    doctorId: consultation?.doctorId || currentUser?.id || '',
+    doctorId: consultation?.doctorId || currentProfile?.id || '',
     date: consultation?.date || new Date().toISOString().split('T')[0],
     time: consultation?.time || '09:00',
     type: consultation?.type || 'general',

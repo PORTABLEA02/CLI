@@ -10,7 +10,7 @@ export function PrescriptionList() {
     prescriptions, 
     patients, 
     consultations, 
-    currentUser,
+    currentProfile,
     addPrescription, 
     updatePrescription 
   } = useApp();
@@ -33,8 +33,8 @@ export function PrescriptionList() {
     const matchesStatus = filterStatus === 'all' || prescription.status === filterStatus;
     
     // Filter by user role
-    if (currentUser?.role === 'doctor') {
-      return prescription.doctorId === currentUser.id && matchesSearch && matchesStatus;
+    if (currentProfile?.role === 'doctor') {
+      return prescription.doctorId === currentProfile.id && matchesSearch && matchesStatus;
     }
     
     return matchesSearch && matchesStatus;
@@ -46,9 +46,9 @@ export function PrescriptionList() {
       p.consultationId === consultation.id && p.status === 'active'
     );
     
-    if (currentUser?.role === 'doctor') {
+    if (currentProfile?.role === 'doctor') {
       return consultation.status === 'completed' && 
-             consultation.doctorId === currentUser.id && 
+             consultation.doctorId === currentProfile.id && 
              !hasActivePrescription;
     }
     
@@ -70,8 +70,8 @@ export function PrescriptionList() {
 
   const canEditPrescription = (prescription: Prescription) => {
     // Can edit if user is the prescribing doctor and prescription is not billed
-    return currentUser?.role === 'doctor' && 
-           prescription.doctorId === currentUser.id && 
+    return currentProfile?.role === 'doctor' && 
+           prescription.doctorId === currentProfile.id && 
            prescription.status !== 'billed';
   };
 
@@ -113,9 +113,9 @@ export function PrescriptionList() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">
-          {currentUser?.role === 'doctor' ? 'Mes Prescriptions' : 'Gestion des Prescriptions'}
+          {currentProfile?.role === 'doctor' ? 'Mes Prescriptions' : 'Gestion des Prescriptions'}
         </h1>
-        {(currentUser?.role === 'doctor' || currentUser?.role === 'admin') && (
+        {(currentProfile?.role === 'doctor' || currentProfile?.role === 'admin') && (
           <button
             onClick={() => setShowForm(true)}
             className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center space-x-2 transition-colors"
@@ -280,7 +280,7 @@ export function PrescriptionList() {
       </div>
 
       {/* Information for different roles */}
-      {currentUser?.role === 'doctor' && (
+      {currentProfile?.role === 'doctor' && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <div className="flex items-start">
             <div className="flex-shrink-0">
@@ -300,7 +300,7 @@ export function PrescriptionList() {
         </div>
       )}
 
-      {currentUser?.role === 'cashier' && (
+      {currentProfile?.role === 'cashier' && (
         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
           <div className="flex items-start">
             <div className="flex-shrink-0">
@@ -350,7 +350,7 @@ export function PrescriptionList() {
         </div>
       )}
 
-      {availableConsultations.length === 0 && currentUser?.role === 'doctor' && (
+      {availableConsultations.length === 0 && currentProfile?.role === 'doctor' && (
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
           <div className="flex items-center">
             <div className="flex-shrink-0">
