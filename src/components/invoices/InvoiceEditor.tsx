@@ -307,7 +307,7 @@ export function InvoiceEditor({ invoiceId, onClose, onSave }: InvoiceEditorProps
                       onClick={() => setEditingItemId(item.id)}
                       className="text-blue-600 hover:text-blue-800 p-1"
                     >
-                      <span className="text-gray-600">TVA ({systemSettings?.system?.taxRate || 8}%):</span>
+                      <Edit3 className="w-4 h-4" />
                     </button>
                   )}
                   

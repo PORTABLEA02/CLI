@@ -250,30 +250,6 @@ export const getProfileByEmail = async (email: string): Promise<Profile | null> 
   }
 };
 
-export const createProfile = async (profileData: Omit<Profile, 'id' | 'createdAt' | 'updatedAt'>): Promise<Profile> => {
-  try {
-    const { data, error } = await supabase
-      .from('profiles')
-      .insert({
-        name: profileData.name,
-        email: profileData.email,
-        role: profileData.role,
-        avatar: profileData.avatar,
-        specialization: profileData.specialization,
-        phone: profileData.phone,
-        is_active: profileData.isActive,
-      })
-      .select()
-      .single();
-
-    if (error) throw error;
-    return transformProfile(data);
-  } catch (error) {
-    handleSupabaseError(error);
-    throw error;
-  }
-};
-
 export const createProfile = async (profileData: ProfileFormData): Promise<Profile> => {
   try {
     // First, create the user in Supabase Auth

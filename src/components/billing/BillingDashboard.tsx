@@ -24,6 +24,7 @@ export function BillingDashboard() {
     invoices, 
     patients, 
     consultations, 
+    prescriptions,
     currentProfile,
     systemSettings,
     generateInvoice,

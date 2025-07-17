@@ -23,6 +23,7 @@ export function InvoiceGenerator({ onInvoiceGenerated }: InvoiceGeneratorProps) 
     consultations, 
     patients, 
     invoices,
+    prescriptions,
     medicalCares,
     medications,
     medicalExams,

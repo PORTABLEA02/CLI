@@ -25,11 +25,6 @@ export function ProfileManagement() {
     return matchesSearch && matchesRole && matchesStatus;
   });
 
-  const handleAddProfile = (profileData: Omit<Profile, 'id' | 'createdAt' | 'updatedAt'>) => {
-    addProfile(profileData);
-    setShowForm(false);
-  };
-
   const handleAddProfile = (profileData: ProfileFormData) => {
     addProfile(profileData);
     setShowForm(false);

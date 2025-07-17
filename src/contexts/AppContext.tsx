@@ -263,16 +263,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const addProfile = async (profileData: Omit<Profile, 'id' | 'createdAt' | 'updatedAt'>) => {
-    try {
-      const newProfile = await supabaseService.createProfile(profileData);
-      setProfiles(prev => [newProfile, ...prev]);
-    } catch (error) {
-      console.error('Error adding profile:', error);
-      throw error;
-    }
-  };
-
   const addProfile = async (profileData: ProfileFormData) => {
     try {
       const newProfile = await supabaseService.createProfile(profileData);
@@ -727,13 +717,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const subtotal = items.reduce((sum, item) => sum + item.total, 0);
     const taxRate = systemSettings?.system?.taxRate || 8;
     const tax = subtotal * (taxRate / 100);
-    const tax = subtotal * (taxRate / 100);
     const total = subtotal + tax;
 
     const newInvoice: Omit<Invoice, 'id'> = {
       patientId: consultation.patientId,
       consultationId: consultation.id,
-      prescriptionId: associatedPrescription?.id,
       prescriptionId: associatedPrescription?.id,
       items,
       subtotal,
@@ -747,15 +735,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     try {
       const createdInvoice = await supabaseService.createInvoice(newInvoice);
       setInvoices(prev => [createdInvoice, ...prev]);
-      
-      // Mark prescription as billed if it exists
-      if (associatedPrescription) {
-        await updatePrescription(associatedPrescription.id, { 
-          status: 'billed',
-          billedAt: new Date().toISOString()
-        });
-      }
-      
       
       // Mark prescription as billed if it exists
       if (associatedPrescription) {
