@@ -16,7 +16,7 @@ export function ConsultationCareManager({
   onAddCare, 
   onRemoveCare 
 }: ConsultationCareManagerProps) {
-  const { medicalCares, currentUser } = useApp();
+  const { medicalCares, medicalSupplies, currentUser } = useApp();
   const [selectedCareId, setSelectedCareId] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [notes, setNotes] = useState('');

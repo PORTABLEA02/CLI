@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, Patient, Consultation, Treatment, Prescription, Invoice, DashboardStats, MedicalCare, ConsultationCare, Payment, Medication, MedicalExam, MedicalSupply, ConsultationSupply, SystemSettings } from '../types';
+import { generateStockAlert } from '../utils/businessRules';
 
 interface AppContextType {
   currentUser: User | null;
@@ -740,9 +741,47 @@ export function AppProvider({ children }: { children: ReactNode }) {
       createdAt: new Date().toISOString()
     };
     setConsultationSupplies(prev => [...prev, newSupply]);
+
+    // Décrémenter le stock de la fourniture utilisée
+    setMedicalSupplies(prev => prev.map(supply => {
+      if (supply.id === supplyData.supplyId) {
+        const newStockQuantity = supply.stockQuantity - supplyData.quantity;
+        
+        // Alerte si le stock devient faible après utilisation
+        if (newStockQuantity <= supply.minStockLevel && supply.stockQuantity > supply.minStockLevel) {
+          // Déclencher une alerte (dans une vraie app, ceci pourrait être une notification)
+          console.warn(generateStockAlert({ ...supply, stockQuantity: newStockQuantity }));
+        }
+        
+        // Empêcher le stock négatif
+        return {
+          ...supply,
+          stockQuantity: Math.max(0, newStockQuantity),
+          updatedAt: new Date().toISOString()
+        };
+      }
+      return supply;
+    }));
   };
 
   const removeConsultationSupply = (id: string) => {
+    // Récupérer les détails de la fourniture avant suppression pour restaurer le stock
+    const supplyToRemove = consultationSupplies.find(s => s.id === id);
+    
+    if (supplyToRemove) {
+      // Restaurer le stock lors de la suppression
+      setMedicalSupplies(prev => prev.map(supply => {
+        if (supply.id === supplyToRemove.supplyId) {
+          return {
+            ...supply,
+            stockQuantity: supply.stockQuantity + supplyToRemove.quantity,
+            updatedAt: new Date().toISOString()
+          };
+        }
+        return supply;
+      }));
+    }
+    
     setConsultationSupplies(prev => prev.filter(s => s.id !== id));
   };
 

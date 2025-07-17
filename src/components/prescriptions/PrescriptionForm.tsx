@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { Prescription, PrescriptionItem, Medication, MedicalExam, MedicalCare } from '../../types';
 import { Plus, Trash2, Search, X } from 'lucide-react';
+import { validatePrescriptionDate, checkMedicationAllergy, formatAllergyWarning } from '../../utils/businessRules';
 
 interface PrescriptionFormProps {
   prescription?: Prescription | null;
@@ -110,6 +111,22 @@ export function PrescriptionForm({ prescription, consultationId, onSubmit, onCan
     const itemDetails = getItemDetails(itemForm.type, itemForm.itemId);
     if (!itemDetails) return;
 
+    // Vérification des allergies pour les médicaments
+    if (itemForm.type === 'medication' && selectedPatient && selectedPatient.allergies) {
+      const medication = itemDetails as any;
+      const allergies = selectedPatient.allergies.toLowerCase();
+      const medicationName = medication.name.toLowerCase();
+      const genericName = medication.genericName?.toLowerCase() || '';
+      
+      if (allergies.includes(medicationName) || (genericName && allergies.includes(genericName))) {
+        const allergyWarning = `⚠️ ATTENTION: Le patient ${selectedPatient.firstName} ${selectedPatient.lastName} est allergique à "${medication.name}"${genericName ? ` (${medication.genericName})` : ''}.\n\nVoulez-vous tout de même ajouter ce médicament à la prescription ?`;
+        
+        if (!confirm(allergyWarning)) {
+          return; // Annuler l'ajout si le médecin refuse
+        }
+      }
+    }
+
     const newItem: PrescriptionItem = {
       id: Date.now().toString(),
       type: itemForm.type,
@@ -147,6 +164,45 @@ export function PrescriptionForm({ prescription, consultationId, onSubmit, onCan
     e.preventDefault();
     
     if (!selectedConsultation || !currentUser) return;
+
+    // Validation de la date de validité
+    const validUntilDate = new Date(formData.validUntil);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    validUntilDate.setHours(0, 0, 0, 0);
+    
+    if (validUntilDate <= today) {
+      alert('❌ Erreur: La date de validité de la prescription doit être dans le futur.');
+      return;
+    }
+
+    // Vérification finale des allergies pour tous les médicaments
+    if (selectedPatient && selectedPatient.allergies) {
+      const allergyWarnings: string[] = [];
+      
+      items.forEach(item => {
+        if (item.type === 'medication') {
+          const medication = getItemDetails(item.type, item.itemId) as any;
+          if (medication) {
+            const allergies = selectedPatient.allergies!.toLowerCase();
+            const medicationName = medication.name.toLowerCase();
+            const genericName = medication.genericName?.toLowerCase() || '';
+            
+            if (allergies.includes(medicationName) || (genericName && allergies.includes(genericName))) {
+              allergyWarnings.push(`• ${medication.name}${genericName ? ` (${medication.genericName})` : ''}`);
+            }
+          }
+        }
+      });
+      
+      if (allergyWarnings.length > 0) {
+        const confirmMessage = `⚠️ ALERTE ALLERGIES DÉTECTÉES ⚠️\n\nLe patient ${selectedPatient.firstName} ${selectedPatient.lastName} est allergique aux médicaments suivants dans cette prescription :\n\n${allergyWarnings.join('\n')}\n\nÊtes-vous sûr de vouloir créer cette prescription ?`;
+        
+        if (!confirm(confirmMessage)) {
+          return; // Annuler la création si le médecin refuse
+        }
+      }
+    }
 
     const prescriptionData: Omit<Prescription, 'id' | 'createdAt' | 'updatedAt'> = {
       consultationId: formData.consultationId,
