@@ -13,6 +13,7 @@ import { PrescriptionList } from './components/prescriptions/PrescriptionList';
 import { MedicationCatalog } from './components/prescriptions/MedicationCatalog';
 import { ExamCatalog } from './components/prescriptions/ExamCatalog';
 import { MedicalSupplyCatalog } from './components/supplies/MedicalSupplyCatalog';
+import { DoctorReports } from './components/reports/DoctorReports';
 import { UserManagement } from './components/admin/UserManagement';
 import { SystemSettings } from './components/admin/SystemSettings';
 
@@ -64,12 +65,7 @@ function AppContent() {
                  <p className="text-gray-600">Seuls les administrateurs peuvent modifier les paramètres système.</p>
                </div>;
       case 'reports':
-        return (
-          <div className="p-8 text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Module Rapports</h2>
-            <p className="text-gray-600">Cette section sera développée prochainement.</p>
-          </div>
-        );
+        return <DoctorReports />;
       default:
         return <Dashboard />;
     }

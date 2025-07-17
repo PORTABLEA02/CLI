@@ -17,7 +17,7 @@ export const isPrescriptionValid = (prescription: Prescription): boolean => {
 /**
  * Vérifie si un patient est allergique à un médicament
  */
-export const checkMedicationAllergy = (patient: Patient, medication: Medication): boolean => {
+export const checkMedicationAllergy = (patient: Patient, medication: any): boolean => {
   if (!patient.allergies) return false;
   
   const allergies = patient.allergies.toLowerCase();
@@ -90,14 +90,14 @@ export const validatePrescriptionDate = (validUntil: string): { isValid: boolean
 /**
  * Formate un message d'alerte pour les allergies
  */
-export const formatAllergyWarning = (patient: Patient, medications: Medication[]): string => {
+export const formatAllergyWarning = (patient: Patient, medications: any[]): string => {
   const allergyWarnings = medications
     .filter(med => checkMedicationAllergy(patient, med))
     .map(med => `• ${med.name}${med.genericName ? ` (${med.genericName})` : ''}`);
   
   if (allergyWarnings.length === 0) return '';
   
-  return `⚠️ ALERTE ALLERGIES DÉTECTÉES ⚠️\n\nLe patient ${patient.firstName} ${patient.lastName} est allergique aux médicaments suivants :\n\n${allergyWarnings.join('\n')}\n\nÊtes-vous sûr de vouloir continuer ?`;
+  return `⚠️ ALERTE ALLERGIES DÉTECTÉES ⚠️\n\nLe patient ${patient.firstName} ${patient.lastName} est allergique aux médicaments suivants :\n\n${allergyWarnings.join('\n')}\n\nÊtes-vous sûr de vouloir créer cette prescription ?`;
 };
 
 /**

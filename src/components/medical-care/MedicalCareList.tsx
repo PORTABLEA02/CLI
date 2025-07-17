@@ -6,7 +6,7 @@ import { Plus, Search, Edit, Eye, Clock, User, Euro, Filter } from 'lucide-react
 import { MedicalCare } from '../../types';
 
 export function MedicalCareList() {
-  const { medicalCares, addMedicalCare, updateMedicalCare, currentUser } = useApp();
+  const { medicalCares, addMedicalCare, updateMedicalCare, currentUser, systemSettings } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingCare, setEditingCare] = useState<MedicalCare | null>(null);

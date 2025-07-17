@@ -20,7 +20,6 @@ interface AppContextType {
   stats: DashboardStats;
   systemSettings: SystemSettings;
   login: (email: string, password: string) => Promise<boolean>;
-  login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   addUser: (user: Omit<User, 'id' | 'createdAt' | 'updatedAt'>) => void;
   updateUser: (id: string, user: Partial<User>) => void;
@@ -841,7 +840,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     ];
 
     const subtotal = items.reduce((sum, item) => sum + item.total, 0);
-    const tax = subtotal * 0.08; // 8% tax
+    const tax = subtotal * (systemSettings.system.taxRate / 100);
     const total = subtotal + tax;
 
     const newInvoice: Invoice = {
@@ -911,7 +910,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     ];
 
     const subtotal = items.reduce((sum, item) => sum + item.total, 0);
-    const tax = subtotal * 0.08; // 8% tax
+    const tax = subtotal * (systemSettings.system.taxRate / 100);
     const total = subtotal + tax;
 
     const newInvoice: Invoice = {
@@ -964,7 +963,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setInvoices(prev => prev.map(invoice => {
       if (invoice.id === invoiceId) {
         const subtotal = newItems.reduce((sum, item) => sum + item.total, 0);
-        const tax = subtotal * 0.08; // 8% tax
+        const tax = subtotal * (systemSettings.system.taxRate / 100);
         const total = subtotal + tax;
         
         return {
