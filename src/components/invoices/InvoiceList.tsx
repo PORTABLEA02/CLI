@@ -4,7 +4,7 @@ import { InvoiceDetails } from './InvoiceDetails';
 import { Search, Eye, DollarSign, Calendar, AlertCircle, CheckCircle } from 'lucide-react';
 
 export function InvoiceList() {
-  const { invoices, patients, consultations, updateInvoiceStatus } = useApp();
+  const { invoices, patients, consultations, updateInvoiceStatus, currentUser } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [viewingInvoice, setViewingInvoice] = useState<string | null>(null);
@@ -21,6 +21,11 @@ export function InvoiceList() {
     return matchesSearch && matchesStatus;
   });
 
+  // Contrôle d'accès : seuls les admins et caissiers peuvent marquer les factures comme payées
+  const canMarkAsPaid = (invoice: any) => {
+    return (currentUser?.role === 'admin' || currentUser?.role === 'cashier') && 
+           invoice.status === 'pending';
+  };
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending':
@@ -218,7 +223,7 @@ export function InvoiceList() {
                         >
                           <Eye className="w-4 h-4" />
                         </button>
-                        {invoice.status === 'pending' && (
+                        {canMarkAsPaid(invoice) && (
                           <button
                             onClick={() => updateInvoiceStatus(invoice.id, 'paid')}
                             className="text-green-600 hover:text-green-900 text-xs bg-green-50 px-2 py-1 rounded"

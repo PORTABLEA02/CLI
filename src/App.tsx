@@ -35,7 +35,12 @@ function AppContent() {
         return <ConsultationList />;
       case 'invoices':
         // Show billing dashboard for cashiers, regular invoice list for others
-        return currentUser.role === 'cashier' ? <BillingDashboard /> : <InvoiceList />;
+        return currentUser.role === 'cashier' ? <BillingDashboard /> : 
+               (currentUser.role === 'admin' ? <InvoiceList /> : 
+                <div className="p-8 text-center">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-4">Accès Restreint</h2>
+                  <p className="text-gray-600">Vous n'avez pas accès à cette section.</p>
+                </div>);
       case 'treatments':
         return <MedicalCareList />;
       case 'prescriptions':
@@ -47,20 +52,21 @@ function AppContent() {
       case 'supplies':
         return <MedicalSupplyCatalog />;
       case 'users':
-        return <UserManagement />;
+        return currentUser.role === 'admin' ? <UserManagement /> : 
+               <div className="p-8 text-center">
+                 <h2 className="text-2xl font-bold text-gray-900 mb-4">Accès Restreint</h2>
+                 <p className="text-gray-600">Seuls les administrateurs peuvent gérer les utilisateurs.</p>
+               </div>;
       case 'settings':
-        return <SystemSettings />;
+        return currentUser.role === 'admin' ? <SystemSettings /> : 
+               <div className="p-8 text-center">
+                 <h2 className="text-2xl font-bold text-gray-900 mb-4">Accès Restreint</h2>
+                 <p className="text-gray-600">Seuls les administrateurs peuvent modifier les paramètres système.</p>
+               </div>;
       case 'reports':
         return (
           <div className="p-8 text-center">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Module Rapports</h2>
-            <p className="text-gray-600">Cette section sera développée prochainement.</p>
-          </div>
-        );
-      case 'settings':
-        return (
-          <div className="p-8 text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Paramètres</h2>
             <p className="text-gray-600">Cette section sera développée prochainement.</p>
           </div>
         );

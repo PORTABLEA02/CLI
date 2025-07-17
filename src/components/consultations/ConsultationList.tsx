@@ -58,6 +58,9 @@ export function ConsultationList() {
     return consultationDate <= today;
   };
 
+  const canAddConsultation = () => {
+    return currentUser?.role === 'admin' || currentUser?.role === 'doctor';
+  };
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'scheduled':
@@ -113,13 +116,15 @@ export function ConsultationList() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Gestion des Consultations</h1>
-        <button
-          onClick={() => setShowForm(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center space-x-2 transition-colors"
-        >
-          <Plus className="h-4 w-4" />
-          <span>Nouvelle Consultation</span>
-        </button>
+        {canAddConsultation() && (
+          <button
+            onClick={() => setShowForm(true)}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center space-x-2 transition-colors"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Nouvelle Consultation</span>
+          </button>
+        )}
       </div>
 
       {/* Filters */}

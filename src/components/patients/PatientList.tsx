@@ -5,7 +5,7 @@ import { Plus, Search, Edit, Eye, Phone, Mail } from 'lucide-react';
 import { Patient } from '../../types';
 
 export function PatientList() {
-  const { patients, addPatient, updatePatient } = useApp();
+  const { patients, addPatient, updatePatient, currentUser } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
@@ -42,17 +42,24 @@ export function PatientList() {
     return age;
   };
 
+  // Contrôle d'accès : seuls les admins et médecins peuvent ajouter/modifier des patients
+  const canAddPatient = currentUser?.role === 'admin' || currentUser?.role === 'doctor';
+  const canEditPatient = (patient: Patient) => {
+    return currentUser?.role === 'admin' || currentUser?.role === 'doctor';
+  };
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Gestion des Patients</h1>
-        <button
-          onClick={() => setShowForm(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center space-x-2 transition-colors"
-        >
-          <Plus className="h-4 w-4" />
-          <span>Nouveau Patient</span>
-        </button>
+        {canAddPatient && (
+          <button
+            onClick={() => setShowForm(true)}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center space-x-2 transition-colors"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Nouveau Patient</span>
+          </button>
+        )}
       </div>
 
       {/* Search Bar */}
@@ -148,12 +155,14 @@ export function PatientList() {
                       >
                         <Eye className="h-4 w-4" />
                       </button>
-                      <button
-                        onClick={() => setEditingPatient(patient)}
-                        className="text-green-600 hover:text-green-900 p-1 rounded"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </button>
+                      {canEditPatient(patient) && (
+                        <button
+                          onClick={() => setEditingPatient(patient)}
+                          className="text-green-600 hover:text-green-900 p-1 rounded"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -164,7 +173,7 @@ export function PatientList() {
       </div>
 
       {/* Patient Form Modal */}
-      {(showForm || editingPatient) && (
+      {(showForm || editingPatient) && canAddPatient && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <PatientForm

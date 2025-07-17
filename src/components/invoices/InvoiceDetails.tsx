@@ -8,7 +8,7 @@ interface InvoiceDetailsProps {
 }
 
 export function InvoiceDetails({ invoiceId, onClose }: InvoiceDetailsProps) {
-  const { invoices, patients, consultations } = useApp();
+  const { invoices, patients, consultations, systemSettings } = useApp();
   
   const invoice = invoices.find(i => i.id === invoiceId);
   const patient = invoice ? patients.find(p => p.id === invoice.patientId) : null;
@@ -54,6 +54,21 @@ export function InvoiceDetails({ invoiceId, onClose }: InvoiceDetailsProps) {
     }
   };
 
+  const formatCurrency = (amount: number) => {
+    const currency = systemSettings?.system?.currency || 'FCFA';
+    switch (currency) {
+      case 'EUR':
+        return `${amount.toLocaleString()} €`;
+      case 'USD':
+        return `$${amount.toLocaleString()}`;
+      case 'GBP':
+        return `£${amount.toLocaleString()}`;
+      case 'FCFA':
+      default:
+        return `${amount.toLocaleString()} FCFA`;
+    }
+  };
+
   const handlePrint = () => {
     window.print();
   };
@@ -79,12 +94,17 @@ export function InvoiceDetails({ invoiceId, onClose }: InvoiceDetailsProps) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {/* Clinic Information */}
         <div className="bg-gray-50 p-4 rounded-lg">
-          <h3 className="font-semibold text-gray-900 mb-2">ClinicPro</h3>
+          <h3 className="font-semibold text-gray-900 mb-2">{systemSettings?.clinic?.name || 'ClinicPro'}</h3>
           <p className="text-sm text-gray-600">
-            123 Rue de la Santé<br />
-            75000 Paris, France<br />
-            Tel: +33 1 23 45 67 89<br />
-            Email: contact@clinicpro.fr
+            {systemSettings?.clinic?.address || '123 Rue de la Santé, 75000 Paris, France'}<br />
+            Tel: {systemSettings?.clinic?.phone || '+33 1 23 45 67 89'}<br />
+            Email: {systemSettings?.clinic?.email || 'contact@clinicpro.fr'}
+            {systemSettings?.clinic?.ifu && (
+              <>
+                <br />
+                <strong>IFU:</strong> {systemSettings.clinic.ifu}
+              </>
+            )}
           </p>
         </div>
 
@@ -196,10 +216,10 @@ export function InvoiceDetails({ invoiceId, onClose }: InvoiceDetailsProps) {
                     {item.quantity}
                   </td>
                   <td className="border border-gray-300 px-4 py-2 text-sm text-right text-gray-900">
-                    {item.unitPrice.toLocaleString()} €
+                    {formatCurrency(item.unitPrice)}
                   </td>
                   <td className="border border-gray-300 px-4 py-2 text-sm text-right text-gray-900">
-                    {item.total.toLocaleString()} €
+                    {formatCurrency(item.total)}
                   </td>
                 </tr>
               ))}
@@ -214,16 +234,16 @@ export function InvoiceDetails({ invoiceId, onClose }: InvoiceDetailsProps) {
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">Sous-total:</span>
-              <span className="font-medium">{invoice.subtotal.toLocaleString()} €</span>
+              <span className="font-medium">{formatCurrency(invoice.subtotal)}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">TVA (8%):</span>
-              <span className="font-medium">{invoice.tax.toLocaleString()} €</span>
+              <span className="text-gray-600">TVA ({systemSettings?.system?.taxRate || 8}%):</span>
+              <span className="font-medium">{formatCurrency(invoice.tax)}</span>
             </div>
             <div className="border-t pt-2">
               <div className="flex justify-between text-lg font-bold">
                 <span>Total:</span>
-                <span>{invoice.total.toLocaleString()} €</span>
+                <span>{formatCurrency(invoice.total)}</span>
               </div>
             </div>
           </div>

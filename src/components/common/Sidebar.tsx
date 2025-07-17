@@ -123,7 +123,6 @@ export function Sidebar({ activeTab, onTabChange, isOpen }: SidebarProps) {
           isSection: true 
         },
         { id: 'invoices', label: 'Module Facturation', icon: CreditCard },
-        { id: 'payments', label: 'Traitement Paiements', icon: DollarSign },
         
         // Support aux consultations
         { 

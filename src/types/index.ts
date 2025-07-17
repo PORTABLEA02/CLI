@@ -21,6 +21,7 @@ export interface SystemSettings {
     website: string;
     logo?: string;
     description: string;
+    ifu?: string;
   };
   system: {
     timezone: string;

@@ -5,7 +5,7 @@ import { Plus, Search, Edit, Eye, Clock } from 'lucide-react';
 import { MedicalExam } from '../../types';
 
 export function ExamCatalog() {
-  const { medicalExams, addMedicalExam, updateMedicalExam } = useApp();
+  const { medicalExams, addMedicalExam, updateMedicalExam, currentUser } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingExam, setEditingExam] = useState<MedicalExam | null>(null);
@@ -36,6 +36,8 @@ export function ExamCatalog() {
     }
   };
 
+  // Contrôle d'accès : seuls les admins peuvent ajouter/modifier des examens
+  const canManageExams = currentUser?.role === 'admin';
   const getCategoryText = (category: string) => {
     switch (category) {
       case 'radiology': return 'Radiologie';
@@ -68,13 +70,15 @@ export function ExamCatalog() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Catalogue des Examens</h1>
-        <button
-          onClick={() => setShowForm(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center space-x-2 transition-colors"
-        >
-          <Plus className="h-4 w-4" />
-          <span>Nouvel Examen</span>
-        </button>
+        {canManageExams && (
+          <button
+            onClick={() => setShowForm(true)}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center space-x-2 transition-colors"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Nouvel Examen</span>
+          </button>
+        )}
       </div>
 
       {/* Summary Cards */}
@@ -213,12 +217,14 @@ export function ExamCatalog() {
                 </div>
 
                 <div className="flex items-center space-x-3">
-                  <button
-                    onClick={() => setEditingExam(exam)}
-                    className="text-blue-600 hover:text-blue-800 p-1"
-                  >
-                    <Edit className="w-4 h-4" />
-                  </button>
+                  {canManageExams && (
+                    <button
+                      onClick={() => setEditingExam(exam)}
+                      className="text-blue-600 hover:text-blue-800 p-1"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -227,7 +233,7 @@ export function ExamCatalog() {
       </div>
 
       {/* Exam Form Modal */}
-      {(showForm || editingExam) && (
+      {(showForm || editingExam) && canManageExams && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <ExamForm

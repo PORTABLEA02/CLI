@@ -187,6 +187,19 @@ export function SystemSettings() {
                 />
               </div>
 
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  IFU (Identifiant Fiscal Unique)
+                </label>
+                <input
+                  type="text"
+                  value={settings.clinic.ifu || ''}
+                  onChange={(e) => handleSettingChange('clinic', 'ifu', e.target.value)}
+                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                  placeholder="Ex: IFU123456789"
+                />
+              </div>
+
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Adresse complète
@@ -273,6 +286,7 @@ export function SystemSettings() {
                   onChange={(e) => handleSettingChange('system', 'currency', e.target.value)}
                   className="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
                 >
+                  <option value="FCFA">Franc CFA (FCFA)</option>
                   <option value="EUR">Euro (€)</option>
                   <option value="USD">Dollar US ($)</option>
                   <option value="GBP">Livre Sterling (£)</option>

@@ -5,7 +5,7 @@ import { Plus, Search, Edit, Eye, Filter } from 'lucide-react';
 import { Medication } from '../../types';
 
 export function MedicationCatalog() {
-  const { medications, addMedication, updateMedication } = useApp();
+  const { medications, addMedication, updateMedication, currentUser } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingMedication, setEditingMedication] = useState<Medication | null>(null);
@@ -39,6 +39,8 @@ export function MedicationCatalog() {
     }
   };
 
+  // Contrôle d'accès : seuls les admins peuvent ajouter/modifier des médicaments
+  const canManageMedications = currentUser?.role === 'admin';
   const getFormText = (form: string) => {
     switch (form) {
       case 'tablet': return 'Comprimé';
@@ -89,13 +91,15 @@ export function MedicationCatalog() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Catalogue des Médicaments</h1>
-        <button
-          onClick={() => setShowForm(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center space-x-2 transition-colors"
-        >
-          <Plus className="h-4 w-4" />
-          <span>Nouveau Médicament</span>
-        </button>
+        {canManageMedications && (
+          <button
+            onClick={() => setShowForm(true)}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center space-x-2 transition-colors"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Nouveau Médicament</span>
+          </button>
+        )}
       </div>
 
       {/* Summary Cards */}
@@ -283,12 +287,14 @@ export function MedicationCatalog() {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button
-                      onClick={() => setEditingMedication(medication)}
-                      className="text-blue-600 hover:text-blue-900 p-1 rounded"
-                    >
-                      <Edit className="w-4 h-4" />
-                    </button>
+                    {canManageMedications && (
+                      <button
+                        onClick={() => setEditingMedication(medication)}
+                        className="text-blue-600 hover:text-blue-900 p-1 rounded"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -298,7 +304,7 @@ export function MedicationCatalog() {
       </div>
 
       {/* Medication Form Modal */}
-      {(showForm || editingMedication) && (
+      {(showForm || editingMedication) && canManageMedications && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <MedicationForm

@@ -5,7 +5,7 @@ import { Plus, Search, Edit, Eye, Clock, User, Euro, Filter } from 'lucide-react
 import { MedicalCare } from '../../types';
 
 export function MedicalCareList() {
-  const { medicalCares, addMedicalCare, updateMedicalCare } = useApp();
+  const { medicalCares, addMedicalCare, updateMedicalCare, currentUser } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingCare, setEditingCare] = useState<MedicalCare | null>(null);
@@ -36,6 +36,8 @@ export function MedicalCareList() {
     }
   };
 
+  // Contrôle d'accès : seuls les admins peuvent ajouter/modifier des soins
+  const canManageCares = currentUser?.role === 'admin';
   const getCategoryColor = (category: string) => {
     switch (category) {
       case 'nursing':
@@ -79,13 +81,15 @@ export function MedicalCareList() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Gestion des Soins et Actes Médicaux</h1>
-        <button
-          onClick={() => setShowForm(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center space-x-2 transition-colors"
-        >
-          <Plus className="h-4 w-4" />
-          <span>Nouveau Soin</span>
-        </button>
+        {canManageCares && (
+          <button
+            onClick={() => setShowForm(true)}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center space-x-2 transition-colors"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Nouveau Soin</span>
+          </button>
+        )}
       </div>
 
       {/* Summary Cards */}
@@ -219,12 +223,14 @@ export function MedicalCareList() {
                 </div>
 
                 <div className="flex items-center space-x-3">
-                  <button
-                    onClick={() => setEditingCare(care)}
-                    className="text-blue-600 hover:text-blue-800 p-1"
-                  >
-                    <Edit className="w-4 h-4" />
-                  </button>
+                  {canManageCares && (
+                    <button
+                      onClick={() => setEditingCare(care)}
+                      className="text-blue-600 hover:text-blue-800 p-1"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -233,7 +239,7 @@ export function MedicalCareList() {
       </div>
 
       {/* Medical Care Form Modal */}
-      {(showForm || editingCare) && (
+      {(showForm || editingCare) && canManageCares && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <MedicalCareForm

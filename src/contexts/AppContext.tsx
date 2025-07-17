@@ -493,13 +493,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
       phone: '+33 1 23 45 67 89',
       email: 'contact@clinicpro.fr',
       website: 'www.clinicpro.fr',
-      description: 'Clinique médicale moderne'
+      description: 'Clinique médicale moderne',
+      ifu: 'IFU123456789'
     },
     system: {
       timezone: 'Europe/Paris',
       language: 'fr',
       dateFormat: 'DD/MM/YYYY',
-      currency: 'EUR',
+      currency: 'FCFA',
       taxRate: 8,
       sessionTimeout: 30,
       backupFrequency: 'daily',

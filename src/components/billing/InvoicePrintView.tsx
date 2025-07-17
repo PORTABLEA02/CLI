@@ -8,7 +8,7 @@ interface InvoicePrintViewProps {
 }
 
 export function InvoicePrintView({ invoiceId, onClose }: InvoicePrintViewProps) {
-  const { invoices, patients, consultations, medicalCares } = useApp();
+  const { invoices, patients, consultations, medicalCares, systemSettings } = useApp();
   
   const invoice = invoices.find(i => i.id === invoiceId);
   const patient = invoice ? patients.find(p => p.id === invoice.patientId) : null;
@@ -79,6 +79,21 @@ export function InvoicePrintView({ invoiceId, onClose }: InvoicePrintViewProps) 
     }
   };
 
+  const formatCurrency = (amount: number) => {
+    const currency = systemSettings?.system?.currency || 'FCFA';
+    switch (currency) {
+      case 'EUR':
+        return `${amount.toLocaleString()} €`;
+      case 'USD':
+        return `$${amount.toLocaleString()}`;
+      case 'GBP':
+        return `£${amount.toLocaleString()}`;
+      case 'FCFA':
+      default:
+        return `${amount.toLocaleString()} FCFA`;
+    }
+  };
+
   return (
     <div className="bg-white">
       {/* Header with actions - hidden in print */}
@@ -117,15 +132,20 @@ export function InvoicePrintView({ invoiceId, onClose }: InvoicePrintViewProps) 
                 <span className="text-white font-bold text-xl">C</span>
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">ClinicPro</h1>
-                <p className="text-gray-600">Clinique Médicale</p>
+                <h1 className="text-2xl font-bold text-gray-900">{systemSettings?.clinic?.name || 'ClinicPro'}</h1>
+                <p className="text-gray-600">{systemSettings?.clinic?.description || 'Clinique Médicale'}</p>
               </div>
             </div>
             <div className="text-sm text-gray-600">
-              <p>123 Rue de la Santé</p>
-              <p>75000 Paris, France</p>
-              <p>Tél: +33 1 23 45 67 89</p>
-              <p>Email: contact@clinicpro.fr</p>
+              <p>{systemSettings?.clinic?.address || '123 Rue de la Santé, 75000 Paris, France'}</p>
+              <p>Tél: {systemSettings?.clinic?.phone || '+33 1 23 45 67 89'}</p>
+              <p>Email: {systemSettings?.clinic?.email || 'contact@clinicpro.fr'}</p>
+              {systemSettings?.clinic?.website && (
+                <p>Web: {systemSettings.clinic.website}</p>
+              )}
+              {systemSettings?.clinic?.ifu && (
+                <p><strong>IFU:</strong> {systemSettings.clinic.ifu}</p>
+              )}
             </div>
           </div>
           
@@ -214,10 +234,10 @@ export function InvoicePrintView({ invoiceId, onClose }: InvoicePrintViewProps) 
                       {item.quantity}
                     </td>
                     <td className="border border-gray-300 px-4 py-3 text-sm text-right text-gray-900">
-                      {item.unitPrice.toLocaleString()} €
+                      {formatCurrency(item.unitPrice)}
                     </td>
                     <td className="border border-gray-300 px-4 py-3 text-sm text-right text-gray-900">
-                      {item.total.toLocaleString()} €
+                      {formatCurrency(item.total)}
                     </td>
                   </tr>
                 ))}
@@ -232,16 +252,16 @@ export function InvoicePrintView({ invoiceId, onClose }: InvoicePrintViewProps) 
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Sous-total:</span>
-                <span className="font-medium">{invoice.subtotal.toLocaleString()} €</span>
+                <span className="font-medium">{formatCurrency(invoice.subtotal)}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">TVA (8%):</span>
-                <span className="font-medium">{invoice.tax.toLocaleString()} €</span>
+                <span className="text-gray-600">TVA ({systemSettings?.system?.taxRate || 8}%):</span>
+                <span className="font-medium">{formatCurrency(invoice.tax)}</span>
               </div>
               <div className="border-t pt-2">
                 <div className="flex justify-between text-lg font-bold">
                   <span>Total:</span>
-                  <span>{invoice.total.toLocaleString()} €</span>
+                  <span>{formatCurrency(invoice.total)}</span>
                 </div>
               </div>
             </div>
