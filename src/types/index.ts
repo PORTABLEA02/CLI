@@ -1,4 +1,4 @@
-export interface User {
+export interface Profile {
   id: string;
   name: string;
   email: string;
@@ -123,7 +123,7 @@ export interface ConsultationCare {
   unitPrice: number; // Price at the time of service
   totalPrice: number;
   notes?: string;
-  performedBy: string; // User ID
+  performedBy: string; // Profile ID
   performedAt: string;
   createdAt: string;
 }
@@ -136,7 +136,7 @@ export interface ConsultationSupply {
   unitPrice: number;
   totalPrice: number;
   notes?: string;
-  usedBy: string; // User ID
+  usedBy: string; // Profile ID
   usedAt: string;
   createdAt: string;
 }

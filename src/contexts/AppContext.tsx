@@ -1,12 +1,12 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, Patient, Consultation, Treatment, Prescription, Invoice, DashboardStats, MedicalCare, ConsultationCare, Payment, Medication, MedicalExam, MedicalSupply, ConsultationSupply, SystemSettings } from '../types';
+import { Profile, Patient, Consultation, Treatment, Prescription, Invoice, DashboardStats, MedicalCare, ConsultationCare, Payment, Medication, MedicalExam, MedicalSupply, ConsultationSupply, SystemSettings } from '../types';
 import { generateStockAlert } from '../utils/businessRules';
 import { supabase } from '../lib/supabase';
 import * as supabaseService from '../services/supabaseService';
 
 interface AppContextType {
-  currentUser: User | null;
-  users: User[];
+  currentProfile: Profile | null;
+  profiles: Profile[];
   patients: Patient[];
   consultations: Consultation[];
   treatments: Treatment[];
@@ -24,9 +24,9 @@ interface AppContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
-  addUser: (user: Omit<User, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
-  updateUser: (id: string, user: Partial<User>) => Promise<void>;
-  deleteUser: (id: string) => Promise<void>;
+  addProfile: (profile: Omit<Profile, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+  updateProfile: (id: string, profile: Partial<Profile>) => Promise<void>;
+  deleteProfile: (id: string) => Promise<void>;
   addPatient: (patient: Omit<Patient, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
   updatePatient: (id: string, patient: Partial<Patient>) => Promise<void>;
   addConsultation: (consultation: Omit<Consultation, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
@@ -98,8 +98,8 @@ const defaultSystemSettings: SystemSettings = {
 };
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [users, setUsers] = useState<User[]>([]);
+  const [currentProfile, setCurrentProfile] = useState<Profile | null>(null);
+  const [profiles, setProfiles] = useState<Profile[]>([]);
   const [patients, setPatients] = useState<Patient[]>([]);
   const [consultations, setConsultations] = useState<Consultation[]>([]);
   const [treatments, setTreatments] = useState<Treatment[]>([]);
@@ -130,10 +130,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session?.user?.email) {
-        const user = await supabaseService.getUserByEmail(session.user.email);
-        setCurrentUser(user);
+        const profile = await supabaseService.getProfileByEmail(session.user.email);
+        setCurrentProfile(profile);
       } else if (event === 'SIGNED_OUT') {
-        setCurrentUser(null);
+        setCurrentProfile(null);
       }
     });
 
@@ -152,13 +152,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
       // Check if user is already logged in
       const { data: { user } } = await supabase.auth.getUser();
       if (user?.email) {
-        const currentUser = await supabaseService.getUserByEmail(user.email);
-        setCurrentUser(currentUser);
+        const currentProfile = await supabaseService.getProfileByEmail(user.email);
+        setCurrentProfile(currentProfile);
       }
 
       // Load all data in parallel
       const [
-        usersData,
+        profilesData,
         patientsData,
         consultationsData,
         medicalCaresData,
@@ -172,7 +172,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         paymentsData,
         settingsData
       ] = await Promise.all([
-        supabaseService.getUsers(),
+        supabaseService.getProfiles(),
         supabaseService.getPatients(),
         supabaseService.getConsultations(),
         supabaseService.getMedicalCares(),
@@ -187,7 +187,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         supabaseService.getSystemSettings()
       ]);
 
-      setUsers(usersData);
+      setProfiles(profilesData);
       setPatients(patientsData);
       setConsultations(consultationsData);
       setMedicalCares(medicalCaresData);
@@ -234,15 +234,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     try {
       const authData = await supabaseService.signInWithEmail(email, password);
       if (authData?.user?.email) {
-        const user = await supabaseService.getUserByEmail(authData.user.email);
-        if (user && user.isActive) {
+        const profile = await supabaseService.getProfileByEmail(authData.user.email);
+        if (profile && profile.isActive) {
           // Update last login
-          await supabaseService.updateUser(user.id, { lastLoginAt: new Date().toISOString() });
-          setCurrentUser(user);
+          await supabaseService.updateProfile(profile.id, { lastLoginAt: new Date().toISOString() });
+          setCurrentProfile(profile);
           
-          // Refresh users list
-          const updatedUsers = await supabaseService.getUsers();
-          setUsers(updatedUsers);
+          // Refresh profiles list
+          const updatedProfiles = await supabaseService.getProfiles();
+          setProfiles(updatedProfiles);
           
           return true;
         }
@@ -257,43 +257,43 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     try {
       await supabaseService.signOut();
-      setCurrentUser(null);
+      setCurrentProfile(null);
     } catch (error) {
       console.error('Logout error:', error);
     }
   };
 
-  const addUser = async (userData: Omit<User, 'id' | 'createdAt' | 'updatedAt'>) => {
+  const addProfile = async (profileData: Omit<Profile, 'id' | 'createdAt' | 'updatedAt'>) => {
     try {
-      const newUser = await supabaseService.createUser(userData);
-      setUsers(prev => [newUser, ...prev]);
+      const newProfile = await supabaseService.createProfile(profileData);
+      setProfiles(prev => [newProfile, ...prev]);
     } catch (error) {
-      console.error('Error adding user:', error);
+      console.error('Error adding profile:', error);
       throw error;
     }
   };
 
-  const updateUser = async (id: string, userData: Partial<User>) => {
+  const updateProfile = async (id: string, profileData: Partial<Profile>) => {
     try {
-      const updatedUser = await supabaseService.updateUser(id, userData);
-      setUsers(prev => prev.map(u => u.id === id ? updatedUser : u));
+      const updatedProfile = await supabaseService.updateProfile(id, profileData);
+      setProfiles(prev => prev.map(p => p.id === id ? updatedProfile : p));
       
-      // Update current user if it's the same user
-      if (currentUser?.id === id) {
-        setCurrentUser(updatedUser);
+      // Update current profile if it's the same profile
+      if (currentProfile?.id === id) {
+        setCurrentProfile(updatedProfile);
       }
     } catch (error) {
-      console.error('Error updating user:', error);
+      console.error('Error updating profile:', error);
       throw error;
     }
   };
 
-  const deleteUser = async (id: string) => {
+  const deleteProfile = async (id: string) => {
     try {
-      await supabaseService.deleteUser(id);
-      setUsers(prev => prev.filter(u => u.id !== id));
+      await supabaseService.deleteProfile(id);
+      setProfiles(prev => prev.filter(p => p.id !== id));
     } catch (error) {
-      console.error('Error deleting user:', error);
+      console.error('Error deleting profile:', error);
       throw error;
     }
   };
@@ -754,8 +754,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   return (
     <AppContext.Provider value={{
-      currentUser,
-      users,
+      currentProfile,
+      profiles,
       patients,
       consultations,
       treatments,
@@ -773,9 +773,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       isLoading,
       login,
       logout,
-      addUser,
-      updateUser,
-      deleteUser,
+      addProfile,
+      updateProfile,
+      deleteProfile,
       addPatient,
       updatePatient,
       addConsultation,

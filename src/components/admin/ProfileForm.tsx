@@ -1,23 +1,23 @@
 import React, { useState } from 'react';
-import { User } from '../../types';
+import { Profile } from '../../types';
 import { X, Eye, EyeOff } from 'lucide-react';
 
-interface UserFormProps {
-  user?: User | null;
-  onSubmit: (user: Omit<User, 'id' | 'createdAt' | 'updatedAt'>) => void;
+interface ProfileFormProps {
+  profile?: Profile | null;
+  onSubmit: (profile: Omit<Profile, 'id' | 'createdAt' | 'updatedAt'>) => void;
   onCancel: () => void;
 }
 
-export function UserForm({ user, onSubmit, onCancel }: UserFormProps) {
+export function ProfileForm({ profile, onSubmit, onCancel }: ProfileFormProps) {
   const [formData, setFormData] = useState({
-    name: user?.name || '',
-    email: user?.email || '',
-    role: user?.role || 'doctor',
-    phone: user?.phone || '',
-    specialization: user?.specialization || '',
+    name: profile?.name || '',
+    email: profile?.email || '',
+    role: profile?.role || 'doctor',
+    phone: profile?.phone || '',
+    specialization: profile?.specialization || '',
     password: '',
     confirmPassword: '',
-    isActive: user?.isActive !== undefined ? user.isActive : true,
+    isActive: profile?.isActive !== undefined ? profile.isActive : true,
   });
 
   const [showPassword, setShowPassword] = useState(false);
@@ -38,8 +38,8 @@ export function UserForm({ user, onSubmit, onCancel }: UserFormProps) {
     e.preventDefault();
     
     // Validation
-    if (!user && !formData.password) {
-      alert('Le mot de passe est requis pour un nouvel utilisateur');
+    if (!profile && !formData.password) {
+      alert('Le mot de passe est requis pour un nouveau profil');
       return;
     }
     
@@ -53,7 +53,7 @@ export function UserForm({ user, onSubmit, onCancel }: UserFormProps) {
       return;
     }
 
-    const userData: any = {
+    const profileData: any = {
       name: formData.name.trim(),
       email: formData.email.trim().toLowerCase(),
       role: formData.role,
@@ -63,17 +63,17 @@ export function UserForm({ user, onSubmit, onCancel }: UserFormProps) {
     };
 
     if (formData.password) {
-      userData.password = formData.password;
+      profileData.password = formData.password;
     }
 
-    onSubmit(userData);
+    onSubmit(profileData);
   };
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-bold text-gray-900">
-          {user ? 'Modifier l\'Utilisateur' : 'Nouvel Utilisateur'}
+          {profile ? 'Modifier le Profil' : 'Nouveau Profil'}
         </h2>
         <button onClick={onCancel} className="text-gray-400 hover:text-gray-600">
           <X className="h-6 w-6" />
@@ -166,14 +166,14 @@ export function UserForm({ user, onSubmit, onCancel }: UserFormProps) {
 
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              {user ? 'Nouveau mot de passe (optionnel)' : 'Mot de passe *'}
+              {profile ? 'Nouveau mot de passe (optionnel)' : 'Mot de passe *'}
             </label>
             <div className="mt-1 relative">
               <input
                 type={showPassword ? 'text' : 'password'}
                 id="password"
                 name="password"
-                required={!user}
+                required={!profile}
                 className="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm pr-10"
                 value={formData.password}
                 onChange={handleChange}
@@ -195,14 +195,14 @@ export function UserForm({ user, onSubmit, onCancel }: UserFormProps) {
 
           <div>
             <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-              Confirmer le mot de passe {!user && '*'}
+              Confirmer le mot de passe {!profile && '*'}
             </label>
             <div className="mt-1 relative">
               <input
                 type={showConfirmPassword ? 'text' : 'password'}
                 id="confirmPassword"
                 name="confirmPassword"
-                required={!user || !!formData.password}
+                required={!profile || !!formData.password}
                 className="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm pr-10"
                 value={formData.confirmPassword}
                 onChange={handleChange}
@@ -233,14 +233,14 @@ export function UserForm({ user, onSubmit, onCancel }: UserFormProps) {
             onChange={handleChange}
           />
           <label htmlFor="isActive" className="ml-2 block text-sm text-gray-900">
-            Compte actif (l'utilisateur peut se connecter)
+            Profil actif (peut se connecter)
           </label>
         </div>
 
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <h4 className="text-sm font-medium text-blue-800 mb-2">Permissions par rôle :</h4>
           <div className="text-sm text-blue-700 space-y-1">
-            <p><strong>Administrateur :</strong> Accès complet au système, gestion des utilisateurs</p>
+            <p><strong>Administrateur :</strong> Accès complet au système, gestion des profils</p>
             <p><strong>Médecin :</strong> Consultations, prescriptions, patients</p>
             <p><strong>Caissier :</strong> Facturation, paiements, support consultations</p>
           </div>
@@ -258,7 +258,7 @@ export function UserForm({ user, onSubmit, onCancel }: UserFormProps) {
             type="submit"
             className="px-4 py-2 text-sm font-medium text-white bg-purple-600 border border-transparent rounded-md hover:bg-purple-700"
           >
-            {user ? 'Mettre à jour' : 'Créer l\'utilisateur'}
+            {profile ? 'Mettre à jour' : 'Créer le profil'}
           </button>
         </div>
       </form>

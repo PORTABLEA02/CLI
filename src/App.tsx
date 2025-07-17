@@ -14,15 +14,15 @@ import { MedicationCatalog } from './components/prescriptions/MedicationCatalog'
 import { ExamCatalog } from './components/prescriptions/ExamCatalog';
 import { MedicalSupplyCatalog } from './components/supplies/MedicalSupplyCatalog';
 import { DoctorReports } from './components/reports/DoctorReports';
-import { UserManagement } from './components/admin/UserManagement';
+import { ProfileManagement } from './components/admin/ProfileManagement';
 import { SystemSettings } from './components/admin/SystemSettings';
 
 function AppContent() {
-  const { currentUser } = useApp();
+  const { currentProfile } = useApp();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  if (!currentUser) {
+  if (!currentProfile) {
     return <LoginForm />;
   }
 
@@ -36,8 +36,8 @@ function AppContent() {
         return <ConsultationList />;
       case 'invoices':
         // Show billing dashboard for cashiers, regular invoice list for others
-        return currentUser.role === 'cashier' ? <BillingDashboard /> : 
-               (currentUser.role === 'admin' ? <InvoiceList /> : 
+        return currentProfile.role === 'cashier' ? <BillingDashboard /> : 
+               (currentProfile.role === 'admin' ? <InvoiceList /> : 
                 <div className="p-8 text-center">
                   <h2 className="text-2xl font-bold text-gray-900 mb-4">Accès Restreint</h2>
                   <p className="text-gray-600">Vous n'avez pas accès à cette section.</p>
@@ -52,14 +52,14 @@ function AppContent() {
         return <ExamCatalog />;
       case 'supplies':
         return <MedicalSupplyCatalog />;
-      case 'users':
-        return currentUser.role === 'admin' ? <UserManagement /> : 
+      case 'profiles':
+        return currentProfile.role === 'admin' ? <ProfileManagement /> : 
                <div className="p-8 text-center">
                  <h2 className="text-2xl font-bold text-gray-900 mb-4">Accès Restreint</h2>
-                 <p className="text-gray-600">Seuls les administrateurs peuvent gérer les utilisateurs.</p>
+                 <p className="text-gray-600">Seuls les administrateurs peuvent gérer les profils.</p>
                </div>;
       case 'settings':
-        return currentUser.role === 'admin' ? <SystemSettings /> : 
+        return currentProfile.role === 'admin' ? <SystemSettings /> : 
                <div className="p-8 text-center">
                  <h2 className="text-2xl font-bold text-gray-900 mb-4">Accès Restreint</h2>
                  <p className="text-gray-600">Seuls les administrateurs peuvent modifier les paramètres système.</p>

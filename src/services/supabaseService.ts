@@ -1,6 +1,6 @@
 import { supabase, handleSupabaseError } from '../lib/supabase';
 import { 
-  User, 
+  Profile, 
   Patient, 
   Consultation, 
   MedicalCare, 
@@ -16,7 +16,7 @@ import {
 } from '../types';
 
 // Helper function to transform database row to app type
-const transformUser = (row: any): User => ({
+const transformProfile = (row: any): Profile => ({
   id: row.id,
   name: row.name,
   email: row.email,
@@ -217,7 +217,7 @@ export const signOut = async () => {
   }
 };
 
-export const getCurrentUser = async () => {
+export const getCurrentProfile = async () => {
   try {
     const { data: { user } } = await supabase.auth.getUser();
     return user;
@@ -226,75 +226,75 @@ export const getCurrentUser = async () => {
   }
 };
 
-// Users
-export const getUsers = async (): Promise<User[]> => {
+// Profiles
+export const getProfiles = async (): Promise<Profile[]> => {
   try {
     const { data, error } = await supabase
-      .from('users')
+      .from('profiles')
       .select('*')
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data.map(transformUser);
+    return data.map(transformProfile);
   } catch (error) {
     handleSupabaseError(error);
     return [];
   }
 };
 
-export const getUserByEmail = async (email: string): Promise<User | null> => {
+export const getProfileByEmail = async (email: string): Promise<Profile | null> => {
   try {
     const { data, error } = await supabase
-      .from('users')
+      .from('profiles')
       .select('*')
       .eq('email', email)
       .single();
 
     if (error) throw error;
-    return data ? transformUser(data) : null;
+    return data ? transformProfile(data) : null;
   } catch (error) {
-    console.error('Error getting user by email:', error);
+    console.error('Error getting profile by email:', error);
     return null;
   }
 };
 
-export const createUser = async (userData: Omit<User, 'id' | 'createdAt' | 'updatedAt'>): Promise<User> => {
+export const createProfile = async (profileData: Omit<Profile, 'id' | 'createdAt' | 'updatedAt'>): Promise<Profile> => {
   try {
     const { data, error } = await supabase
-      .from('users')
+      .from('profiles')
       .insert({
-        name: userData.name,
-        email: userData.email,
-        role: userData.role,
-        avatar: userData.avatar,
-        specialization: userData.specialization,
-        phone: userData.phone,
-        is_active: userData.isActive,
+        name: profileData.name,
+        email: profileData.email,
+        role: profileData.role,
+        avatar: profileData.avatar,
+        specialization: profileData.specialization,
+        phone: profileData.phone,
+        is_active: profileData.isActive,
       })
       .select()
       .single();
 
     if (error) throw error;
-    return transformUser(data);
+    return transformProfile(data);
   } catch (error) {
     handleSupabaseError(error);
     throw error;
   }
 };
 
-export const updateUser = async (id: string, userData: Partial<User>): Promise<User> => {
+export const updateProfile = async (id: string, profileData: Partial<Profile>): Promise<Profile> => {
   try {
     const { data, error } = await supabase
-      .from('users')
+      .from('profiles')
       .update({
-        name: userData.name,
-        email: userData.email,
-        role: userData.role,
-        avatar: userData.avatar,
-        specialization: userData.specialization,
-        phone: userData.phone,
-        is_active: userData.isActive,
-        last_login_at: userData.lastLoginAt,
+        name: profileData.name,
+        email: profileData.email,
+        role: profileData.role,
+        avatar: profileData.avatar,
+        specialization: profileData.specialization,
+        phone: profileData.phone,
+        is_active: profileData.isActive,
+        last_login_at: profileData.lastLoginAt,
         updated_at: new Date().toISOString(),
       })
       .eq('id', id)
@@ -302,17 +302,17 @@ export const updateUser = async (id: string, userData: Partial<User>): Promise<U
       .single();
 
     if (error) throw error;
-    return transformUser(data);
+    return transformProfile(data);
   } catch (error) {
     handleSupabaseError(error);
     throw error;
   }
 };
 
-export const deleteUser = async (id: string): Promise<void> => {
+export const deleteProfile = async (id: string): Promise<void> => {
   try {
     const { error } = await supabase
-      .from('users')
+      .from('profiles')
       .delete()
       .eq('id', id);
 

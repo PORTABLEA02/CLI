@@ -8,10 +8,10 @@ interface HeaderProps {
 }
 
 export function Header({ onToggleSidebar, sidebarOpen }: HeaderProps) {
-  const { currentUser, logout } = useApp();
+  const { currentProfile, logout } = useApp();
 
   const getRoleInfo = () => {
-    switch (currentUser?.role) {
+    switch (currentProfile?.role) {
       case 'admin':
         return {
           title: 'Administrateur',
@@ -38,7 +38,7 @@ export function Header({ onToggleSidebar, sidebarOpen }: HeaderProps) {
         };
       default:
         return {
-          title: 'Utilisateur',
+          title: 'Profil',
           subtitle: 'ClinicPro',
           color: 'text-gray-600',
           bgColor: 'bg-gray-50',
@@ -81,14 +81,14 @@ export function Header({ onToggleSidebar, sidebarOpen }: HeaderProps) {
             </span>
           </button>
           
-          {/* User Profile */}
+          {/* Profile */}
           <div className="flex items-center space-x-3">
             <div className={`flex items-center justify-center w-10 h-10 ${roleInfo.bgColor} rounded-full`}>
               <RoleIcon className={`h-5 w-5 ${roleInfo.color}`} />
             </div>
             <div className="hidden sm:block">
               <div className="flex items-center space-x-2">
-                <div className="text-sm font-medium text-gray-900">{currentUser?.name}</div>
+                <div className="text-sm font-medium text-gray-900">{currentProfile?.name}</div>
                 <span className={`px-2 py-1 text-xs font-medium ${roleInfo.color} ${roleInfo.bgColor} rounded-full`}>
                   {roleInfo.title}
                 </span>

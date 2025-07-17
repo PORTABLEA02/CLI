@@ -29,7 +29,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({ activeTab, onTabChange, isOpen }: SidebarProps) {
-  const { currentUser } = useApp();
+  const { currentProfile } = useApp();
 
   const getNavigationItems = () => {
     const baseItems = [
@@ -38,10 +38,10 @@ export function Sidebar({ activeTab, onTabChange, isOpen }: SidebarProps) {
 
     const roleSpecificItems = {
       admin: [
-        // Gestion des utilisateurs et patients
+        // Gestion des profils et patients
         { 
-          id: 'section-users', 
-          label: 'GESTION UTILISATEURS', 
+          id: 'section-profiles', 
+          label: 'GESTION PROFILS', 
           isSection: true 
         },
         { id: 'patients', label: 'Patients', icon: Users },
@@ -81,7 +81,7 @@ export function Sidebar({ activeTab, onTabChange, isOpen }: SidebarProps) {
           label: 'ADMINISTRATION', 
           isSection: true 
         },
-        { id: 'users', label: 'Gestion Utilisateurs', icon: Users },
+        { id: 'profiles', label: 'Gestion Profils', icon: Users },
         { id: 'settings', label: 'Paramètres Système', icon: Settings },
       ],
       
@@ -146,14 +146,14 @@ export function Sidebar({ activeTab, onTabChange, isOpen }: SidebarProps) {
       ]
     };
 
-    const items = roleSpecificItems[currentUser?.role as keyof typeof roleSpecificItems] || [];
+    const items = roleSpecificItems[currentProfile?.role as keyof typeof roleSpecificItems] || [];
     return [...baseItems, ...items];
   };
 
   const navigationItems = getNavigationItems();
 
   const getRoleTitle = () => {
-    switch (currentUser?.role) {
+    switch (currentProfile?.role) {
       case 'admin':
         return 'Administration';
       case 'doctor':
@@ -166,7 +166,7 @@ export function Sidebar({ activeTab, onTabChange, isOpen }: SidebarProps) {
   };
 
   const getRoleColor = () => {
-    switch (currentUser?.role) {
+    switch (currentProfile?.role) {
       case 'admin':
         return 'bg-purple-600';
       case 'doctor':
@@ -179,7 +179,7 @@ export function Sidebar({ activeTab, onTabChange, isOpen }: SidebarProps) {
   };
 
   const getRoleIcon = () => {
-    switch (currentUser?.role) {
+    switch (currentProfile?.role) {
       case 'admin':
         return Shield;
       case 'doctor':
@@ -208,7 +208,7 @@ export function Sidebar({ activeTab, onTabChange, isOpen }: SidebarProps) {
             </div>
             <div>
               <h2 className="text-white font-bold text-lg">{getRoleTitle()}</h2>
-              <p className="text-white text-opacity-80 text-sm">{currentUser?.name}</p>
+              <p className="text-white text-opacity-80 text-sm">{currentProfile?.name}</p>
             </div>
           </div>
         </div>
