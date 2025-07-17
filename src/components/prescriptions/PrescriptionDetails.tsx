@@ -1,5 +1,6 @@
 import React from 'react';
 import { useApp } from '../../contexts/AppContext';
+import { formatCurrencyWithSettings } from '../../utils/formatters';
 import { X, Download, Printer, Calendar, User, Clock } from 'lucide-react';
 
 interface PrescriptionDetailsProps {
@@ -14,7 +15,8 @@ export function PrescriptionDetails({ prescriptionId, onClose }: PrescriptionDet
     consultations, 
     medications, 
     medicalExams, 
-    medicalCares 
+    medicalCares,
+    systemSettings
   } = useApp();
   
   const prescription = prescriptions.find(p => p.id === prescriptionId);
@@ -256,7 +258,7 @@ export function PrescriptionDetails({ prescriptionId, onClose }: PrescriptionDet
                           </div>
                           <div className="text-right ml-4">
                             <p className="text-sm text-gray-600">Qté: {item.quantity}</p>
-                            <p className="text-sm font-medium">{item.totalPrice.toLocaleString()} €</p>
+                            <p className="text-sm font-medium">{formatCurrencyWithSettings(item.totalPrice, systemSettings)}</p>
                           </div>
                         </div>
                       </div>
@@ -291,7 +293,7 @@ export function PrescriptionDetails({ prescriptionId, onClose }: PrescriptionDet
                           </div>
                           <div className="text-right ml-4">
                             <p className="text-sm text-gray-600">Qté: {item.quantity}</p>
-                            <p className="text-sm font-medium">{item.totalPrice.toLocaleString()} €</p>
+                            <p className="text-sm font-medium">{formatCurrencyWithSettings(item.totalPrice, systemSettings)}</p>
                           </div>
                         </div>
                       </div>
@@ -326,7 +328,7 @@ export function PrescriptionDetails({ prescriptionId, onClose }: PrescriptionDet
                           </div>
                           <div className="text-right ml-4">
                             <p className="text-sm text-gray-600">Qté: {item.quantity}</p>
-                            <p className="text-sm font-medium">{item.totalPrice.toLocaleString()} €</p>
+                            <p className="text-sm font-medium">{formatCurrencyWithSettings(item.totalPrice, systemSettings)}</p>
                           </div>
                         </div>
                       </div>
@@ -351,7 +353,7 @@ export function PrescriptionDetails({ prescriptionId, onClose }: PrescriptionDet
             <div className="border-t pt-4">
               <div className="flex justify-between text-lg font-bold">
                 <span>Total estimé:</span>
-                <span>{totalAmount.toLocaleString()} €</span>
+                <span>{formatCurrencyWithSettings(totalAmount, systemSettings)}</span>
               </div>
             </div>
           </div>

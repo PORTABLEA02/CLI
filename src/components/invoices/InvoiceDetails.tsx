@@ -1,5 +1,6 @@
 import React from 'react';
 import { useApp } from '../../contexts/AppContext';
+import { formatCurrencyWithSettings } from '../../utils/formatters';
 import { X, Download, Calendar, User, Mail, Phone } from 'lucide-react';
 
 interface InvoiceDetailsProps {
@@ -51,21 +52,6 @@ export function InvoiceDetails({ invoiceId, onClose }: InvoiceDetailsProps) {
         return 'En retard';
       default:
         return status;
-    }
-  };
-
-  const formatCurrency = (amount: number) => {
-    const currency = systemSettings?.system?.currency || 'FCFA';
-    switch (currency) {
-      case 'EUR':
-        return `${amount.toLocaleString()} €`;
-      case 'USD':
-        return `$${amount.toLocaleString()}`;
-      case 'GBP':
-        return `£${amount.toLocaleString()}`;
-      case 'FCFA':
-      default:
-        return `${amount.toLocaleString()} FCFA`;
     }
   };
 
@@ -216,10 +202,10 @@ export function InvoiceDetails({ invoiceId, onClose }: InvoiceDetailsProps) {
                     {item.quantity}
                   </td>
                   <td className="border border-gray-300 px-4 py-2 text-sm text-right text-gray-900">
-                    {formatCurrency(item.unitPrice)}
+                    {formatCurrencyWithSettings(item.unitPrice, systemSettings)}
                   </td>
                   <td className="border border-gray-300 px-4 py-2 text-sm text-right text-gray-900">
-                    {formatCurrency(item.total)}
+                    {formatCurrencyWithSettings(item.total, systemSettings)}
                   </td>
                 </tr>
               ))}
@@ -234,16 +220,16 @@ export function InvoiceDetails({ invoiceId, onClose }: InvoiceDetailsProps) {
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">Sous-total:</span>
-              <span className="font-medium">{formatCurrency(invoice.subtotal)}</span>
+              <span className="font-medium">{formatCurrencyWithSettings(invoice.subtotal, systemSettings)}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">TVA ({systemSettings?.system?.taxRate || 8}%):</span>
-              <span className="font-medium">{formatCurrency(invoice.tax)}</span>
+              <span className="font-medium">{formatCurrencyWithSettings(invoice.tax, systemSettings)}</span>
             </div>
             <div className="border-t pt-2">
               <div className="flex justify-between text-lg font-bold">
                 <span>Total:</span>
-                <span>{formatCurrency(invoice.total)}</span>
+                <span>{formatCurrencyWithSettings(invoice.total, systemSettings)}</span>
               </div>
             </div>
           </div>

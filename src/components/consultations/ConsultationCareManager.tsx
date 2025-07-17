@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
+import { formatCurrencyWithSettings } from '../../utils/formatters';
 import { Plus, Trash2, User, Euro, Clock } from 'lucide-react';
 import { ConsultationCare, MedicalCare } from '../../types';
 
@@ -91,7 +92,7 @@ export function ConsultationCareManager({
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-medium text-gray-900">Soins et Actes Réalisés</h3>
         <div className="text-sm text-gray-500">
-          Total: <span className="font-medium text-gray-900">{totalAmount.toLocaleString()} €</span>
+          Total: <span className="font-medium text-gray-900">{formatCurrencyWithSettings(totalAmount, systemSettings)}</span>
         </div>
       </div>
 
@@ -108,7 +109,7 @@ export function ConsultationCareManager({
               <option value="">Sélectionner un soin</option>
               {activeCares.map((care) => (
                 <option key={care.id} value={care.id}>
-                  {care.name} - {care.unitPrice.toLocaleString()} €
+                  {care.name} - {formatCurrencyWithSettings(care.unitPrice, systemSettings)}
                 </option>
               ))}
             </select>
@@ -144,10 +145,10 @@ export function ConsultationCareManager({
               </div>
               <div className="text-right">
                 <p className="text-sm font-medium text-gray-900">
-                  {(selectedCare.unitPrice * quantity).toLocaleString()} €
+                  {formatCurrencyWithSettings(selectedCare.unitPrice * quantity, systemSettings)}
                 </p>
                 <p className="text-xs text-gray-500">
-                  {selectedCare.unitPrice.toLocaleString()} € × {quantity}
+                  {formatCurrencyWithSettings(selectedCare.unitPrice, systemSettings)} × {quantity}
                 </p>
               </div>
             </div>
@@ -196,7 +197,7 @@ export function ConsultationCareManager({
                     </div>
                     <div className="flex items-center space-x-1">
                       <Euro className="w-3 h-3" />
-                      <span>{consultationCare.unitPrice.toLocaleString()} € / unité</span>
+                      <span>{formatCurrencyWithSettings(consultationCare.unitPrice, systemSettings)} / unité</span>
                     </div>
                     {careDetails.duration && (
                       <div className="flex items-center space-x-1">
@@ -222,7 +223,7 @@ export function ConsultationCareManager({
                 <div className="flex items-center space-x-3">
                   <div className="text-right">
                     <p className="text-lg font-bold text-gray-900">
-                      {consultationCare.totalPrice.toLocaleString()} €
+                      {formatCurrencyWithSettings(consultationCare.totalPrice, systemSettings)}
                     </p>
                   </div>
                   <button

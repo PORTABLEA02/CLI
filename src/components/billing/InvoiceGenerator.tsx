@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
+import { formatCurrencyWithSettings } from '../../utils/formatters';
 import { FileText, User, Calendar, DollarSign, Plus, Trash2, Edit3, Search, Pill, Stethoscope, Activity } from 'lucide-react';
 
 interface InvoiceGeneratorProps {
@@ -25,6 +26,7 @@ export function InvoiceGenerator({ onInvoiceGenerated }: InvoiceGeneratorProps) 
     medicalCares,
     medications,
     medicalExams,
+    systemSettings,
     getConsultationCares,
     generateCustomInvoice 
   } = useApp();
@@ -364,7 +366,7 @@ export function InvoiceGenerator({ onInvoiceGenerated }: InvoiceGeneratorProps) 
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-medium text-gray-900">100,00 €</p>
-                    <p className="text-xs text-gray-500">1 × 100,00 €</p>
+                    <p className="text-xs text-gray-500">1 × {formatCurrencyWithSettings(100, systemSettings)}</p>
                   </div>
                 </div>
 
@@ -378,7 +380,7 @@ export function InvoiceGenerator({ onInvoiceGenerated }: InvoiceGeneratorProps) 
                         <p className="text-sm text-gray-500">{careDetails?.description}</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-medium text-gray-900">{care.totalPrice.toLocaleString()} €</p>
+                        <p className="text-sm font-medium text-gray-900">{formatCurrencyWithSettings(care.totalPrice, systemSettings)}</p>
                         <p className="text-xs text-gray-500">{care.quantity} × {care.unitPrice.toLocaleString()} €</p>
                       </div>
                     </div>
@@ -399,7 +401,7 @@ export function InvoiceGenerator({ onInvoiceGenerated }: InvoiceGeneratorProps) 
                       </div>
                     </div>
                     <div className="text-right mr-3">
-                      <p className="text-sm font-medium text-gray-900">{item.total.toLocaleString()} €</p>
+                      <p className="text-sm font-medium text-gray-900">{formatCurrencyWithSettings(item.total, systemSettings)}</p>
                       <p className="text-xs text-gray-500">{item.quantity} × {item.unitPrice.toLocaleString()} €</p>
                     </div>
                     <div className="flex space-x-1">
@@ -424,15 +426,15 @@ export function InvoiceGenerator({ onInvoiceGenerated }: InvoiceGeneratorProps) 
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Sous-total:</span>
-                      <span className="font-medium">{subtotal.toLocaleString()} €</span>
+                      <span className="font-medium">{formatCurrencyWithSettings(subtotal, systemSettings)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">TVA (8%):</span>
-                      <span className="font-medium">{tax.toLocaleString()} €</span>
+                      <span className="font-medium">{formatCurrencyWithSettings(tax, systemSettings)}</span>
                     </div>
                     <div className="flex justify-between text-lg font-bold border-t pt-2">
                       <span>Total:</span>
-                      <span className="text-blue-600">{total.toLocaleString()} €</span>
+                      <span className="text-blue-600">{formatCurrencyWithSettings(total, systemSettings)}</span>
                     </div>
                   </div>
                 </div>
@@ -545,7 +547,7 @@ export function InvoiceGenerator({ onInvoiceGenerated }: InvoiceGeneratorProps) 
                             </div>
                           </div>
                           <div className="text-sm font-medium text-gray-900 ml-4">
-                            {catalogItem.unitPrice.toLocaleString()} €
+                            {formatCurrencyWithSettings(catalogItem.unitPrice, systemSettings)}
                           </div>
                         </div>
                       </button>
@@ -604,7 +606,7 @@ export function InvoiceGenerator({ onInvoiceGenerated }: InvoiceGeneratorProps) 
                   <label className="block text-sm font-medium text-gray-700 mb-1">Total</label>
                   <input
                     type="text"
-                    value={`${(itemForm.quantity * itemForm.unitPrice).toLocaleString()} €`}
+                    value={formatCurrencyWithSettings(itemForm.quantity * itemForm.unitPrice, systemSettings)}
                     disabled
                     className="w-full rounded-md border-gray-300 shadow-sm bg-gray-100 font-medium"
                   />

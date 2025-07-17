@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
+import { formatCurrencyWithSettings } from '../../utils/formatters';
 import { MedicalCareForm } from './MedicalCareForm';
 import { Plus, Search, Edit, Eye, Clock, User, Euro, Filter } from 'lucide-react';
 import { MedicalCare } from '../../types';
@@ -122,7 +123,7 @@ export function MedicalCareList() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Prix Moyen</p>
-              <p className="text-2xl font-bold text-gray-900">{averagePrice.toFixed(2)} €</p>
+              <p className="text-2xl font-bold text-gray-900">{formatCurrencyWithSettings(averagePrice, systemSettings)}</p>
             </div>
             <div className="p-3 bg-yellow-50 rounded-lg">
               <Euro className="w-6 h-6 text-yellow-600" />
@@ -207,7 +208,7 @@ export function MedicalCareList() {
                     </div>
                     <div className="flex items-center space-x-1">
                       <Euro className="w-4 h-4" />
-                      <span className="font-medium">{care.unitPrice.toLocaleString()} €</span>
+                      <span className="font-medium">{formatCurrencyWithSettings(care.unitPrice, systemSettings)}</span>
                     </div>
                     {care.duration && (
                       <div className="flex items-center space-x-1">

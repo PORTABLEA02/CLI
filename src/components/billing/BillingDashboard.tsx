@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
+import { formatCurrencyWithSettings } from '../../utils/formatters';
 import { InvoiceGenerator } from './InvoiceGenerator';
 import { PaymentProcessor } from './PaymentProcessor';
 import { InvoicePrintView } from './InvoicePrintView';
@@ -101,21 +102,6 @@ export function BillingDashboard() {
     }
   };
 
-  const formatCurrency = (amount: number) => {
-    const currency = systemSettings?.system?.currency || 'FCFA';
-    switch (currency) {
-      case 'EUR':
-        return `${amount.toLocaleString()} €`;
-      case 'USD':
-        return `$${amount.toLocaleString()}`;
-      case 'GBP':
-        return `£${amount.toLocaleString()}`;
-      case 'FCFA':
-      default:
-        return `${amount.toLocaleString()} FCFA`;
-    }
-  };
-
   const handlePrintInvoice = (invoiceId: string) => {
     setSelectedInvoice(invoiceId);
     setShowPrintView(true);
@@ -163,7 +149,7 @@ export function BillingDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Revenus Aujourd'hui</p>
-              <p className="text-2xl font-bold text-green-600">{formatCurrency(todayRevenue)}</p>
+              <p className="text-2xl font-bold text-green-600">{formatCurrencyWithSettings(todayRevenue, systemSettings)}</p>
             </div>
             <div className="p-3 bg-green-50 rounded-lg">
               <TrendingUp className="w-6 h-6 text-green-600" />
@@ -175,7 +161,7 @@ export function BillingDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">En Attente</p>
-              <p className="text-2xl font-bold text-yellow-600">{formatCurrency(pendingAmount)}</p>
+              <p className="text-2xl font-bold text-yellow-600">{formatCurrencyWithSettings(pendingAmount, systemSettings)}</p>
             </div>
             <div className="p-3 bg-yellow-50 rounded-lg">
               <Calendar className="w-6 h-6 text-yellow-600" />
@@ -319,7 +305,7 @@ export function BillingDashboard() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-medium text-gray-900">
-                            {formatCurrency(invoice.total)}
+                            {formatCurrencyWithSettings(invoice.total, systemSettings)}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">

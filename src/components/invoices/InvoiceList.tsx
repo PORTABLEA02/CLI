@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
+import { formatCurrencyWithSettings } from '../../utils/formatters';
 import { InvoiceDetails } from './InvoiceDetails';
 import { Search, Eye, DollarSign, Calendar, AlertCircle, CheckCircle } from 'lucide-react';
 
 export function InvoiceList() {
-  const { invoices, patients, consultations, updateInvoiceStatus, currentUser } = useApp();
+  const { invoices, patients, consultations, updateInvoiceStatus, currentUser, systemSettings } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [viewingInvoice, setViewingInvoice] = useState<string | null>(null);
@@ -85,7 +86,7 @@ export function InvoiceList() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Total des Factures</p>
-              <p className="text-2xl font-bold text-gray-900">{totalAmount.toLocaleString()} €</p>
+              <p className="text-2xl font-bold text-gray-900">{formatCurrencyWithSettings(totalAmount, systemSettings)}</p>
             </div>
             <div className="p-3 bg-blue-50 rounded-lg">
               <DollarSign className="w-6 h-6 text-blue-600" />
@@ -97,7 +98,7 @@ export function InvoiceList() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Montant Payé</p>
-              <p className="text-2xl font-bold text-green-600">{paidAmount.toLocaleString()} €</p>
+              <p className="text-2xl font-bold text-green-600">{formatCurrencyWithSettings(paidAmount, systemSettings)}</p>
             </div>
             <div className="p-3 bg-green-50 rounded-lg">
               <CheckCircle className="w-6 h-6 text-green-600" />
@@ -109,7 +110,7 @@ export function InvoiceList() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">En Attente</p>
-              <p className="text-2xl font-bold text-yellow-600">{pendingAmount.toLocaleString()} €</p>
+              <p className="text-2xl font-bold text-yellow-600">{formatCurrencyWithSettings(pendingAmount, systemSettings)}</p>
             </div>
             <div className="p-3 bg-yellow-50 rounded-lg">
               <AlertCircle className="w-6 h-6 text-yellow-600" />
@@ -203,10 +204,10 @@ export function InvoiceList() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
-                        {invoice.total.toLocaleString()} €
+                        {formatCurrencyWithSettings(invoice.total, systemSettings)}
                       </div>
                       <div className="text-sm text-gray-500">
-                        HT: {invoice.subtotal.toLocaleString()} €
+                        HT: {formatCurrencyWithSettings(invoice.subtotal, systemSettings)}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

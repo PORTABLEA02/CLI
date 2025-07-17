@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
+import { formatCurrencyWithSettings } from '../../utils/formatters';
 import { Prescription, PrescriptionItem, Medication, MedicalExam, MedicalCare } from '../../types';
 import { Plus, Trash2, Search, X } from 'lucide-react';
 import { validatePrescriptionDate, checkMedicationAllergy, formatAllergyWarning } from '../../utils/businessRules';
@@ -18,7 +19,8 @@ export function PrescriptionForm({ prescription, consultationId, onSubmit, onCan
     currentUser, 
     medications, 
     medicalExams, 
-    medicalCares 
+    medicalCares,
+    systemSettings
   } = useApp();
 
   const [formData, setFormData] = useState({
@@ -378,10 +380,10 @@ export function PrescriptionForm({ prescription, consultationId, onSubmit, onCan
                     <div className="flex items-center space-x-3">
                       <div className="text-right">
                         <div className="font-medium text-gray-900">
-                          {item.totalPrice.toLocaleString()} €
+                          {formatCurrencyWithSettings(item.totalPrice, systemSettings)}
                         </div>
                         <div className="text-sm text-gray-500">
-                          {item.unitPrice.toLocaleString()} € × {item.quantity}
+                          {formatCurrencyWithSettings(item.unitPrice, systemSettings)} × {item.quantity}
                         </div>
                       </div>
                       <button
@@ -403,7 +405,7 @@ export function PrescriptionForm({ prescription, consultationId, onSubmit, onCan
             <div className="bg-gray-50 p-4 rounded-lg">
               <div className="flex justify-between items-center">
                 <span className="font-medium text-gray-900">Total estimé:</span>
-                <span className="text-lg font-bold text-blue-600">{totalAmount.toLocaleString()} €</span>
+                <span className="text-lg font-bold text-blue-600">{formatCurrencyWithSettings(totalAmount, systemSettings)}</span>
               </div>
             </div>
           )}
@@ -525,7 +527,7 @@ export function PrescriptionForm({ prescription, consultationId, onSubmit, onCan
                         )}
                       </div>
                       <div className="text-sm font-medium text-gray-900">
-                        {item.unitPrice.toLocaleString()} €
+                        {formatCurrencyWithSettings(item.unitPrice, systemSettings)}
                       </div>
                     </div>
                   </button>

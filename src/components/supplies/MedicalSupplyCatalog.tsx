@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
+import { formatCurrencyWithSettings } from '../../utils/formatters';
 import { MedicalSupplyForm } from './MedicalSupplyForm';
 import { Plus, Search, Edit, Eye, Package, AlertTriangle, Filter } from 'lucide-react';
 import { MedicalSupply } from '../../types';
@@ -156,7 +157,7 @@ export function MedicalSupplyCatalog() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Valeur Stock</p>
-              <p className="text-2xl font-bold text-gray-900">{totalValue.toLocaleString()} €</p>
+              <p className="text-2xl font-bold text-gray-900">{formatCurrencyWithSettings(totalValue, systemSettings)}</p>
             </div>
             <div className="p-3 bg-yellow-50 rounded-lg">
               <span className="text-yellow-600 font-bold text-xl">€</span>
@@ -294,7 +295,7 @@ export function MedicalSupplyCatalog() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
-                        {supply.unitPrice.toLocaleString()} €
+                        {formatCurrencyWithSettings(supply.unitPrice, systemSettings)}
                       </div>
                       {supply.requiresDoctor && (
                         <div className="text-xs text-orange-600">
@@ -311,7 +312,7 @@ export function MedicalSupplyCatalog() {
                         Min: {supply.minStockLevel}
                       </div>
                       <div className="text-xs text-gray-500">
-                        Valeur: {(supply.unitPrice * supply.stockQuantity).toLocaleString()} €
+                        Valeur: {formatCurrencyWithSettings(supply.unitPrice * supply.stockQuantity, systemSettings)}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

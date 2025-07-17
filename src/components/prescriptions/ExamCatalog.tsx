@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
+import { formatCurrencyWithSettings } from '../../utils/formatters';
 import { ExamForm } from './ExamForm';
 import { Plus, Search, Edit, Eye, Clock } from 'lucide-react';
 import { MedicalExam } from '../../types';
@@ -111,7 +112,7 @@ export function ExamCatalog() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Prix Moyen</p>
-              <p className="text-2xl font-bold text-gray-900">{averagePrice.toFixed(2)} €</p>
+              <p className="text-2xl font-bold text-gray-900">{formatCurrencyWithSettings(averagePrice, systemSettings)}</p>
             </div>
             <div className="p-3 bg-yellow-50 rounded-lg">
               <span className="text-yellow-600 font-bold text-xl">€</span>
@@ -195,7 +196,7 @@ export function ExamCatalog() {
                       </span>
                     </div>
                     <div className="flex items-center space-x-1">
-                      <span className="font-medium">{exam.unitPrice.toLocaleString()} €</span>
+                      <span className="font-medium">{formatCurrencyWithSettings(exam.unitPrice, systemSettings)}</span>
                     </div>
                     {exam.duration && (
                       <div className="flex items-center space-x-1">

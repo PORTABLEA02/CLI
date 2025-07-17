@@ -1,5 +1,6 @@
 import React from 'react';
 import { useApp } from '../../contexts/AppContext';
+import { formatCurrencyWithSettings } from '../../utils/formatters';
 import { DashboardCard } from './DashboardCard';
 import { 
   Users, 
@@ -17,7 +18,7 @@ import {
 } from 'lucide-react';
 
 export function Dashboard() {
-  const { currentUser, stats, consultations, patients, invoices, prescriptions, medicalSupplies } = useApp();
+  const { currentUser, stats, consultations, patients, invoices, prescriptions, medicalSupplies, systemSettings } = useApp();
 
   const getRecentConsultations = () => {
     let filteredConsultations = consultations;
@@ -64,7 +65,7 @@ export function Dashboard() {
           },
           {
             title: "Revenus Mensuels",
-            value: `${stats.monthlyRevenue.toLocaleString()} €`,
+            value: formatCurrencyWithSettings(stats.monthlyRevenue, systemSettings),
             icon: TrendingUp,
             color: "green" as const,
             trend: { value: 15, isPositive: true }
@@ -139,13 +140,13 @@ export function Dashboard() {
           },
           {
             title: "Revenus Aujourd'hui",
-            value: `${todayRevenue.toLocaleString()} €`,
+            value: formatCurrencyWithSettings(todayRevenue, systemSettings),
             icon: DollarSign,
             color: "green" as const
           },
           {
             title: "Montant En Attente",
-            value: `${pendingAmount.toLocaleString()} €`,
+            value: formatCurrencyWithSettings(pendingAmount, systemSettings),
             icon: Clock,
             color: "yellow" as const
           },

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
+import { formatCurrencyWithSettings } from '../../utils/formatters';
 import { CreditCard, DollarSign, Smartphone, Building, User } from 'lucide-react';
 
 interface PaymentProcessorProps {
@@ -12,7 +13,8 @@ export function PaymentProcessor({ onPaymentProcessed }: PaymentProcessorProps) 
     patients, 
     currentUser,
     updateInvoiceStatus,
-    addPayment
+    addPayment,
+    systemSettings
   } = useApp();
   
   const [selectedInvoiceId, setSelectedInvoiceId] = useState('');
@@ -113,7 +115,7 @@ export function PaymentProcessor({ onPaymentProcessed }: PaymentProcessorProps) 
                 const patient = patients.find(p => p.id === invoice.patientId);
                 return (
                   <option key={invoice.id} value={invoice.id}>
-                    #{invoice.id.slice(-6).toUpperCase()} - {patient?.firstName} {patient?.lastName} - {invoice.total.toLocaleString()} €
+                    #{invoice.id.slice(-6).toUpperCase()} - {patient?.firstName} {patient?.lastName} - {formatCurrencyWithSettings(invoice.total, systemSettings)}
                   </option>
                 );
               })}
@@ -149,15 +151,15 @@ export function PaymentProcessor({ onPaymentProcessed }: PaymentProcessorProps) 
                   </div>
                   <div className="text-sm">
                     <span className="font-medium">Sous-total:</span>
-                    <span className="ml-1">{selectedInvoice.subtotal.toLocaleString()} €</span>
+                    <span className="ml-1">{formatCurrencyWithSettings(selectedInvoice.subtotal, systemSettings)}</span>
                   </div>
                   <div className="text-sm">
                     <span className="font-medium">TVA:</span>
-                    <span className="ml-1">{selectedInvoice.tax.toLocaleString()} €</span>
+                    <span className="ml-1">{formatCurrencyWithSettings(selectedInvoice.tax, systemSettings)}</span>
                   </div>
                   <div className="text-lg font-bold text-blue-600">
                     <span>Total à payer:</span>
-                    <span className="ml-1">{selectedInvoice.total.toLocaleString()} €</span>
+                    <span className="ml-1">{formatCurrencyWithSettings(selectedInvoice.total, systemSettings)}</span>
                   </div>
                 </div>
               </div>
@@ -248,7 +250,7 @@ export function PaymentProcessor({ onPaymentProcessed }: PaymentProcessorProps) 
               >
                 {getPaymentMethodIcon(paymentMethod)}
                 <span>
-                  {isProcessing ? 'Traitement...' : `Confirmer Paiement (${selectedInvoice.total.toLocaleString()} €)`}
+                  {isProcessing ? 'Traitement...' : `Confirmer Paiement (${formatCurrencyWithSettings(selectedInvoice.total, systemSettings)})`}
                 </span>
               </button>
             </div>
