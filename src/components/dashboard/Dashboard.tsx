@@ -191,6 +191,21 @@ export function Dashboard() {
     return `${greeting}, ${currentProfile?.name}`;
   };
 
+  const getRoleSpecificWelcomeMessage = () => {
+    const baseMessage = getWelcomeMessage();
+    
+    switch (currentProfile?.role) {
+      case 'admin':
+        return `${baseMessage} - Vous avez accès à toutes les fonctionnalités de gestion.`;
+      case 'doctor':
+        return `${baseMessage} - Gérez vos consultations et prescriptions.`;
+      case 'cashier':
+        return `${baseMessage} - Gérez la facturation et les paiements.`;
+      default:
+        return baseMessage;
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -199,7 +214,7 @@ export function Dashboard() {
           <h1 className="text-2xl font-bold text-gray-900">
             {getDashboardTitle()}
           </h1>
-          <p className="text-gray-600 mt-1">{getWelcomeMessage()}</p>
+          <p className="text-gray-600 mt-1">{getRoleSpecificWelcomeMessage()}</p>
         </div>
         <div className="text-right">
           <div className="text-sm text-gray-500">

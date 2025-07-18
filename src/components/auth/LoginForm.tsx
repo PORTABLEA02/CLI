@@ -22,8 +22,11 @@ export function LoginForm() {
       if (!success) {
         setError('Email ou mot de passe incorrect');
       }
+      // Si la connexion réussit, l'utilisateur sera automatiquement redirigé
+      // grâce au useEffect dans App.tsx qui détecte le changement de currentProfile
     } catch (err) {
-      setError('Une erreur est survenue lors de la connexion');
+      // Afficher le message d'erreur spécifique
+      setError(err instanceof Error ? err.message : 'Une erreur est survenue lors de la connexion');
     } finally {
       setIsLoading(false);
     }

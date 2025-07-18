@@ -107,6 +107,7 @@ export function Sidebar({ activeTab, onTabChange, isOpen }: SidebarProps) {
         { id: 'prescriptions', label: 'Mes Prescriptions', icon: FileText },
         { id: 'medications', label: 'Catalogue Médicaments', icon: Pill },
         { id: 'exams', label: 'Catalogue Examens', icon: Search },
+        { id: 'supplies', label: 'Produits de Soins', icon: Package },
         
         // Suivi et rapports
         { 
