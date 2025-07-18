@@ -1,8 +1,6 @@
 import React from 'react';
 import { User, Bell, Settings, LogOut, Menu, Shield, UserCheck, Receipt } from 'lucide-react';
 import { useApp } from '../../contexts/AppContext';
-import { useCommonTranslation } from '../../hooks/useTranslation';
-import { LanguageSelector } from './LanguageSelector';
 
 interface HeaderProps {
   onToggleSidebar: () => void;
@@ -11,13 +9,12 @@ interface HeaderProps {
 
 export function Header({ onToggleSidebar, sidebarOpen }: HeaderProps) {
   const { currentProfile, logout } = useApp();
-  const { t } = useCommonTranslation();
 
   const getRoleInfo = () => {
     switch (currentProfile?.role) {
       case 'admin':
         return {
-          title: t('roles.admin'),
+          title: 'Administrateur',
           subtitle: 'Gestion complète du système',
           color: 'text-purple-600',
           bgColor: 'bg-purple-50',
@@ -25,7 +22,7 @@ export function Header({ onToggleSidebar, sidebarOpen }: HeaderProps) {
         };
       case 'doctor':
         return {
-          title: t('roles.doctor'),
+          title: 'Médecin',
           subtitle: 'Consultations & Prescriptions',
           color: 'text-green-600',
           bgColor: 'bg-green-50',
@@ -33,7 +30,7 @@ export function Header({ onToggleSidebar, sidebarOpen }: HeaderProps) {
         };
       case 'cashier':
         return {
-          title: t('roles.cashier'),
+          title: 'Caissier',
           subtitle: 'Facturation & Paiements',
           color: 'text-blue-600',
           bgColor: 'bg-blue-50',
@@ -69,8 +66,8 @@ export function Header({ onToggleSidebar, sidebarOpen }: HeaderProps) {
               <span className="text-white font-bold text-sm">C</span>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">{t('app.name')}</h1>
-              <p className="text-xs text-gray-500 hidden sm:block">{t('app.description')}</p>
+              <h1 className="text-xl font-bold text-gray-900">ClinicPro</h1>
+              <p className="text-xs text-gray-500 hidden sm:block">Système de gestion clinique</p>
             </div>
           </div>
         </div>
@@ -102,7 +99,6 @@ export function Header({ onToggleSidebar, sidebarOpen }: HeaderProps) {
 
           {/* Action Buttons */}
           <div className="flex items-center space-x-2">
-            <LanguageSelector />
             <button className="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors">
               <Settings className="h-5 w-5" />
             </button>
