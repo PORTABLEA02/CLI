@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { PatientForm } from './PatientForm';
-import { usePatientsTranslation } from '../../hooks/useTranslation';
 import { Plus, Search, Edit, Eye, Phone, Mail } from 'lucide-react';
 import { Patient } from '../../types';
 
 export function PatientList() {
   const { patients, addPatient, updatePatient, currentProfile } = useApp();
-  const { t } = usePatientsTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
@@ -52,14 +50,14 @@ export function PatientList() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">{t('title')}</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Gestion des Patients</h1>
         {canAddPatient && (
           <button
             onClick={() => setShowForm(true)}
             className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center space-x-2 transition-colors"
           >
             <Plus className="h-4 w-4" />
-            <span>{t('newPatient')}</span>
+            <span>Nouveau Patient</span>
           </button>
         )}
       </div>
@@ -69,7 +67,7 @@ export function PatientList() {
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
         <input
           type="text"
-          placeholder={t('searchPlaceholder')}
+          placeholder="Rechercher un patient..."
           className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
@@ -80,7 +78,7 @@ export function PatientList() {
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div className="px-6 py-3 border-b border-gray-200 bg-gray-50">
           <h3 className="text-lg font-medium text-gray-900">
-            {t('list', { count: filteredPatients.length })}
+            Liste des Patients ({filteredPatients.length})
           </h3>
         </div>
 
@@ -89,19 +87,19 @@ export function PatientList() {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {t('fields.fullName')}
+                  Patient
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Contact
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {t('fields.age')}
+                  Âge
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {t('fields.bloodType')}
+                  Groupe Sanguin
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {t('fields.lastVisit')}
+                  Dernière Visite
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
@@ -139,11 +137,11 @@ export function PatientList() {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {t('messages.ageYears', { age: calculateAge(patient.dateOfBirth) })}
+                    {calculateAge(patient.dateOfBirth)} ans
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">
-                      {patient.bloodType || t('messages.notSpecified')}
+                      {patient.bloodType || 'Non spécifié'}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

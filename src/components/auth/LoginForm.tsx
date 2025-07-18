@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
-import { useAuthTranslation } from '../../hooks/useTranslation';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 
 export function LoginForm() {
-  const { t } = useAuthTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -22,11 +20,8 @@ export function LoginForm() {
       if (!success) {
         setError('Email ou mot de passe incorrect');
       }
-      // Si la connexion réussit, l'utilisateur sera automatiquement redirigé
-      // grâce au useEffect dans App.tsx qui détecte le changement de currentProfile
     } catch (err) {
-      // Afficher le message d'erreur spécifique
-      setError(err instanceof Error ? err.message : 'Une erreur est survenue lors de la connexion');
+      setError('Une erreur est survenue lors de la connexion');
     } finally {
       setIsLoading(false);
     }
@@ -40,14 +35,14 @@ export function LoginForm() {
             <span className="text-white font-bold text-2xl">C</span>
           </div>
           <h2 className="text-3xl font-bold text-gray-900">ClinicPro</h2>
-          <p className="mt-2 text-gray-600">{t('login.title')}</p>
+          <p className="mt-2 text-gray-600">Connectez-vous à votre compte</p>
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                {t('login.email')}
+                Email
               </label>
               <div className="mt-1 relative">
                 <input
@@ -57,7 +52,7 @@ export function LoginForm() {
                   autoComplete="email"
                   required
                   className="appearance-none relative block w-full px-3 py-2 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                  placeholder={t('login.emailPlaceholder')}
+                  placeholder="votre@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
@@ -67,7 +62,7 @@ export function LoginForm() {
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                {t('login.password')}
+                Mot de passe
               </label>
               <div className="mt-1 relative">
                 <input
@@ -77,7 +72,7 @@ export function LoginForm() {
                   autoComplete="current-password"
                   required
                   className="appearance-none relative block w-full px-3 py-2 pl-10 pr-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                  placeholder={t('login.passwordPlaceholder')}
+                  placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
@@ -99,7 +94,7 @@ export function LoginForm() {
 
           {error && (
             <div className="text-red-600 text-sm text-center bg-red-50 p-2 rounded-md">
-              {t('login.error')}
+              {error}
             </div>
           )}
 
@@ -109,18 +104,18 @@ export function LoginForm() {
               disabled={isLoading}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {isLoading ? t('login.signingIn') : t('login.signIn')}
+              {isLoading ? 'Connexion...' : 'Se connecter'}
             </button>
           </div>
 
           <div className="text-center">
             <div className="text-sm text-gray-600">
-              <p className="mb-2">{t('login.demoAccounts')}</p>
+              <p className="mb-2">Comptes de démonstration :</p>
               <div className="space-y-1 text-xs">
-                <p>{t('login.demoAdmin')}</p>
-                <p>{t('login.demoDoctor')}</p>
-                <p>{t('login.demoCashier')}</p>
-                <p className="mt-2">{t('login.demoPassword')}</p>
+                <p><strong>Admin:</strong> sarah.johnson@clinic.com</p>
+                <p><strong>Médecin:</strong> michael.chen@clinic.com</p>
+                <p><strong>Caissier:</strong> emma.wilson@clinic.com</p>
+                <p className="mt-2"><strong>Mot de passe:</strong> password</p>
               </div>
             </div>
           </div>

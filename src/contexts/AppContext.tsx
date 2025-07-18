@@ -153,8 +153,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       // Check if user is already logged in
       const { data: { user } } = await supabase.auth.getUser();
       if (user?.email) {
-        const profile = await supabaseService.getProfileByEmail(user.email);
-        setCurrentProfile(profile);
+        const currentProfile = await supabaseService.getProfileByEmail(user.email);
+        setCurrentProfile(currentProfile);
       }
 
       // Load all data in parallel
@@ -206,7 +206,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
     } catch (error) {
       console.error('Error loading initial data:', error);
-      // Continue loading even if there's an error
     } finally {
       setIsLoading(false);
     }
@@ -235,7 +234,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       const authData = await supabaseService.signInWithEmail(email, password);
-      console.log('authData:', authData);
       if (authData?.user?.email) {
         const profile = await supabaseService.getProfileByEmail(authData.user.email);
         if (profile && profile.isActive) {
@@ -247,29 +245,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
           const updatedProfiles = await supabaseService.getProfiles();
           setProfiles(updatedProfiles);
           
-          // Log successful login for audit
-          console.log(`Connexion réussie pour ${profile.name} (${profile.role}) à ${new Date().toLocaleString()}`);
-          
           return true;
-        } else {
-          console.warn(`Tentative de connexion avec un compte inactif: ${email}`);
-          throw new Error('Votre compte a été désactivé. Contactez l\'administrateur.');
         }
       }
       return false;
     } catch (error) {
       console.error('Login error:', error);
-      // Re-throw l'erreur pour que le composant LoginForm puisse l'afficher
-      throw error;
+      return false;
     }
   };
 
   const logout = async () => {
     try {
-      const currentUser = currentProfile?.name;
       await supabaseService.signOut();
       setCurrentProfile(null);
-      console.log(`Déconnexion de ${currentUser} à ${new Date().toLocaleString()}`);
     } catch (error) {
       console.error('Logout error:', error);
     }

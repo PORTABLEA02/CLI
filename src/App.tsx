@@ -18,123 +18,15 @@ import { ProfileManagement } from './components/admin/ProfileManagement';
 import { SystemSettings } from './components/admin/SystemSettings';
 
 function AppContent() {
-  const { currentProfile, isLoading } = useApp();
+  const { currentProfile } = useApp();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Redirection basée sur le rôle lors de la connexion
-  React.useEffect(() => {
-    if (currentProfile) {
-      // Rediriger vers la page par défaut selon le rôle
-      switch (currentProfile.role) {
-        case 'admin':
-          setActiveTab('dashboard');
-          break;
-        case 'doctor':
-          setActiveTab('consultations');
-          break;
-        case 'cashier':
-          setActiveTab('invoices');
-          break;
-        default:
-          setActiveTab('dashboard');
-      }
-    }
-  }, [currentProfile]);
-
-  // Afficher le loader pendant le chargement initial
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Chargement de l'application...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Afficher le formulaire de connexion si pas d'utilisateur connecté
   if (!currentProfile) {
     return <LoginForm />;
   }
 
-  // Fonction pour vérifier l'accès à un onglet
-  const hasAccessToTab = (tab: string) => {
-    const role = currentProfile.role;
-    
-    switch (tab) {
-      case 'dashboard':
-        return true;
-      case 'patients':
-        return role === 'admin' || role === 'doctor' || role === 'cashier';
-      case 'consultations':
-        return role === 'admin' || role === 'doctor' || role === 'cashier';
-      case 'treatments':
-        return role === 'admin' || role === 'doctor';
-      case 'prescriptions':
-        return role === 'admin' || role === 'doctor' || role === 'cashier';
-      case 'medications':
-        return true;
-      case 'exams':
-        return true;
-      case 'supplies':
-        return role === 'admin' || role === 'doctor' || role === 'cashier';
-      case 'invoices':
-        return role === 'admin' || role === 'cashier';
-      case 'reports':
-        return role === 'admin' || role === 'doctor';
-      case 'profiles':
-        return role === 'admin';
-      case 'settings':
-        return role === 'admin';
-      default:
-        return false;
-    }
-  };
-
-  // Fonction pour gérer le changement d'onglet avec vérification d'accès
-  const handleTabChange = (tab: string) => {
-    if (hasAccessToTab(tab)) {
-      setActiveTab(tab);
-    } else {
-      console.warn(`Accès refusé à l'onglet: ${tab} pour le rôle: ${currentProfile.role}`);
-    }
-  };
-
   const renderContent = () => {
-    // Vérifier l'accès avant de rendre le contenu
-    if (!hasAccessToTab(activeTab)) {
-      return (
-        <div className="p-8 text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Accès Restreint</h2>
-          <p className="text-gray-600 mb-4">
-            Vous n'avez pas accès à cette section avec votre rôle actuel ({currentProfile.role}).
-          </p>
-          <button
-            onClick={() => {
-              switch (currentProfile.role) {
-                case 'admin':
-                  setActiveTab('dashboard');
-                  break;
-                case 'doctor':
-                  setActiveTab('consultations');
-                  break;
-                case 'cashier':
-                  setActiveTab('invoices');
-                  break;
-                default:
-                  setActiveTab('dashboard');
-              }
-            }}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-          >
-            Retour à l'accueil
-          </button>
-        </div>
-      );
-    }
-
     switch (activeTab) {
       case 'dashboard':
         return <Dashboard />;
@@ -143,7 +35,13 @@ function AppContent() {
       case 'consultations':
         return <ConsultationList />;
       case 'invoices':
-        return currentProfile.role === 'cashier' ? <BillingDashboard /> : <InvoiceList />;
+        // Show billing dashboard for cashiers, regular invoice list for others
+        return currentProfile.role === 'cashier' ? <BillingDashboard /> : 
+               (currentProfile.role === 'admin' ? <InvoiceList /> : 
+                <div className="p-8 text-center">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-4">Accès Restreint</h2>
+                  <p className="text-gray-600">Vous n'avez pas accès à cette section.</p>
+                </div>);
       case 'treatments':
         return <MedicalCareList />;
       case 'prescriptions':
@@ -154,12 +52,20 @@ function AppContent() {
         return <ExamCatalog />;
       case 'supplies':
         return <MedicalSupplyCatalog />;
+      case 'profiles':
+        return currentProfile.role === 'admin' ? <ProfileManagement /> : 
+               <div className="p-8 text-center">
+                 <h2 className="text-2xl font-bold text-gray-900 mb-4">Accès Restreint</h2>
+                 <p className="text-gray-600">Seuls les administrateurs peuvent gérer les profils.</p>
+               </div>;
+      case 'settings':
+        return currentProfile.role === 'admin' ? <SystemSettings /> : 
+               <div className="p-8 text-center">
+                 <h2 className="text-2xl font-bold text-gray-900 mb-4">Accès Restreint</h2>
+                 <p className="text-gray-600">Seuls les administrateurs peuvent modifier les paramètres système.</p>
+               </div>;
       case 'reports':
         return <DoctorReports />;
-      case 'profiles':
-        return <ProfileManagement />;
-      case 'settings':
-        return <SystemSettings />;
       default:
         return <Dashboard />;
     }
@@ -175,7 +81,7 @@ function AppContent() {
       <div className="flex">
         <Sidebar
           activeTab={activeTab}
-          onTabChange={handleTabChange}
+          onTabChange={setActiveTab}
           isOpen={sidebarOpen}
         />
         

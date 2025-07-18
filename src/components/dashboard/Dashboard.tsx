@@ -1,7 +1,6 @@
 import React from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { formatCurrencyWithSettings } from '../../utils/formatters';
-import { useDashboardTranslation } from '../../hooks/useTranslation';
 import { DashboardCard } from './DashboardCard';
 import { 
   Users, 
@@ -20,7 +19,6 @@ import {
 
 export function Dashboard() {
   const { currentProfile, stats, consultations, patients, invoices, prescriptions, medicalSupplies, systemSettings } = useApp();
-  const { t } = useDashboardTranslation();
 
   const getRecentConsultations = () => {
     let filteredConsultations = consultations;
@@ -46,40 +44,40 @@ export function Dashboard() {
       case 'admin':
         return [
           {
-            title: t('stats.totalPatients'),
+            title: "Total Patients",
             value: stats.totalPatients,
             icon: Users,
             color: "blue" as const,
             trend: { value: 12, isPositive: true }
           },
           {
-            title: t('stats.todayConsultations'),
+            title: "Consultations Aujourd'hui",
             value: stats.todayConsultations,
             icon: Calendar,
             color: "green" as const,
             trend: { value: 8, isPositive: true }
           },
           {
-            title: t('stats.pendingInvoices'),
+            title: "Factures En Attente",
             value: stats.pendingInvoices,
             icon: CreditCard,
             color: "yellow" as const
           },
           {
-            title: t('stats.monthlyRevenue'),
+            title: "Revenus Mensuels",
             value: formatCurrencyWithSettings(stats.monthlyRevenue, systemSettings),
             icon: TrendingUp,
             color: "green" as const,
             trend: { value: 15, isPositive: true }
           },
           {
-            title: t('stats.completedConsultations'),
+            title: "Consultations Terminées",
             value: stats.completedConsultations,
             icon: Activity,
             color: "indigo" as const
           },
           {
-            title: t('stats.lowStock'),
+            title: "Stock Faible",
             value: medicalSupplies.filter(s => s.stockQuantity <= s.minStockLevel).length,
             icon: AlertTriangle,
             color: "red" as const
@@ -170,40 +168,25 @@ export function Dashboard() {
   const getDashboardTitle = () => {
     switch (currentProfile?.role) {
       case 'admin':
-        return t('adminTitle');
+        return 'Tableau de Bord - Administration';
       case 'doctor':
-        return t('doctorTitle');
+        return 'Tableau de Bord - Espace Médecin';
       case 'cashier':
-        return t('cashierTitle');
+        return 'Tableau de Bord - Espace Caissier';
       default:
-        return t('title');
+        return 'Tableau de Bord';
     }
   };
 
   const getWelcomeMessage = () => {
     const hour = new Date().getHours();
-    let greeting = t('welcome.morning');
+    let greeting = 'Bonjour';
     
-    if (hour < 12) greeting = t('welcome.morning');
-    else if (hour < 18) greeting = t('welcome.afternoon');
-    else greeting = t('welcome.evening');
+    if (hour < 12) greeting = 'Bonjour';
+    else if (hour < 18) greeting = 'Bon après-midi';
+    else greeting = 'Bonsoir';
 
     return `${greeting}, ${currentProfile?.name}`;
-  };
-
-  const getRoleSpecificWelcomeMessage = () => {
-    const baseMessage = getWelcomeMessage();
-    
-    switch (currentProfile?.role) {
-      case 'admin':
-        return `${baseMessage} - Vous avez accès à toutes les fonctionnalités de gestion.`;
-      case 'doctor':
-        return `${baseMessage} - Gérez vos consultations et prescriptions.`;
-      case 'cashier':
-        return `${baseMessage} - Gérez la facturation et les paiements.`;
-      default:
-        return baseMessage;
-    }
   };
 
   return (
@@ -214,7 +197,7 @@ export function Dashboard() {
           <h1 className="text-2xl font-bold text-gray-900">
             {getDashboardTitle()}
           </h1>
-          <p className="text-gray-600 mt-1">{getRoleSpecificWelcomeMessage()}</p>
+          <p className="text-gray-600 mt-1">{getWelcomeMessage()}</p>
         </div>
         <div className="text-right">
           <div className="text-sm text-gray-500">
@@ -253,7 +236,7 @@ export function Dashboard() {
         {/* Recent Consultations */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h3 className="text-lg font-medium text-gray-900 mb-4">
-            {currentProfile?.role === 'doctor' ? t('sections.myUpcomingConsultations') : t('sections.recentConsultations')}
+            {currentProfile?.role === 'doctor' ? 'Mes Prochaines Consultations' : 'Consultations Récentes'}
           </h3>
           <div className="space-y-3">
             {getRecentConsultations().map((consultation) => {
@@ -287,7 +270,7 @@ export function Dashboard() {
             {getRecentConsultations().length === 0 && (
               <div className="text-center py-8 text-gray-500">
                 <Calendar className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                <p>{t('common:messages.noData')}</p>
+                <p>Aucune consultation récente</p>
               </div>
             )}
           </div>
@@ -297,7 +280,7 @@ export function Dashboard() {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           {currentProfile?.role === 'cashier' ? (
             <>
-              <h3 className="text-lg font-medium text-gray-900 mb-4">{t('sections.recentInvoices')}</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Factures Récentes</h3>
               <div className="space-y-3">
                 {invoices.slice(0, 5).map((invoice) => {
                   const patient = patients.find(p => p.id === invoice.patientId);
@@ -334,7 +317,7 @@ export function Dashboard() {
             </>
           ) : (
             <>
-              <h3 className="text-lg font-medium text-gray-900 mb-4">{t('sections.newPatients')}</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Nouveaux Patients</h3>
               <div className="space-y-3">
                 {getRecentPatients().map((patient) => (
                   <div key={patient.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">

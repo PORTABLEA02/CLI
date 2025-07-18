@@ -203,7 +203,6 @@ export const signInWithEmail = async (email: string, password: string) => {
     });
 
     if (error) throw error;
-    console.error('Erreur Supabase:', error);
     return data;
   } catch (error) {
     handleSupabaseError(error);

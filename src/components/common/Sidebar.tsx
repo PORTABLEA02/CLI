@@ -21,7 +21,6 @@ import {
   Clipboard
 } from 'lucide-react';
 import { useApp } from '../../contexts/AppContext';
-import { useCommonTranslation } from '../../hooks/useTranslation';
 
 interface SidebarProps {
   activeTab: string;
@@ -31,11 +30,10 @@ interface SidebarProps {
 
 export function Sidebar({ activeTab, onTabChange, isOpen }: SidebarProps) {
   const { currentProfile } = useApp();
-  const { t } = useCommonTranslation();
 
   const getNavigationItems = () => {
     const baseItems = [
-      { id: 'dashboard', label: t('navigation.dashboard'), icon: Home }
+      { id: 'dashboard', label: 'Tableau de bord', icon: Home }
     ];
 
     const roleSpecificItems = {
@@ -43,48 +41,48 @@ export function Sidebar({ activeTab, onTabChange, isOpen }: SidebarProps) {
         // Gestion des profils et patients
         { 
           id: 'section-profiles', 
-          label: t('sections.profiles'), 
+          label: 'GESTION PROFILS', 
           isSection: true 
         },
-        { id: 'patients', label: t('navigation.patients'), icon: Users },
+        { id: 'patients', label: 'Patients', icon: Users },
         
         // Gestion médicale
         { 
           id: 'section-medical', 
-          label: t('sections.medical'), 
+          label: 'GESTION MÉDICALE', 
           isSection: true 
         },
-        { id: 'consultations', label: t('navigation.consultations'), icon: Calendar },
-        { id: 'treatments', label: t('navigation.treatments'), icon: Stethoscope },
-        { id: 'prescriptions', label: t('navigation.prescriptions'), icon: FileText },
+        { id: 'consultations', label: 'Consultations', icon: Calendar },
+        { id: 'treatments', label: 'Soins & Actes', icon: Stethoscope },
+        { id: 'prescriptions', label: 'Prescriptions', icon: FileText },
         
         // Catalogues et inventaire
         { 
           id: 'section-catalog', 
-          label: t('sections.catalog'), 
+          label: 'CATALOGUES & INVENTAIRE', 
           isSection: true 
         },
-        { id: 'medications', label: t('navigation.medications'), icon: Pill },
-        { id: 'exams', label: t('navigation.exams'), icon: Search },
-        { id: 'supplies', label: t('navigation.supplies'), icon: Package },
+        { id: 'medications', label: 'Médicaments', icon: Pill },
+        { id: 'exams', label: 'Examens', icon: Search },
+        { id: 'supplies', label: 'Produits de Soins', icon: Package },
         
         // Finance et facturation
         { 
           id: 'section-finance', 
-          label: t('sections.finance'), 
+          label: 'FINANCE & FACTURATION', 
           isSection: true 
         },
-        { id: 'invoices', label: t('navigation.invoices'), icon: CreditCard },
-        { id: 'reports', label: t('navigation.reports'), icon: TrendingUp },
+        { id: 'invoices', label: 'Factures', icon: CreditCard },
+        { id: 'reports', label: 'Rapports & Analytics', icon: TrendingUp },
         
         // Administration
         { 
           id: 'section-admin', 
-          label: t('sections.admin'), 
+          label: 'ADMINISTRATION', 
           isSection: true 
         },
-        { id: 'profiles', label: t('navigation.profiles'), icon: Users },
-        { id: 'settings', label: t('navigation.settings'), icon: Settings },
+        { id: 'profiles', label: 'Gestion Profils', icon: Users },
+        { id: 'settings', label: 'Paramètres Système', icon: Settings },
       ],
       
       doctor: [
@@ -107,7 +105,6 @@ export function Sidebar({ activeTab, onTabChange, isOpen }: SidebarProps) {
         { id: 'prescriptions', label: 'Mes Prescriptions', icon: FileText },
         { id: 'medications', label: 'Catalogue Médicaments', icon: Pill },
         { id: 'exams', label: 'Catalogue Examens', icon: Search },
-        { id: 'supplies', label: 'Produits de Soins', icon: Package },
         
         // Suivi et rapports
         { 
@@ -158,11 +155,11 @@ export function Sidebar({ activeTab, onTabChange, isOpen }: SidebarProps) {
   const getRoleTitle = () => {
     switch (currentProfile?.role) {
       case 'admin':
-        return t('roles.adminSpace');
+        return 'Administration';
       case 'doctor':
-        return t('roles.doctorSpace');
+        return 'Espace Médecin';
       case 'cashier':
-        return t('roles.cashierSpace');
+        return 'Espace Caissier';
       default:
         return 'ClinicPro';
     }
@@ -266,10 +263,10 @@ export function Sidebar({ activeTab, onTabChange, isOpen }: SidebarProps) {
         <div className="flex-shrink-0 p-4 border-t border-gray-200">
           <div className="flex items-center text-sm text-gray-500">
             <div className="flex-shrink-0 w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
-            <span>{t('system.online')}</span>
+            <span>Système en ligne</span>
           </div>
           <div className="mt-2 text-xs text-gray-400">
-            {t('app.version')}
+            Version 2.1.0 • ClinicPro
           </div>
         </div>
       </div>
