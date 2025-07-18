@@ -1,6 +1,7 @@
 import React from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { formatCurrencyWithSettings } from '../../utils/formatters';
+import { useDashboardTranslation } from '../../hooks/useTranslation';
 import { DashboardCard } from './DashboardCard';
 import { 
   Users, 
@@ -19,6 +20,7 @@ import {
 
 export function Dashboard() {
   const { currentProfile, stats, consultations, patients, invoices, prescriptions, medicalSupplies, systemSettings } = useApp();
+  const { t } = useDashboardTranslation();
 
   const getRecentConsultations = () => {
     let filteredConsultations = consultations;
@@ -44,40 +46,40 @@ export function Dashboard() {
       case 'admin':
         return [
           {
-            title: 'Total Patients',
+            title: t('stats.totalPatients'),
             value: stats.totalPatients,
             icon: Users,
             color: "blue" as const,
             trend: { value: 12, isPositive: true }
           },
           {
-            title: 'Consultations Aujourd\'hui',
+            title: t('stats.todayConsultations'),
             value: stats.todayConsultations,
             icon: Calendar,
             color: "green" as const,
             trend: { value: 8, isPositive: true }
           },
           {
-            title: 'Factures En Attente',
+            title: t('stats.pendingInvoices'),
             value: stats.pendingInvoices,
             icon: CreditCard,
             color: "yellow" as const
           },
           {
-            title: 'Revenus Mensuels',
+            title: t('stats.monthlyRevenue'),
             value: formatCurrencyWithSettings(stats.monthlyRevenue, systemSettings),
             icon: TrendingUp,
             color: "green" as const,
             trend: { value: 15, isPositive: true }
           },
           {
-            title: 'Consultations Terminées',
+            title: t('stats.completedConsultations'),
             value: stats.completedConsultations,
             icon: Activity,
             color: "indigo" as const
           },
           {
-            title: 'Stock Faible',
+            title: t('stats.lowStock'),
             value: medicalSupplies.filter(s => s.stockQuantity <= s.minStockLevel).length,
             icon: AlertTriangle,
             color: "red" as const
@@ -168,23 +170,23 @@ export function Dashboard() {
   const getDashboardTitle = () => {
     switch (currentProfile?.role) {
       case 'admin':
-        return 'Tableau de Bord - Administration';
+        return t('adminTitle');
       case 'doctor':
-        return 'Tableau de Bord - Espace Médecin';
+        return t('doctorTitle');
       case 'cashier':
-        return 'Tableau de Bord - Espace Caissier';
+        return t('cashierTitle');
       default:
-        return 'Tableau de Bord';
+        return t('title');
     }
   };
 
   const getWelcomeMessage = () => {
     const hour = new Date().getHours();
-    let greeting = 'Bonjour';
+    let greeting = t('welcome.morning');
     
-    if (hour < 12) greeting = 'Bonjour';
-    else if (hour < 18) greeting = 'Bon après-midi';
-    else greeting = 'Bonsoir';
+    if (hour < 12) greeting = t('welcome.morning');
+    else if (hour < 18) greeting = t('welcome.afternoon');
+    else greeting = t('welcome.evening');
 
     return `${greeting}, ${currentProfile?.name}`;
   };
@@ -251,7 +253,7 @@ export function Dashboard() {
         {/* Recent Consultations */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h3 className="text-lg font-medium text-gray-900 mb-4">
-            {currentProfile?.role === 'doctor' ? 'Mes Prochaines Consultations' : 'Consultations Récentes'}
+            {currentProfile?.role === 'doctor' ? t('sections.myUpcomingConsultations') : t('sections.recentConsultations')}
           </h3>
           <div className="space-y-3">
             {getRecentConsultations().map((consultation) => {
@@ -285,7 +287,7 @@ export function Dashboard() {
             {getRecentConsultations().length === 0 && (
               <div className="text-center py-8 text-gray-500">
                 <Calendar className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                <p>Aucune donnée disponible</p>
+                <p>{t('common:messages.noData')}</p>
               </div>
             )}
           </div>
@@ -295,7 +297,7 @@ export function Dashboard() {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           {currentProfile?.role === 'cashier' ? (
             <>
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Factures Récentes</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">{t('sections.recentInvoices')}</h3>
               <div className="space-y-3">
                 {invoices.slice(0, 5).map((invoice) => {
                   const patient = patients.find(p => p.id === invoice.patientId);
@@ -332,7 +334,7 @@ export function Dashboard() {
             </>
           ) : (
             <>
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Nouveaux Patients</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">{t('sections.newPatients')}</h3>
               <div className="space-y-3">
                 {getRecentPatients().map((patient) => (
                   <div key={patient.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">

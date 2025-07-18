@@ -203,14 +203,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       
       if (settingsData) {
         setSystemSettings(settingsData);
-      } else {
-        // Use default settings if none found in database
-        setSystemSettings(defaultSystemSettings);
       }
     } catch (error) {
       console.error('Error loading initial data:', error);
-      // Use default settings on error
-      setSystemSettings(defaultSystemSettings);
       // Continue loading even if there's an error
     } finally {
       setIsLoading(false);

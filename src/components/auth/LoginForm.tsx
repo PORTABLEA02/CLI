@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
+import { useAuthTranslation } from '../../hooks/useTranslation';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 
 export function LoginForm() {
+  const { t } = useAuthTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -38,14 +40,14 @@ export function LoginForm() {
             <span className="text-white font-bold text-2xl">C</span>
           </div>
           <h2 className="text-3xl font-bold text-gray-900">ClinicPro</h2>
-          <p className="mt-2 text-gray-600">Connectez-vous à votre compte</p>
+          <p className="mt-2 text-gray-600">{t('login.title')}</p>
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email
+                {t('login.email')}
               </label>
               <div className="mt-1 relative">
                 <input
@@ -55,7 +57,7 @@ export function LoginForm() {
                   autoComplete="email"
                   required
                   className="appearance-none relative block w-full px-3 py-2 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                  placeholder="votre@email.com"
+                  placeholder={t('login.emailPlaceholder')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
@@ -65,7 +67,7 @@ export function LoginForm() {
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Mot de passe
+                {t('login.password')}
               </label>
               <div className="mt-1 relative">
                 <input
@@ -75,7 +77,7 @@ export function LoginForm() {
                   autoComplete="current-password"
                   required
                   className="appearance-none relative block w-full px-3 py-2 pl-10 pr-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                  placeholder="••••••••"
+                  placeholder={t('login.passwordPlaceholder')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
@@ -97,7 +99,7 @@ export function LoginForm() {
 
           {error && (
             <div className="text-red-600 text-sm text-center bg-red-50 p-2 rounded-md">
-              Email ou mot de passe incorrect
+              {t('login.error')}
             </div>
           )}
 
@@ -107,18 +109,18 @@ export function LoginForm() {
               disabled={isLoading}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {isLoading ? 'Connexion...' : 'Se connecter'}
+              {isLoading ? t('login.signingIn') : t('login.signIn')}
             </button>
           </div>
 
           <div className="text-center">
             <div className="text-sm text-gray-600">
-              <p className="mb-2">Comptes de démonstration :</p>
+              <p className="mb-2">{t('login.demoAccounts')}</p>
               <div className="space-y-1 text-xs">
-                <p>Admin: sarah.johnson@clinic.com</p>
-                <p>Médecin: michael.chen@clinic.com</p>
-                <p>Caissier: emma.wilson@clinic.com</p>
-                <p className="mt-2">Mot de passe: password</p>
+                <p>{t('login.demoAdmin')}</p>
+                <p>{t('login.demoDoctor')}</p>
+                <p>{t('login.demoCashier')}</p>
+                <p className="mt-2">{t('login.demoPassword')}</p>
               </div>
             </div>
           </div>
