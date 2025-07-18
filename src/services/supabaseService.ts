@@ -203,7 +203,6 @@ export const signInWithEmail = async (email: string, password: string) => {
     });
 
     if (error) throw error;
-    console.error('Erreur Supabase:', error);
     return data;
   } catch (error) {
     handleSupabaseError(error);
@@ -1073,9 +1072,17 @@ export const getSystemSettings = async (): Promise<SystemSettings | null> => {
     const { data, error } = await supabase
       .from('system_settings')
       .select('*')
+      .eq('id', 'default')
       .single();
 
-    if (error) throw error;
+    if (error) {
+      // If the table doesn't exist or no data found, return null
+      if (error.code === 'PGRST116' || error.code === '42P01') {
+        console.warn('System settings table not found or empty, using defaults');
+        return null;
+      }
+      throw error;
+    }
     return data?.settings || null;
   } catch (error) {
     console.error('Error getting system settings:', error);
