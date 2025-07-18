@@ -45,9 +45,9 @@ export function PatientList() {
   };
 
   // Contrôle d'accès : seuls les admins et médecins peuvent ajouter/modifier des patients
-  const canAddPatient = currentProfile?.role === 'admin' || currentProfile?.role === 'doctor';
+  const canAddPatient = currentProfile?.role === 'admin' || currentProfile?.role === 'doctor' || currentProfile?.role === 'cashier';
   const canEditPatient = (patient: Patient) => {
-    return currentProfile?.role === 'admin' || currentProfile?.role === 'doctor';
+    return currentProfile?.role === 'admin' || currentProfile?.role === 'doctor' || currentProfile?.role === 'cashier';
   };
   return (
     <div className="space-y-6">
