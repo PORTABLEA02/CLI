@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   Home, 
   Users, 
@@ -23,13 +24,20 @@ import {
 import { useApp } from '../../contexts/AppContext';
 
 interface SidebarProps {
-  activeTab: string;
-  onTabChange: (tab: string) => void;
   isOpen: boolean;
 }
 
-export function Sidebar({ activeTab, onTabChange, isOpen }: SidebarProps) {
+export function Sidebar({ isOpen }: SidebarProps) {
   const { currentProfile } = useApp();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const getActiveTab = () => {
+    const path = location.pathname.slice(1); // Remove leading slash
+    return path || 'dashboard';
+  };
+
+  const activeTab = getActiveTab();
 
   const getNavigationItems = () => {
     const baseItems = [
@@ -234,7 +242,7 @@ export function Sidebar({ activeTab, onTabChange, isOpen }: SidebarProps) {
               return (
                 <button
                   key={item.id}
-                  onClick={() => onTabChange(item.id)}
+                  onClick={() => navigate(`/${item.id}`)}
                   className={`
                     w-full group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-all duration-200
                     ${isActive

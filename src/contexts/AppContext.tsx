@@ -115,6 +115,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [consultationSupplies, setConsultationSupplies] = useState<ConsultationSupply[]>([]);
   const [systemSettings, setSystemSettings] = useState<SystemSettings>(defaultSystemSettings);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [stats, setStats] = useState<DashboardStats>({
     totalPatients: 0,
     todayConsultations: 0,
@@ -124,17 +125,25 @@ export function AppProvider({ children }: { children: ReactNode }) {
     cancelledConsultations: 0
   });
 
-  // Load initial data
+  // Check for existing session and setup auth listener
   useEffect(() => {
-    loadInitialData();
+    checkExistingSession();
     
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session?.user?.email) {
-        const profile = await supabaseService.getProfileByEmail(session.user.email);
-        setCurrentProfile(profile);
+        try {
+          const profile = await supabaseService.getProfileByEmail(session.user.email);
+          setCurrentProfile(profile);
+          // Load data after successful authentication
+          await loadAllApplicationData();
+        } catch (error) {
+          console.error('Error loading profile after sign in:', error);
+          setError('Erreur lors du chargement du profil utilisateur');
+        }
       } else if (event === 'SIGNED_OUT') {
         setCurrentProfile(null);
+        clearAllApplicationData();
       }
     });
 
@@ -146,17 +155,39 @@ export function AppProvider({ children }: { children: ReactNode }) {
     calculateStats();
   }, [patients, consultations, invoices]);
 
-  const loadInitialData = async () => {
+  // Check if user has an existing session
+  const checkExistingSession = async () => {
     try {
       setIsLoading(true);
+      setError(null);
       
       // Check if user is already logged in
       const { data: { user } } = await supabase.auth.getUser();
       if (user?.email) {
         const currentProfile = await supabaseService.getProfileByEmail(user.email);
-        setCurrentProfile(currentProfile);
+        if (currentProfile && currentProfile.isActive) {
+          setCurrentProfile(currentProfile);
+          // Load all data since user is authenticated
+          await loadAllApplicationData();
+        } else {
+          setIsLoading(false);
+        }
+      } else {
+        setIsLoading(false);
       }
+    } catch (error) {
+      console.error('Error checking existing session:', error);
+      setError('Erreur lors de la vérification de la session');
+      setIsLoading(false);
+    }
+  };
 
+  // Load all application data (only called when user is authenticated)
+  const loadAllApplicationData = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
       // Load all data in parallel
       const [
         profilesData,
@@ -205,10 +236,36 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setSystemSettings(settingsData);
       }
     } catch (error) {
-      console.error('Error loading initial data:', error);
+      console.error('Error loading application data:', error);
+      setError('Erreur lors du chargement des données. Veuillez réactualiser la page.');
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Clear all application data
+  const clearAllApplicationData = () => {
+    setProfiles([]);
+    setPatients([]);
+    setConsultations([]);
+    setPrescriptions([]);
+    setInvoices([]);
+    setMedicalCares([]);
+    setConsultationCares([]);
+    setPayments([]);
+    setMedications([]);
+    setMedicalExams([]);
+    setMedicalSupplies([]);
+    setConsultationSupplies([]);
+    setSystemSettings(defaultSystemSettings);
+    setStats({
+      totalPatients: 0,
+      todayConsultations: 0,
+      pendingInvoices: 0,
+      monthlyRevenue: 0,
+      completedConsultations: 0,
+      cancelledConsultations: 0
+    });
   };
 
   const calculateStats = () => {
@@ -233,6 +290,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
+      setError(null);
+      setIsLoading(true);
       const authData = await supabaseService.signInWithEmail(email, password);
       if (authData?.user?.email) {
         const profile = await supabaseService.getProfileByEmail(authData.user.email);
@@ -241,26 +300,31 @@ export function AppProvider({ children }: { children: ReactNode }) {
           await supabaseService.updateProfile(profile.id, { lastLoginAt: new Date().toISOString() });
           setCurrentProfile(profile);
           
-          // Refresh profiles list
-          const updatedProfiles = await supabaseService.getProfiles();
-          setProfiles(updatedProfiles);
+          // Load all data after successful login
+          await loadAllApplicationData();
           
           return true;
         }
       }
+      setIsLoading(false);
       return false;
     } catch (error) {
       console.error('Login error:', error);
+      setError('Erreur lors de la connexion. Veuillez vérifier vos identifiants.');
+      setIsLoading(false);
       return false;
     }
   };
 
   const logout = async () => {
     try {
+      setError(null);
       await supabaseService.signOut();
       setCurrentProfile(null);
+      clearAllApplicationData();
     } catch (error) {
       console.error('Logout error:', error);
+      setError('Erreur lors de la déconnexion');
     }
   };
 
@@ -827,6 +891,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Chargement de l'application...</p>
+          {error && (
+            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-700 text-sm">{error}</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="mt-2 text-red-600 hover:text-red-800 text-sm underline"
+              >
+                Réessayer
+              </button>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -851,6 +926,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       stats,
       systemSettings,
       isLoading,
+      error,
       login,
       logout,
       addProfile,

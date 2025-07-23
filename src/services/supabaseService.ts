@@ -229,7 +229,7 @@ export const getProfiles = async (): Promise<Profile[]> => {
     if (error) throw error;
     return data.map(transformProfile);
   } catch (error) {
-    handleSupabaseError(error);
+    console.error('Error fetching profiles:', error);
     return [];
   }
 };
@@ -347,10 +347,13 @@ export const getPatients = async (): Promise<Patient[]> => {
       .select('*')
       .order('created_at', { ascending: false });
 
+
+
     if (error) throw error;
     return data.map(transformPatient);
   } catch (error) {
-    handleSupabaseError(error);
+    console.error('Error fetching patients:', error);
+    // Return empty array instead of throwing to prevent app crash
     return [];
   }
 };
@@ -424,7 +427,7 @@ export const getConsultations = async (): Promise<Consultation[]> => {
     if (error) throw error;
     return data.map(transformConsultation);
   } catch (error) {
-    handleSupabaseError(error);
+    console.error('Error fetching consultations:', error);
     return [];
   }
 };
@@ -496,7 +499,7 @@ export const getMedicalCares = async (): Promise<MedicalCare[]> => {
     if (error) throw error;
     return data.map(transformMedicalCare);
   } catch (error) {
-    handleSupabaseError(error);
+    console.error('Error fetching medical cares:', error);
     return [];
   }
 };
@@ -562,7 +565,7 @@ export const getMedications = async (): Promise<Medication[]> => {
     if (error) throw error;
     return data.map(transformMedication);
   } catch (error) {
-    handleSupabaseError(error);
+    console.error('Error fetching medications:', error);
     return [];
   }
 };
@@ -634,7 +637,7 @@ export const getMedicalExams = async (): Promise<MedicalExam[]> => {
     if (error) throw error;
     return data.map(transformMedicalExam);
   } catch (error) {
-    handleSupabaseError(error);
+    console.error('Error fetching medical exams:', error);
     return [];
   }
 };
@@ -702,7 +705,7 @@ export const getMedicalSupplies = async (): Promise<MedicalSupply[]> => {
     if (error) throw error;
     return data.map(transformMedicalSupply);
   } catch (error) {
-    handleSupabaseError(error);
+    console.error('Error fetching medical supplies:', error);
     return [];
   }
 };
@@ -778,7 +781,7 @@ export const getPrescriptions = async (): Promise<Prescription[]> => {
     if (error) throw error;
     return data.map(transformPrescription);
   } catch (error) {
-    handleSupabaseError(error);
+    console.error('Error fetching prescriptions:', error);
     return [];
   }
 };
@@ -846,7 +849,7 @@ export const getInvoices = async (): Promise<Invoice[]> => {
     if (error) throw error;
     return data.map(transformInvoice);
   } catch (error) {
-    handleSupabaseError(error);
+    console.error('Error fetching invoices:', error);
     return [];
   }
 };
@@ -927,7 +930,7 @@ export const getConsultationCares = async (consultationId?: string): Promise<Con
     if (error) throw error;
     return data.map(transformConsultationCare);
   } catch (error) {
-    handleSupabaseError(error);
+    console.error('Error fetching consultation cares:', error);
     return [];
   }
 };
@@ -984,7 +987,7 @@ export const getConsultationSupplies = async (consultationId?: string): Promise<
     if (error) throw error;
     return data.map(transformConsultationSupply);
   } catch (error) {
-    handleSupabaseError(error);
+    console.error('Error fetching consultation supplies:', error);
     return [];
   }
 };
@@ -1038,7 +1041,7 @@ export const getPayments = async (): Promise<Payment[]> => {
     if (error) throw error;
     return data.map(transformPayment);
   } catch (error) {
-    handleSupabaseError(error);
+    console.error('Error fetching payments:', error);
     return [];
   }
 };
