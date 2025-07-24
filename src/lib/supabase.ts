@@ -4,8 +4,8 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 console.log('🔧 Configuration Supabase:', {
-  url: supabaseUrl ? 'Définie' : 'Manquante',
-  key: supabaseAnonKey ? 'Définie' : 'Manquante',
+  url: supabaseUrl ,
+  key: supabaseAnonKey ,
   environment: import.meta.env.MODE
 });
 

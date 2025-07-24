@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from './hooks/useAuth';
 import LoginForm from './components/auth/LoginForm';
 import Navbar from './components/Layout/Navbar';
@@ -7,6 +7,7 @@ import PatientList from "./components/patients/PatientList";
 import PatientForm from "./components/patients/PatientForm";
 import PatientDetail from "./components/Patients/PatientDetail";
 import ConsultationList from "./components/consultations/ConsultationList";
+import ProductList from "./components/products/ProductList";
 import { Patient } from './lib/supabase';
 
 function App() {
@@ -15,9 +16,22 @@ function App() {
   const [showPatientForm, setShowPatientForm] = useState(false);
   const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
   const [viewingPatient, setViewingPatient] = useState<Patient | null>(null);
+  
 
   // Vérifier la validité de la session périodiquement
   useEffect(() => {
+
+        console.log('📦 État de l’application :');
+    console.log('🔐 User :', user);
+    console.log('👤 Profile :', profile);
+    console.log('⏳ Loading :', loading);
+    console.log('✅ Initialized :', initialized);
+    console.log('🟢 Session valide :', isSessionValid);
+    console.log('📄 Page actuelle :', currentPage);
+    console.log('➕ Formulaire patient affiché :', showPatientForm);
+    console.log('✏️ Patient en édition :', editingPatient);
+    console.log('👁️ Patient en consultation :', viewingPatient);
+
     if (user && initialized) {
       const checkSession = () => {
         if (!isSessionValid()) {
@@ -144,18 +158,7 @@ function App() {
             </div>
           );
         }
-        return (
-          <div className="text-center py-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Produits Médicaux & Médicaments</h2>
-            <p className="text-gray-600">
-              {profile?.role === 'admin' 
-                ? 'Gérez tous les produits et médicaments' 
-                : 'Consultez et utilisez les produits pour facturation'
-              }
-            </p>
-            <p className="text-sm text-gray-500 mt-2">Cette fonctionnalité sera bientôt disponible</p>
-          </div>
-        );
+        return <ProductList />;
       case 'stock':
         // Accessible aux admins et caissiers
         if (!['admin', 'cashier'].includes(profile?.role || '')) {

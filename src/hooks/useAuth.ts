@@ -25,7 +25,7 @@ export function useAuth() {
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('user_id', userId)
+        .eq('id', userId)
         .single();
 
       if (error) {
@@ -41,6 +41,34 @@ export function useAuth() {
         if (error.code === 'PGRST116') {
           console.warn('⚠️ Profil non trouvé pour l\'utilisateur:', userId);
           console.log('💡 Suggestion: Vérifiez que le profil a été créé lors de l\'inscription');
+          
+          // Essayer de récupérer les informations utilisateur depuis auth
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user && user.user_metadata) {
+            console.log('🔧 Tentative de création automatique du profil...');
+            const { data: newProfile, error: createError } = await supabase
+              .from('profiles')
+              .insert([
+                {
+                  user_id: userId,
+                  email: user.email || '',
+                  full_name: user.user_metadata.full_name || user.email || 'Utilisateur',
+                  role: user.user_metadata.role || 'cashier',
+                  is_active: true
+                },
+              ])
+              .select()
+              .single();
+
+            if (createError) {
+              console.error('❌ Erreur lors de la création automatique du profil:', createError);
+              throw createError;
+            }
+
+            console.log('✅ Profil créé automatiquement:', newProfile);
+            setProfile(newProfile);
+            return newProfile;
+          }
         }
         
         throw error;

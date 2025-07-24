@@ -71,7 +71,7 @@ export default function Dashboard() {
       const { data: lowStockProducts } = await supabase
         .from('products')
         .select('*')
-        .lt('current_stock', 'min_stock_level')
+        .filter('current_stock', 'lt', 'min_stock_level')
         .eq('is_active', true);
 
       // Consultations récentes
