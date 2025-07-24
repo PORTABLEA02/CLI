@@ -21,16 +21,19 @@ function App() {
   // Vérifier la validité de la session périodiquement
   useEffect(() => {
 
-        console.log('📦 État de l’application :');
-    console.log('🔐 User :', user);
-    console.log('👤 Profile :', profile);
-    console.log('⏳ Loading :', loading);
-    console.log('✅ Initialized :', initialized);
-    console.log('🟢 Session valide :', isSessionValid);
-    console.log('📄 Page actuelle :', currentPage);
-    console.log('➕ Formulaire patient affiché :', showPatientForm);
-    console.log('✏️ Patient en édition :', editingPatient);
-    console.log('👁️ Patient en consultation :', viewingPatient);
+    // Logs de debug uniquement en mode développement
+    if (import.meta.env.DEV) {
+      console.log('📦 État de l\'application :', {
+        user: user ? { id: user.id, email: user.email } : null,
+        profile: profile ? { id: profile.id, role: profile.role, full_name: profile.full_name } : null,
+        loading,
+        initialized,
+        currentPage,
+        showPatientForm,
+        editingPatient: editingPatient ? editingPatient.id : null,
+        viewingPatient: viewingPatient ? viewingPatient.id : null
+      });
+    }
 
     if (user && initialized) {
       const checkSession = () => {
@@ -52,7 +55,14 @@ function App() {
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Initialisation de l'application...</p>
+          <p className="text-gray-600">
+            {!initialized ? 'Initialisation de l\'application...' : 'Chargement du profil utilisateur...'}
+            {user && !profile && (
+              <span className="block text-sm mt-2 text-blue-600">
+                Récupération des informations utilisateur...
+              </span>
+            )}
+          </p>
         </div>
       </div>
     );

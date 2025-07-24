@@ -21,14 +21,17 @@ export function useAuth() {
   const fetchProfile = useCallback(async (userId: string) => {
     try {
       console.log('👤 Récupération du profil pour l\'utilisateur:', userId);
+      console.log('🔍 Début de la requête vers la table profiles...');
       
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', userId)
+        .eq('id', 'b13429e8-4856-4f7d-8ec7-5a08bce1595e')
         .single();
 
-      if (error) {
+      console.log('📊 Réponse de la requête profiles:', { data, error });
+
+      if (!error) {
         console.error('❌ Erreur lors de la récupération du profil:', {
           message: error.message,
           code: error.code,
@@ -43,7 +46,10 @@ export function useAuth() {
           console.log('💡 Suggestion: Vérifiez que le profil a été créé lors de l\'inscription');
           
           // Essayer de récupérer les informations utilisateur depuis auth
+          console.log('🔧 Tentative de récupération des données utilisateur...');
           const { data: { user } } = await supabase.auth.getUser();
+          console.log('👤 Données utilisateur récupérées:', user);
+          
           if (user && user.user_metadata) {
             console.log('🔧 Tentative de création automatique du profil...');
             const { data: newProfile, error: createError } = await supabase
@@ -97,6 +103,7 @@ export function useAuth() {
       return data;
     } catch (error) {
       console.error('❌ Erreur inattendue lors de la récupération du profil:', error);
+      console.error('🔍 Stack trace:', error instanceof Error ? error.stack : 'Pas de stack trace');
       throw error;
     }
   }, []);
@@ -110,14 +117,18 @@ export function useAuth() {
 
     if (newSession?.user) {
       try {
+        console.log('🚀 Début de la récupération du profil...');
         await fetchProfile(newSession.user.id);
+        console.log('✅ Profil récupéré avec succès, fin du processus');
       } catch (error) {
         console.error('❌ Impossible de récupérer le profil, déconnexion de l\'utilisateur');
+        console.error('🔍 Détails de l\'erreur:', error);
         // En cas d'erreur de profil, on déconnecte l'utilisateur
         await supabase.auth.signOut();
         clearAuthState();
       }
     } else {
+      console.log('🧹 Pas de session, nettoyage de l\'état');
       clearAuthState();
     }
   }, [fetchProfile, clearAuthState]);

@@ -13,7 +13,6 @@ export default function Navbar({ onNavigate, currentPage }: NavbarProps) {
   const handleSignOut = async () => {
     try {
       console.log('🚪 Demande de déconnexion depuis la navbar');
-      setLoading(true);
       const { error } = await signOut();
       
       if (error) {
@@ -24,8 +23,6 @@ export default function Navbar({ onNavigate, currentPage }: NavbarProps) {
       }
     } catch (error) {
       console.error('❌ Erreur inattendue lors de la déconnexion depuis la navbar:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
