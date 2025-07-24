@@ -1,249 +1,263 @@
-import React, { useState } from 'react';
-import { Patient } from '../../types';
+import React, { useState, useEffect } from 'react';
+import { X, Save } from 'lucide-react';
+import { supabase, Patient } from '../../lib/supabase';
 
 interface PatientFormProps {
   patient?: Patient | null;
-  onSubmit: (patient: Omit<Patient, 'id' | 'createdAt' | 'updatedAt'>) => void;
-  onCancel: () => void;
+  onClose: () => void;
+  onSuccess: () => void;
 }
 
-export function PatientForm({ patient, onSubmit, onCancel }: PatientFormProps) {
+export default function PatientForm({ patient, onClose, onSuccess }: PatientFormProps) {
   const [formData, setFormData] = useState({
-    firstName: patient?.firstName || '',
-    lastName: patient?.lastName || '',
-    dateOfBirth: patient?.dateOfBirth || '',
-    gender: patient?.gender || 'male',
-    phone: patient?.phone || '',
-    email: patient?.email || '',
-    address: patient?.address || '',
-    emergencyContact: patient?.emergencyContact || '',
-    bloodType: patient?.bloodType || '',
-    allergies: patient?.allergies || '',
-    medicalHistory: patient?.medicalHistory || '',
+    first_name: '',
+    last_name: '',
+    gender: 'M' as 'M' | 'F',
+    birth_date: '',
+    phone: '',
+    email: '',
+    address: '',
+    emergency_contact: '',
+    medical_history: '',
+    allergies: '',
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (patient) {
+      setFormData({
+        first_name: patient.first_name,
+        last_name: patient.last_name,
+        gender: patient.gender,
+        birth_date: patient.birth_date,
+        phone: patient.phone || '',
+        email: patient.email || '',
+        address: patient.address || '',
+        emergency_contact: patient.emergency_contact || '',
+        medical_history: patient.medical_history || '',
+        allergies: patient.allergies || '',
+      });
+    }
+  }, [patient]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      if (patient) {
+        // Mise à jour
+        const { error } = await supabase
+          .from('patients')
+          .update(formData)
+          .eq('id', patient.id);
+
+        if (error) throw error;
+      } else {
+        // Création
+        const { error } = await supabase
+          .from('patients')
+          .insert([formData]);
+
+        if (error) throw error;
+      }
+
+      onSuccess();
+      onClose();
+    } catch (error: any) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit(formData as Omit<Patient, 'id' | 'createdAt' | 'updatedAt'>);
-  };
-
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold text-gray-900">
-          {patient ? 'Modifier le Patient' : 'Nouveau Patient'}
-        </h2>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="text-gray-400 hover:text-gray-600"
-        >
-          <span className="sr-only">Fermer</span>
-          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
-            Prénom *
-          </label>
-          <input
-            type="text"
-            id="firstName"
-            name="firstName"
-            required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-            value={formData.firstName}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div>
-          <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
-            Nom *
-          </label>
-          <input
-            type="text"
-            id="lastName"
-            name="lastName"
-            required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-            value={formData.lastName}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div>
-          <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-700">
-            Date de naissance *
-          </label>
-          <input
-            type="date"
-            id="dateOfBirth"
-            name="dateOfBirth"
-            required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-            value={formData.dateOfBirth}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div>
-          <label htmlFor="gender" className="block text-sm font-medium text-gray-700">
-            Genre *
-          </label>
-          <select
-            id="gender"
-            name="gender"
-            required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-            value={formData.gender}
-            onChange={handleChange}
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-screen overflow-y-auto">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-900">
+            {patient ? 'Modifier le Patient' : 'Nouveau Patient'}
+          </h3>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600"
           >
-            <option value="male">Homme</option>
-            <option value="female">Femme</option>
-            <option value="other">Autre</option>
-          </select>
+            <X className="w-6 h-6" />
+          </button>
         </div>
 
-        <div>
-          <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-            Téléphone *
-          </label>
-          <input
-            type="tel"
-            id="phone"
-            name="phone"
-            required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-            value={formData.phone}
-            onChange={handleChange}
-          />
-        </div>
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {error && (
+            <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded-md">
+              {error}
+            </div>
+          )}
 
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-            Email *
-          </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-            value={formData.email}
-            onChange={handleChange}
-          />
-        </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Prénom *
+              </label>
+              <input
+                type="text"
+                name="first_name"
+                required
+                value={formData.first_name}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
 
-        <div>
-          <label htmlFor="bloodType" className="block text-sm font-medium text-gray-700">
-            Groupe sanguin
-          </label>
-          <select
-            id="bloodType"
-            name="bloodType"
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-            value={formData.bloodType}
-            onChange={handleChange}
-          >
-            <option value="">Sélectionner</option>
-            <option value="A+">A+</option>
-            <option value="A-">A-</option>
-            <option value="B+">B+</option>
-            <option value="B-">B-</option>
-            <option value="AB+">AB+</option>
-            <option value="AB-">AB-</option>
-            <option value="O+">O+</option>
-            <option value="O-">O-</option>
-          </select>
-        </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Nom *
+              </label>
+              <input
+                type="text"
+                name="last_name"
+                required
+                value={formData.last_name}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
 
-        <div>
-          <label htmlFor="emergencyContact" className="block text-sm font-medium text-gray-700">
-            Contact d'urgence *
-          </label>
-          <input
-            type="text"
-            id="emergencyContact"
-            name="emergencyContact"
-            required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-            value={formData.emergencyContact}
-            onChange={handleChange}
-            placeholder="Nom - Téléphone"
-          />
-        </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Sexe *
+              </label>
+              <select
+                name="gender"
+                required
+                value={formData.gender}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="M">Masculin</option>
+                <option value="F">Féminin</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Date de naissance *
+              </label>
+              <input
+                type="date"
+                name="birth_date"
+                required
+                value={formData.birth_date}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Téléphone
+              </label>
+              <input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Email
+              </label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Adresse
+            </label>
+            <input
+              type="text"
+              name="address"
+              value={formData.address}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Contact d'urgence
+            </label>
+            <input
+              type="text"
+              name="emergency_contact"
+              value={formData.emergency_contact}
+              onChange={handleChange}
+              placeholder="Nom et téléphone"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Antécédents médicaux
+            </label>
+            <textarea
+              name="medical_history"
+              rows={3}
+              value={formData.medical_history}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Allergies
+            </label>
+            <textarea
+              name="allergies"
+              rows={2}
+              value={formData.allergies}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          <div className="flex justify-end space-x-3 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
+            >
+              <Save className="w-4 h-4 mr-2" />
+              {loading ? 'Enregistrement...' : 'Enregistrer'}
+            </button>
+          </div>
+        </form>
       </div>
-
-      <div>
-        <label htmlFor="address" className="block text-sm font-medium text-gray-700">
-          Adresse *
-        </label>
-        <textarea
-          id="address"
-          name="address"
-          rows={2}
-          required
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-          value={formData.address}
-          onChange={handleChange}
-        />
-      </div>
-
-      <div>
-        <label htmlFor="allergies" className="block text-sm font-medium text-gray-700">
-          Allergies
-        </label>
-        <textarea
-          id="allergies"
-          name="allergies"
-          rows={2}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-          value={formData.allergies}
-          onChange={handleChange}
-          placeholder="Allergies connues du patient"
-        />
-      </div>
-
-      <div>
-        <label htmlFor="medicalHistory" className="block text-sm font-medium text-gray-700">
-          Historique médical
-        </label>
-        <textarea
-          id="medicalHistory"
-          name="medicalHistory"
-          rows={3}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-          value={formData.medicalHistory}
-          onChange={handleChange}
-          placeholder="Historique médical du patient"
-        />
-      </div>
-
-      <div className="flex justify-end space-x-3">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-        >
-          Annuler
-        </button>
-        <button
-          type="submit"
-          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-        >
-          {patient ? 'Mettre à jour' : 'Créer'}
-        </button>
-      </div>
-    </form>
+    </div>
   );
 }

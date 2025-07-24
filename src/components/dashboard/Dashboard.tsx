@@ -1,373 +1,259 @@
-import React from 'react';
-import { useApp } from '../../contexts/AppContext';
-import { formatCurrencyWithSettings } from '../../utils/formatters';
-import { DashboardCard } from './DashboardCard';
-import { 
-  Users, 
-  Calendar, 
-  CreditCard, 
-  TrendingUp, 
-  Activity, 
-  AlertTriangle,
-  FileText,
-  DollarSign,
-  Clock,
-  CheckCircle,
-  Package,
-  Pill
-} from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Users, FileText, Package, TrendingUp, AlertTriangle, Calendar } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../hooks/useAuth';
 
-export function Dashboard() {
-  const { currentProfile, stats, consultations, patients, invoices, prescriptions, medicalSupplies, systemSettings } = useApp();
+interface DashboardStats {
+  patientsCount: number;
+  consultationsToday: number;
+  invoicesThisMonth: number;
+  lowStockItems: number;
+  totalRevenue: number;
+  recentConsultations: any[];
+  lowStockProducts: any[];
+}
 
-  const getRecentConsultations = () => {
-    let filteredConsultations = consultations;
-    
-    // Filter by role
-    if (currentProfile?.role === 'doctor') {
-      filteredConsultations = consultations.filter(c => c.doctorId === currentProfile.id);
-    }
-    
-    return filteredConsultations
-      .filter(c => c.status === 'scheduled' || c.status === 'in-progress')
-      .slice(0, 5);
-  };
+export default function Dashboard() {
+  const { profile } = useAuth();
+  const [stats, setStats] = useState<DashboardStats>({
+    patientsCount: 0,
+    consultationsToday: 0,
+    invoicesThisMonth: 0,
+    lowStockItems: 0,
+    totalRevenue: 0,
+    recentConsultations: [],
+    lowStockProducts: [],
+  });
+  const [loading, setLoading] = useState(true);
 
-  const getRecentPatients = () => {
-    return patients
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-      .slice(0, 5);
-  };
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
 
-  const getRoleSpecificStats = () => {
-    switch (currentProfile?.role) {
-      case 'admin':
-        return [
-          {
-            title: "Total Patients",
-            value: stats.totalPatients,
-            icon: Users,
-            color: "blue" as const,
-            trend: { value: 12, isPositive: true }
-          },
-          {
-            title: "Consultations Aujourd'hui",
-            value: stats.todayConsultations,
-            icon: Calendar,
-            color: "green" as const,
-            trend: { value: 8, isPositive: true }
-          },
-          {
-            title: "Factures En Attente",
-            value: stats.pendingInvoices,
-            icon: CreditCard,
-            color: "yellow" as const
-          },
-          {
-            title: "Revenus Mensuels",
-            value: formatCurrencyWithSettings(stats.monthlyRevenue, systemSettings),
-            icon: TrendingUp,
-            color: "green" as const,
-            trend: { value: 15, isPositive: true }
-          },
-          {
-            title: "Consultations Terminées",
-            value: stats.completedConsultations,
-            icon: Activity,
-            color: "indigo" as const
-          },
-          {
-            title: "Stock Faible",
-            value: medicalSupplies.filter(s => s.stockQuantity <= s.minStockLevel).length,
-            icon: AlertTriangle,
-            color: "red" as const
-          }
-        ];
+  const fetchDashboardData = async () => {
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const firstDayOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
 
-      case 'doctor':
-        const myConsultations = consultations.filter(c => c.doctorId === currentProfile.id);
-        const myPrescriptions = prescriptions.filter(p => p.doctorId === currentProfile.id);
-        const todayConsultations = myConsultations.filter(c => 
-          new Date(c.date).toDateString() === new Date().toDateString()
-        );
-        const completedConsultations = myConsultations.filter(c => c.status === 'completed');
-        const activePrescriptions = myPrescriptions.filter(p => p.status === 'active');
+      // Compter les patients
+      const { count: patientsCount } = await supabase
+        .from('patients')
+        .select('*', { count: 'exact', head: true });
 
-        return [
-          {
-            title: "Mes Consultations Aujourd'hui",
-            value: todayConsultations.length,
-            icon: Calendar,
-            color: "blue" as const
-          },
-          {
-            title: "Consultations Terminées",
-            value: completedConsultations.length,
-            icon: CheckCircle,
-            color: "green" as const
-          },
-          {
-            title: "Prescriptions Actives",
-            value: activePrescriptions.length,
-            icon: FileText,
-            color: "purple" as const
-          },
-          {
-            title: "Mes Patients",
-            value: [...new Set(myConsultations.map(c => c.patientId))].length,
-            icon: Users,
-            color: "indigo" as const
-          }
-        ];
+      // Consultations d'aujourd'hui
+      const { count: consultationsToday } = await supabase
+        .from('consultations')
+        .select('*', { count: 'exact', head: true })
+        .gte('consultation_date', today);
 
-      case 'cashier':
-        const todayInvoices = invoices.filter(inv => 
-          new Date(inv.createdAt).toDateString() === new Date().toDateString()
-        );
-        const todayRevenue = todayInvoices
-          .filter(inv => inv.status === 'paid')
-          .reduce((sum, inv) => sum + inv.total, 0);
-        const pendingAmount = invoices
-          .filter(inv => inv.status === 'pending')
-          .reduce((sum, inv) => sum + inv.total, 0);
+      // Factures de ce mois
+      const { count: invoicesThisMonth } = await supabase
+        .from('invoices')
+        .select('*', { count: 'exact', head: true })
+        .gte('created_at', firstDayOfMonth);
 
-        return [
-          {
-            title: "Factures Aujourd'hui",
-            value: todayInvoices.length,
-            icon: FileText,
-            color: "blue" as const
-          },
-          {
-            title: "Revenus Aujourd'hui",
-            value: formatCurrencyWithSettings(todayRevenue, systemSettings),
-            icon: DollarSign,
-            color: "green" as const
-          },
-          {
-            title: "Montant En Attente",
-            value: formatCurrencyWithSettings(pendingAmount, systemSettings),
-            icon: Clock,
-            color: "yellow" as const
-          },
-          {
-            title: "Factures En Attente",
-            value: stats.pendingInvoices,
-            icon: CreditCard,
-            color: "red" as const
-          }
-        ];
+      // Revenus de ce mois
+      const { data: revenueData } = await supabase
+        .from('invoices')
+        .select('total_amount')
+        .eq('status', 'paid')
+        .gte('created_at', firstDayOfMonth);
 
-      default:
-        return [];
+      const totalRevenue = revenueData?.reduce((sum, invoice) => sum + invoice.total_amount, 0) || 0;
+
+      // Stock faible
+      const { data: lowStockProducts } = await supabase
+        .from('products')
+        .select('*')
+        .lt('current_stock', 'min_stock_level')
+        .eq('is_active', true);
+
+      // Consultations récentes
+      const { data: recentConsultations } = await supabase
+        .from('consultations')
+        .select(`
+          *,
+          patient:patients(first_name, last_name),
+          doctor:profiles(full_name)
+        `)
+        .order('consultation_date', { ascending: false })
+        .limit(5);
+
+      setStats({
+        patientsCount: patientsCount || 0,
+        consultationsToday: consultationsToday || 0,
+        invoicesThisMonth: invoicesThisMonth || 0,
+        lowStockItems: lowStockProducts?.length || 0,
+        totalRevenue,
+        recentConsultations: recentConsultations || [],
+        lowStockProducts: lowStockProducts || [],
+      });
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const roleStats = getRoleSpecificStats();
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
-  const getDashboardTitle = () => {
-    switch (currentProfile?.role) {
-      case 'admin':
-        return 'Tableau de Bord - Administration';
-      case 'doctor':
-        return 'Tableau de Bord - Espace Médecin';
-      case 'cashier':
-        return 'Tableau de Bord - Espace Caissier';
-      default:
-        return 'Tableau de Bord';
-    }
-  };
+  const statCards = [
+    {
+      title: 'Total Patients',
+      value: stats.patientsCount,
+      icon: Users,
+      color: 'blue',
+      visible: true,
+    },
+    {
+      title: 'Consultations Aujourd\'hui',
+      value: stats.consultationsToday,
+      icon: Calendar,
+      color: 'green',
+      visible: ['doctor', 'admin', 'cashier'].includes(profile?.role || ''),
+    },
+    {
+      title: 'Factures ce Mois',
+      value: stats.invoicesThisMonth,
+      icon: FileText,
+      color: 'purple',
+      visible: profile?.role === 'cashier' || profile?.role === 'admin',
+    },
+    {
+      title: 'Revenus ce Mois',
+      value: `${stats.totalRevenue.toFixed(2)}€`,
+      icon: TrendingUp,
+      color: 'yellow',
+      visible: profile?.role === 'admin',
+    },
+    {
+      title: 'Stock Faible',
+      value: stats.lowStockItems,
+      icon: AlertTriangle,
+      color: 'red',
+      visible: profile?.role === 'cashier' || profile?.role === 'admin',
+    },
+  ].filter(card => card.visible);
 
-  const getWelcomeMessage = () => {
-    const hour = new Date().getHours();
-    let greeting = 'Bonjour';
-    
-    if (hour < 12) greeting = 'Bonjour';
-    else if (hour < 18) greeting = 'Bon après-midi';
-    else greeting = 'Bonsoir';
-
-    return `${greeting}, ${currentProfile?.name}`;
+  const getColorClasses = (color: string) => {
+    const colors = {
+      blue: 'bg-blue-500 text-blue-600 bg-blue-50',
+      green: 'bg-green-500 text-green-600 bg-green-50',
+      purple: 'bg-purple-500 text-purple-600 bg-purple-50',
+      yellow: 'bg-yellow-500 text-yellow-600 bg-yellow-50',
+      red: 'bg-red-500 text-red-600 bg-red-50',
+    };
+    return colors[color as keyof typeof colors] || colors.blue;
   };
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            {getDashboardTitle()}
-          </h1>
-          <p className="text-gray-600 mt-1">{getWelcomeMessage()}</p>
-        </div>
-        <div className="text-right">
-          <div className="text-sm text-gray-500">
-            {new Date().toLocaleDateString('fr-FR', { 
-              weekday: 'long', 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
-            })}
-          </div>
-          <div className="text-xs text-gray-400 mt-1">
-            {new Date().toLocaleTimeString('fr-FR', { 
-              hour: '2-digit', 
-              minute: '2-digit' 
-            })}
-          </div>
-        </div>
+        <h1 className="text-2xl font-bold text-gray-900">
+          Tableau de Bord
+        </h1>
+        <p className="text-gray-600">
+          Bienvenue, {profile?.full_name}
+        </p>
       </div>
 
-      {/* Stats Cards */}
+      {/* Cartes de statistiques */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {roleStats.map((stat, index) => (
-          <DashboardCard
-            key={index}
-            title={stat.title}
-            value={stat.value}
-            icon={stat.icon}
-            color={stat.color}
-            trend={stat.trend}
-          />
-        ))}
+        {statCards.map((card, index) => {
+          const Icon = card.icon;
+          const colorClasses = getColorClasses(card.color).split(' ');
+          
+          return (
+            <div key={index} className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">{card.title}</p>
+                  <p className="text-2xl font-bold text-gray-900 mt-1">{card.value}</p>
+                </div>
+                <div className={`p-3 rounded-full ${colorClasses[2]}`}>
+                  <Icon className={`w-6 h-6 ${colorClasses[1]}`} />
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
-      {/* Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Consultations */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">
-            {currentProfile?.role === 'doctor' ? 'Mes Prochaines Consultations' : 'Consultations Récentes'}
-          </h3>
-          <div className="space-y-3">
-            {getRecentConsultations().map((consultation) => {
-              const patient = patients.find(p => p.id === consultation.patientId);
-              return (
-                <div key={consultation.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">
-                      {patient?.firstName} {patient?.lastName}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      {new Date(consultation.date).toLocaleDateString('fr-FR')} à {consultation.time}
-                    </p>
-                    <p className="text-xs text-gray-400 mt-1">
-                      {consultation.symptoms.substring(0, 50)}...
-                    </p>
-                  </div>
-                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                    consultation.status === 'scheduled' 
-                      ? 'bg-blue-100 text-blue-800'
-                      : consultation.status === 'in-progress'
-                      ? 'bg-yellow-100 text-yellow-800'
-                      : 'bg-green-100 text-green-800'
-                  }`}>
-                    {consultation.status === 'scheduled' ? 'Planifiée' : 
-                     consultation.status === 'in-progress' ? 'En cours' : 'Terminée'}
-                  </span>
-                </div>
-              );
-            })}
-            {getRecentConsultations().length === 0 && (
-              <div className="text-center py-8 text-gray-500">
-                <Calendar className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                <p>Aucune consultation récente</p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Recent Patients or Role-specific content */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          {currentProfile?.role === 'cashier' ? (
-            <>
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Factures Récentes</h3>
-              <div className="space-y-3">
-                {invoices.slice(0, 5).map((invoice) => {
-                  const patient = patients.find(p => p.id === invoice.patientId);
-                  return (
-                    <div key={invoice.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900">
-                          #{invoice.id.slice(-6).toUpperCase()}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          {patient?.firstName} {patient?.lastName}
-                        </p>
-                        <p className="text-xs text-gray-400">
-                          {new Date(invoice.createdAt).toLocaleDateString('fr-FR')}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm font-medium text-gray-900">
-                          {invoice.total.toLocaleString()} €
-                        </p>
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                          invoice.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                          invoice.status === 'paid' ? 'bg-green-100 text-green-800' :
-                          'bg-red-100 text-red-800'
-                        }`}>
-                          {invoice.status === 'pending' ? 'En attente' :
-                           invoice.status === 'paid' ? 'Payée' : 'En retard'}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </>
-          ) : (
-            <>
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Nouveaux Patients</h3>
-              <div className="space-y-3">
-                {getRecentPatients().map((patient) => (
-                  <div key={patient.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                    <div className="flex items-center space-x-3">
-                      <div className="flex-shrink-0 h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center">
-                        <span className="text-sm font-medium text-blue-600">
-                          {patient.firstName[0]}{patient.lastName[0]}
-                        </span>
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900">
-                          {patient.firstName} {patient.lastName}
-                        </p>
-                        <p className="text-sm text-gray-500">{patient.email}</p>
-                      </div>
+        {/* Consultations récentes */}
+        {(profile?.role === 'doctor' || profile?.role === 'admin') && (
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+              <Calendar className="w-5 h-5 mr-2 text-blue-600" />
+              Consultations Récentes
+            </h3>
+            <div className="space-y-3">
+              {stats.recentConsultations.length > 0 ? (
+                stats.recentConsultations.map((consultation) => (
+                  <div key={consultation.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                      <p className="font-medium text-gray-900">
+                        {consultation.patient?.first_name} {consultation.patient?.last_name}
+                      </p>
+                      <p className="text-sm text-gray-600">{consultation.diagnosis}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm text-gray-500">
-                        {new Date(patient.createdAt).toLocaleDateString('fr-FR')}
+                      <p className="text-sm text-gray-600">
+                        {new Date(consultation.consultation_date).toLocaleDateString('fr-FR')}
+                      </p>
+                      <p className="text-sm font-medium text-gray-900">
+                        Dr. {consultation.doctor?.full_name}
                       </p>
                     </div>
                   </div>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* Role-specific quick actions */}
-      {currentProfile?.role === 'admin' && medicalSupplies.filter(s => s.stockQuantity <= s.minStockLevel).length > 0 && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <AlertTriangle className="h-5 w-5 text-red-400" />
-            </div>
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">
-                Alerte Stock Faible
-              </h3>
-              <div className="mt-2 text-sm text-red-700">
-                <p>
-                  {medicalSupplies.filter(s => s.stockQuantity <= s.minStockLevel).length} produit(s) 
-                  nécessitent un réapprovisionnement urgent.
-                </p>
-              </div>
+                ))
+              ) : (
+                <p className="text-gray-500 text-center py-4">Aucune consultation récente</p>
+              )}
             </div>
           </div>
-        </div>
-      )}
+        )}
+
+        {/* Stock faible */}
+        {(profile?.role === 'cashier' || profile?.role === 'admin') && (
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+              <AlertTriangle className="w-5 h-5 mr-2 text-red-600" />
+              Stock Faible
+            </h3>
+            <div className="space-y-3">
+              {stats.lowStockProducts.length > 0 ? (
+                stats.lowStockProducts.map((product) => (
+                  <div key={product.id} className="flex items-center justify-between p-3 bg-red-50 rounded-lg border border-red-200">
+                    <div>
+                      <p className="font-medium text-gray-900">{product.name}</p>
+                      <p className="text-sm text-gray-600">
+                        {product.type === 'medical' ? 'Produit médical' : 'Médicament'}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-bold text-red-600">
+                        {product.current_stock} {product.unit}
+                      </p>
+                      <p className="text-xs text-gray-600">
+                        Min: {product.min_stock_level}
+                      </p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-500 text-center py-4">Tous les stocks sont suffisants</p>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
