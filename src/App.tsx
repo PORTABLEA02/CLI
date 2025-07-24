@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useAuth } from './hooks/useAuth';
-import LoginForm from './components/Auth/LoginForm';
+import LoginForm from './components/auth/LoginForm';
 import Navbar from './components/Layout/Navbar';
-import Dashboard from './components/Dashboard/Dashboard';
-import PatientList from './components/Patients/PatientList';
-import PatientForm from './components/Patients/PatientForm';
-import PatientDetail from './components/Patients/PatientDetail';
+import Dashboard from './components/dashboard/Dashboard';
+import PatientList from "./components/patients/PatientList";
+import PatientForm from "./components/patients/PatientForm";
+import PatientDetail from "./components/Patients/PatientDetail";
+import ConsultationList from "./components/consultations/ConsultationList";
 import { Patient } from './lib/supabase';
 
 function App() {
@@ -81,20 +82,7 @@ function App() {
             </div>
           );
         }
-        return (
-          <div className="text-center py-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Consultations</h2>
-            <p className="text-gray-600">
-              {profile?.role === 'doctor' 
-                ? 'Gérez vos consultations et diagnostics' 
-                : profile?.role === 'cashier'
-                ? 'Consultez les consultations pour facturation'
-                : 'Vue d\'ensemble des consultations'
-              }
-            </p>
-            <p className="text-sm text-gray-500 mt-2">Cette fonctionnalité sera bientôt disponible</p>
-          </div>
-        );
+        return <ConsultationList />;
       case 'my-consultations':
         // Accessible uniquement aux docteurs
         if (profile?.role !== 'doctor') {
