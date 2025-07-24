@@ -10,23 +10,50 @@ import ConsultationList from "./components/consultations/ConsultationList";
 import { Patient } from './lib/supabase';
 
 function App() {
-  const { user, profile, loading } = useAuth();
+  const { user, profile, loading, initialized, isSessionValid } = useAuth();
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [showPatientForm, setShowPatientForm] = useState(false);
   const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
   const [viewingPatient, setViewingPatient] = useState<Patient | null>(null);
 
-  if (loading) {
+  // Vérifier la validité de la session périodiquement
+  useEffect(() => {
+    if (user && initialized) {
+      const checkSession = () => {
+        if (!isSessionValid()) {
+          console.warn('⚠️ Session invalide détectée, redirection vers la connexion');
+          // La déconnexion sera gérée automatiquement par useAuth
+        }
+      };
+
+      // Vérifier toutes les 5 minutes
+      const interval = setInterval(checkSession, 5 * 60 * 1000);
+      
+      return () => clearInterval(interval);
+    }
+  }, [user, initialized, isSessionValid]);
+
+  if (loading || !initialized) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Initialisation de l'application...</p>
+        </div>
       </div>
     );
   }
 
   if (!user || !profile) {
+    console.log('🔒 Utilisateur non authentifié, affichage du formulaire de connexion');
     return <LoginForm />;
   }
+
+  console.log('✅ Utilisateur authentifié:', {
+    email: user.email,
+    role: profile.role,
+    currentPage
+  });
 
   const handlePatientFormClose = () => {
     setShowPatientForm(false);
@@ -34,8 +61,15 @@ function App() {
   };
 
   const handlePatientFormSuccess = () => {
-    // Rafraîchir la liste des patients si nécessaire
+    console.log('✅ Succès du formulaire patient');
+    
+    // Fermer le formulaire
+    handlePatientFormClose();
+    
+    // TODO: Implémenter un système de rafraîchissement plus élégant
+    // Pour l'instant, on recharge la page si on est sur la page des patients
     if (currentPage === 'patients') {
+      console.log('🔄 Rechargement de la page pour rafraîchir la liste des patients');
       window.location.reload();
     }
   };

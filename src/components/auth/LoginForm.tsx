@@ -12,13 +12,28 @@ export default function LoginForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!email.trim() || !password.trim()) {
+      setError('Veuillez remplir tous les champs');
+      return;
+    }
+    
     setLoading(true);
     setError('');
 
-    const { error } = await signIn(email, password);
-    
-    if (error) {
-      setError('Email ou mot de passe incorrect');
+    try {
+      console.log('🔐 Soumission du formulaire de connexion pour:', email);
+      const { error } = await signIn(email, password);
+      
+      if (error) {
+        console.error('❌ Échec de la connexion:', error);
+        setError(error.message || 'Email ou mot de passe incorrect');
+      } else {
+        console.log('✅ Connexion réussie, redirection en cours...');
+      }
+    } catch (error) {
+      console.error('❌ Erreur inattendue lors de la soumission du formulaire:', error);
+      setError('Une erreur inattendue s\'est produite');
     }
     
     setLoading(false);

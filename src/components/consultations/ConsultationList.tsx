@@ -16,6 +16,7 @@ export default function ConsultationList() {
 
   const fetchConsultations = async () => {
     try {
+      console.log('Récupération de la liste des consultations...');
       const { data, error } = await supabase
         .from('consultations')
         .select(`
@@ -25,10 +26,19 @@ export default function ConsultationList() {
         `)
         .order('consultation_date', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erreur lors de la récupération des consultations:', error);
+        throw error;
+      }
+      
+      console.log('Consultations récupérées avec succès:', data?.length || 0, 'consultations');
       setConsultations(data || []);
     } catch (error) {
-      console.error('Error fetching consultations:', error);
+      console.error('Erreur inattendue lors de la récupération des consultations:', error);
+      console.error('Détails de l\'erreur:', {
+        message: error instanceof Error ? error.message : 'Erreur inconnue',
+        stack: error instanceof Error ? error.stack : undefined
+      });
     } finally {
       setLoading(false);
     }

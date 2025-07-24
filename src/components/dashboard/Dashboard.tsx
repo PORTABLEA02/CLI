@@ -32,27 +32,32 @@ export default function Dashboard() {
 
   const fetchDashboardData = async () => {
     try {
+      console.log('Récupération des données du tableau de bord...');
       const today = new Date().toISOString().split('T')[0];
       const firstDayOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
 
       // Compter les patients
+      console.log('Comptage des patients...');
       const { count: patientsCount } = await supabase
         .from('patients')
         .select('*', { count: 'exact', head: true });
 
       // Consultations d'aujourd'hui
+      console.log('Comptage des consultations d\'aujourd\'hui...');
       const { count: consultationsToday } = await supabase
         .from('consultations')
         .select('*', { count: 'exact', head: true })
         .gte('consultation_date', today);
 
       // Factures de ce mois
+      console.log('Comptage des factures de ce mois...');
       const { count: invoicesThisMonth } = await supabase
         .from('invoices')
         .select('*', { count: 'exact', head: true })
         .gte('created_at', firstDayOfMonth);
 
       // Revenus de ce mois
+      console.log('Calcul des revenus de ce mois...');
       const { data: revenueData } = await supabase
         .from('invoices')
         .select('total_amount')
@@ -62,6 +67,7 @@ export default function Dashboard() {
       const totalRevenue = revenueData?.reduce((sum, invoice) => sum + invoice.total_amount, 0) || 0;
 
       // Stock faible
+      console.log('Vérification du stock faible...');
       const { data: lowStockProducts } = await supabase
         .from('products')
         .select('*')
@@ -69,6 +75,7 @@ export default function Dashboard() {
         .eq('is_active', true);
 
       // Consultations récentes
+      console.log('Récupération des consultations récentes...');
       const { data: recentConsultations } = await supabase
         .from('consultations')
         .select(`
@@ -78,6 +85,15 @@ export default function Dashboard() {
         `)
         .order('consultation_date', { ascending: false })
         .limit(5);
+
+      console.log('Données du tableau de bord récupérées avec succès:', {
+        patientsCount,
+        consultationsToday,
+        invoicesThisMonth,
+        totalRevenue,
+        lowStockItems: lowStockProducts?.length || 0,
+        recentConsultationsCount: recentConsultations?.length || 0
+      });
 
       setStats({
         patientsCount: patientsCount || 0,
@@ -89,7 +105,11 @@ export default function Dashboard() {
         lowStockProducts: lowStockProducts || [],
       });
     } catch (error) {
-      console.error('Error fetching dashboard data:', error);
+      console.error('Erreur lors de la récupération des données du tableau de bord:', error);
+      console.error('Détails de l\'erreur:', {
+        message: error instanceof Error ? error.message : 'Erreur inconnue',
+        stack: error instanceof Error ? error.stack : undefined
+      });
     } finally {
       setLoading(false);
     }

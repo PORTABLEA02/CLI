@@ -3,11 +3,29 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+console.log('🔧 Configuration Supabase:', {
+  url: supabaseUrl ? 'Définie' : 'Manquante',
+  key: supabaseAnonKey ? 'Définie' : 'Manquante',
+  environment: import.meta.env.MODE
+});
+
 if (!supabaseUrl || !supabaseAnonKey) {
+  console.error('❌ Variables d\'environnement Supabase manquantes:', {
+    VITE_SUPABASE_URL: supabaseUrl ? 'OK' : 'MANQUANTE',
+    VITE_SUPABASE_ANON_KEY: supabaseAnonKey ? 'OK' : 'MANQUANTE',
+    help: 'Vérifiez votre fichier .env'
+  });
   throw new Error('Missing Supabase environment variables');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+console.log('✅ Client Supabase initialisé avec succès');
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true
+  }
+});
 
 // Types de données
 export type UserRole = 'admin' | 'doctor' | 'cashier';

@@ -18,7 +18,10 @@ export default function PatientDetail({ patient, onClose }: PatientDetailProps) 
 
   const fetchPatientHistory = async () => {
     try {
+      console.log('Récupération de l\'historique du patient:', patient.id);
+      
       // Récupérer les consultations
+      console.log('Récupération des consultations du patient...');
       const { data: consultationsData } = await supabase
         .from('consultations')
         .select(`
@@ -29,16 +32,26 @@ export default function PatientDetail({ patient, onClose }: PatientDetailProps) 
         .order('consultation_date', { ascending: false });
 
       // Récupérer les factures
+      console.log('Récupération des factures du patient...');
       const { data: invoicesData } = await supabase
         .from('invoices')
         .select('*')
         .eq('patient_id', patient.id)
         .order('issue_date', { ascending: false });
 
+      console.log('Historique du patient récupéré:', {
+        consultations: consultationsData?.length || 0,
+        factures: invoicesData?.length || 0
+      });
+
       setConsultations(consultationsData || []);
       setInvoices(invoicesData || []);
     } catch (error) {
-      console.error('Error fetching patient history:', error);
+      console.error('Erreur lors de la récupération de l\'historique du patient:', error);
+      console.error('Détails de l\'erreur:', {
+        message: error instanceof Error ? error.message : 'Erreur inconnue',
+        patientId: patient.id
+      });
     } finally {
       setLoading(false);
     }

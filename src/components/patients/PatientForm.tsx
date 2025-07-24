@@ -47,27 +47,47 @@ export default function PatientForm({ patient, onClose, onSuccess }: PatientForm
     setError('');
 
     try {
+      console.log('Soumission du formulaire patient:', patient ? 'Modification' : 'Création');
+      console.log('Données du formulaire:', formData);
+      
       if (patient) {
         // Mise à jour
+        console.log('Mise à jour du patient ID:', patient.id);
         const { error } = await supabase
           .from('patients')
           .update(formData)
           .eq('id', patient.id);
 
-        if (error) throw error;
+        if (error) {
+          console.error('Erreur lors de la mise à jour du patient:', error);
+          throw error;
+        }
+        console.log('Patient mis à jour avec succès');
       } else {
         // Création
+        console.log('Création d\'un nouveau patient');
         const { error } = await supabase
           .from('patients')
           .insert([formData]);
 
-        if (error) throw error;
+        if (error) {
+          console.error('Erreur lors de la création du patient:', error);
+          throw error;
+        }
+        console.log('Nouveau patient créé avec succès');
       }
 
       onSuccess();
       onClose();
     } catch (error: any) {
-      setError(error.message);
+      console.error('Erreur lors de la soumission du formulaire patient:', error);
+      console.error('Détails de l\'erreur:', {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint
+      });
+      setError(error.message || 'Une erreur est survenue');
     } finally {
       setLoading(false);
     }

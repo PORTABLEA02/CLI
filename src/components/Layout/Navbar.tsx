@@ -11,7 +11,22 @@ export default function Navbar({ onNavigate, currentPage }: NavbarProps) {
   const { profile, signOut } = useAuth();
 
   const handleSignOut = async () => {
-    await signOut();
+    try {
+      console.log('🚪 Demande de déconnexion depuis la navbar');
+      setLoading(true);
+      const { error } = await signOut();
+      
+      if (error) {
+        console.error('❌ Erreur lors de la déconnexion depuis la navbar:', error);
+        // TODO: Afficher une notification d'erreur à l'utilisateur
+      } else {
+        console.log('✅ Déconnexion réussie depuis la navbar');
+      }
+    } catch (error) {
+      console.error('❌ Erreur inattendue lors de la déconnexion depuis la navbar:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getRoleIcon = () => {

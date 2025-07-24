@@ -19,15 +19,25 @@ export default function PatientList({ onCreatePatient, onEditPatient, onViewPati
 
   const fetchPatients = async () => {
     try {
+      console.log('Récupération de la liste des patients...');
       const { data, error } = await supabase
         .from('patients')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erreur lors de la récupération des patients:', error);
+        throw error;
+      }
+      
+      console.log('Patients récupérés avec succès:', data?.length || 0, 'patients');
       setPatients(data || []);
     } catch (error) {
-      console.error('Error fetching patients:', error);
+      console.error('Erreur inattendue lors de la récupération des patients:', error);
+      console.error('Détails de l\'erreur:', {
+        message: error instanceof Error ? error.message : 'Erreur inconnue',
+        stack: error instanceof Error ? error.stack : undefined
+      });
     } finally {
       setLoading(false);
     }
