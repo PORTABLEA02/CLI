@@ -1,14 +1,12 @@
 import React from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { LogOut, User, Activity, Stethoscope, CreditCard } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
-interface NavbarProps {
-  onNavigate: (page: string) => void;
-  currentPage: string;
-}
-
-export default function Navbar({ onNavigate, currentPage }: NavbarProps) {
+export default function Navbar() {
   const { profile, signOut } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const handleSignOut = async () => {
     try {
@@ -65,37 +63,37 @@ export default function Navbar({ onNavigate, currentPage }: NavbarProps) {
 
   const getNavigationItems = () => {
     const baseItems = [
-      { key: 'dashboard', label: 'Tableau de bord', icon: Activity },
+      { path: '/dashboard', label: 'Tableau de bord', icon: Activity },
     ];
 
     switch (profile?.role) {
       case 'admin':
         return [
           ...baseItems,
-          { key: 'users', label: 'Gestion Utilisateurs', icon: User },
-          { key: 'patients', label: 'Patients', icon: User },
-          { key: 'consultations', label: 'Consultations', icon: Stethoscope },
-          { key: 'products', label: 'Produits Médicaux', icon: Activity },
-          { key: 'stock', label: 'Gestion Stock', icon: Activity },
-          { key: 'invoices', label: 'Factures', icon: CreditCard },
-          { key: 'reports', label: 'Rapports', icon: Activity },
+          { path: '/users', label: 'Gestion Utilisateurs', icon: User },
+          { path: '/patients', label: 'Patients', icon: User },
+          { path: '/consultations', label: 'Consultations', icon: Stethoscope },
+          { path: '/products', label: 'Produits Médicaux', icon: Activity },
+          { path: '/stock', label: 'Gestion Stock', icon: Activity },
+          { path: '/invoices', label: 'Factures', icon: CreditCard },
+          { path: '/reports', label: 'Rapports', icon: Activity },
         ];
       case 'doctor':
         return [
           ...baseItems,
-          { key: 'patients', label: 'Patients', icon: User },
-          { key: 'consultations', label: 'Consultations', icon: Stethoscope },
-          { key: 'my-consultations', label: 'Mes Consultations', icon: Stethoscope },
+          { path: '/patients', label: 'Patients', icon: User },
+          { path: '/consultations', label: 'Consultations', icon: Stethoscope },
+          { path: '/my-consultations', label: 'Mes Consultations', icon: Stethoscope },
         ];
       case 'cashier':
         return [
           ...baseItems,
-          { key: 'patients', label: 'Patients', icon: User },
-          { key: 'consultations', label: 'Consultations (Lecture)', icon: Stethoscope },
-          { key: 'invoices', label: 'Factures', icon: CreditCard },
-          { key: 'products', label: 'Produits', icon: Activity },
-          { key: 'stock', label: 'Stock', icon: Activity },
-          { key: 'direct-billing', label: 'Facturation Directe', icon: CreditCard },
+          { path: '/patients', label: 'Patients', icon: User },
+          { path: '/consultations', label: 'Consultations (Lecture)', icon: Stethoscope },
+          { path: '/invoices', label: 'Factures', icon: CreditCard },
+          { path: '/products', label: 'Produits', icon: Activity },
+          { path: '/stock', label: 'Stock', icon: Activity },
+          { path: '/direct-billing', label: 'Facturation Directe', icon: CreditCard },
         ];
       default:
         return baseItems;
@@ -115,12 +113,13 @@ export default function Navbar({ onNavigate, currentPage }: NavbarProps) {
             <div className="hidden md:ml-8 md:flex md:space-x-8">
               {getNavigationItems().map((item) => {
                 const Icon = item.icon;
+                const isActive = location.pathname === item.path;
                 return (
                   <button
-                    key={item.key}
-                    onClick={() => onNavigate(item.key)}
+                    key={item.path}
+                    onClick={() => navigate(item.path)}
                     className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                      currentPage === item.key
+                      isActive
                         ? 'bg-blue-100 text-blue-700'
                         : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                     }`}

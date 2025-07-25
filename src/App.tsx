@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
 import LoginForm from './components/auth/LoginForm';
 import Navbar from './components/Layout/Navbar';
@@ -8,30 +9,46 @@ import PatientForm from "./components/patients/PatientForm";
 import PatientDetail from "./components/Patients/PatientDetail";
 import ConsultationList from "./components/consultations/ConsultationList";
 import ProductList from "./components/products/ProductList";
-import { Patient } from './lib/supabase';
+
+// Composant pour protéger les routes selon les rôles
+function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode; allowedRoles?: string[] }) {
+  const { profile } = useAuth();
+  
+  if (allowedRoles && profile && !allowedRoles.includes(profile.role)) {
+    return (
+      <div className="text-center py-12">
+        <h2 className="text-2xl font-bold text-red-600 mb-4">Accès Refusé</h2>
+        <p className="text-gray-600">Vous n'avez pas les permissions pour accéder à cette section</p>
+      </div>
+    );
+  }
+  
+  return <>{children}</>;
+}
+
+// Composant pour les pages non implémentées
+function ComingSoon({ title, description }: { title: string; description: string }) {
+  return (
+    <div className="text-center py-12">
+      <h2 className="text-2xl font-bold text-gray-900 mb-4">{title}</h2>
+      <p className="text-gray-600">{description}</p>
+      <p className="text-sm text-gray-500 mt-2">Cette fonctionnalité sera bientôt disponible</p>
+    </div>
+  );
+}
 
 function App() {
   const { user, profile, loading, initialized, isSessionValid } = useAuth();
-  const [currentPage, setCurrentPage] = useState('dashboard');
-  const [showPatientForm, setShowPatientForm] = useState(false);
-  const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
-  const [viewingPatient, setViewingPatient] = useState<Patient | null>(null);
-  
 
   // Vérifier la validité de la session périodiquement
   useEffect(() => {
-
     // Logs de debug uniquement en mode développement
     if (import.meta.env.DEV) {
       console.log('📦 État de l\'application :', {
         user: user ? { id: user.id, email: user.email } : null,
         profile: profile ? { id: profile.id, role: profile.role, full_name: profile.full_name } : null,
         loading,
-        initialized,
-        currentPage,
-        showPatientForm,
-        editingPatient: editingPatient ? editingPatient.id : null,
-        viewingPatient: viewingPatient ? viewingPatient.id : null
+        initialized
       });
     }
 
@@ -75,206 +92,133 @@ function App() {
 
   console.log('✅ Utilisateur authentifié:', {
     email: user.email,
-    role: profile.role,
-    currentPage
+    role: profile.role
   });
-
-  const handlePatientFormClose = () => {
-    setShowPatientForm(false);
-    setEditingPatient(null);
-  };
-
-  const handlePatientFormSuccess = () => {
-    console.log('✅ Succès du formulaire patient');
-    
-    // Fermer le formulaire
-    handlePatientFormClose();
-    
-    // TODO: Implémenter un système de rafraîchissement plus élégant
-    // Pour l'instant, on recharge la page si on est sur la page des patients
-    if (currentPage === 'patients') {
-      console.log('🔄 Rechargement de la page pour rafraîchir la liste des patients');
-      window.location.reload();
-    }
-  };
-
-  const renderCurrentPage = () => {
-    switch (currentPage) {
-      case 'dashboard':
-        return <Dashboard />;
-      case 'patients':
-        // Accessible à tous les rôles authentifiés
-        return (
-          <PatientList
-            onCreatePatient={() => setShowPatientForm(true)}
-            onEditPatient={(patient) => {
-              setEditingPatient(patient);
-              setShowPatientForm(true);
-            }}
-            onViewPatient={(patient) => setViewingPatient(patient)}
-          />
-        );
-      case 'users':
-        // Accessible uniquement aux admins
-        if (profile?.role !== 'admin') {
-          return (
-            <div className="text-center py-12">
-              <h2 className="text-2xl font-bold text-red-600 mb-4">Accès Refusé</h2>
-              <p className="text-gray-600">Vous n'avez pas les permissions pour accéder à cette section</p>
-            </div>
-          );
-        }
-        return (
-          <div className="text-center py-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Gestion des Utilisateurs</h2>
-            <p className="text-gray-600">Cette fonctionnalité sera bientôt disponible</p>
-          </div>
-        );
-      case 'consultations':
-        // Accessible aux docteurs, admins et caissiers (lecture seule pour caissiers)
-        if (!['admin', 'doctor', 'cashier'].includes(profile?.role || '')) {
-          return (
-            <div className="text-center py-12">
-              <h2 className="text-2xl font-bold text-red-600 mb-4">Accès Refusé</h2>
-              <p className="text-gray-600">Vous n'avez pas les permissions pour accéder à cette section</p>
-            </div>
-          );
-        }
-        return <ConsultationList />;
-      case 'my-consultations':
-        // Accessible uniquement aux docteurs
-        if (profile?.role !== 'doctor') {
-          return (
-            <div className="text-center py-12">
-              <h2 className="text-2xl font-bold text-red-600 mb-4">Accès Refusé</h2>
-              <p className="text-gray-600">Cette section est réservée aux docteurs</p>
-            </div>
-          );
-        }
-        return (
-          <div className="text-center py-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Mes Consultations</h2>
-            <p className="text-gray-600">Vos consultations personnelles et historique</p>
-            <p className="text-sm text-gray-500 mt-2">Cette fonctionnalité sera bientôt disponible</p>
-          </div>
-        );
-      case 'products':
-        // Accessible aux admins et caissiers
-        if (!['admin', 'cashier'].includes(profile?.role || '')) {
-          return (
-            <div className="text-center py-12">
-              <h2 className="text-2xl font-bold text-red-600 mb-4">Accès Refusé</h2>
-              <p className="text-gray-600">Vous n'avez pas les permissions pour gérer les produits</p>
-            </div>
-          );
-        }
-        return <ProductList />;
-      case 'stock':
-        // Accessible aux admins et caissiers
-        if (!['admin', 'cashier'].includes(profile?.role || '')) {
-          return (
-            <div className="text-center py-12">
-              <h2 className="text-2xl font-bold text-red-600 mb-4">Accès Refusé</h2>
-              <p className="text-gray-600">Vous n'avez pas les permissions pour gérer le stock</p>
-            </div>
-          );
-        }
-        return (
-          <div className="text-center py-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Gestion du Stock</h2>
-            <p className="text-gray-600">
-              {profile?.role === 'admin' 
-                ? 'Gérez les entrées/sorties et niveaux de stock' 
-                : 'Consultez les stocks et effectuez les mouvements'
-              }
-            </p>
-            <p className="text-sm text-gray-500 mt-2">Cette fonctionnalité sera bientôt disponible</p>
-          </div>
-        );
-      case 'invoices':
-        // Accessible aux admins et caissiers
-        if (!['admin', 'cashier'].includes(profile?.role || '')) {
-          return (
-            <div className="text-center py-12">
-              <h2 className="text-2xl font-bold text-red-600 mb-4">Accès Refusé</h2>
-              <p className="text-gray-600">Vous n'avez pas les permissions pour gérer les factures</p>
-            </div>
-          );
-        }
-        return (
-          <div className="text-center py-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Facturation</h2>
-            <p className="text-gray-600">
-              {profile?.role === 'admin' 
-                ? 'Vue d\'ensemble de toutes les factures' 
-                : 'Créez et gérez les factures des consultations'
-              }
-            </p>
-            <p className="text-sm text-gray-500 mt-2">Cette fonctionnalité sera bientôt disponible</p>
-          </div>
-        );
-      case 'direct-billing':
-        // Accessible uniquement aux caissiers
-        if (profile?.role !== 'cashier') {
-          return (
-            <div className="text-center py-12">
-              <h2 className="text-2xl font-bold text-red-600 mb-4">Accès Refusé</h2>
-              <p className="text-gray-600">Cette section est réservée aux agents de caisse</p>
-            </div>
-          );
-        }
-        return (
-          <div className="text-center py-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Facturation Directe</h2>
-            <p className="text-gray-600">Créez des factures sans consultation préalable</p>
-            <p className="text-sm text-gray-500 mt-2">Cette fonctionnalité sera bientôt disponible</p>
-          </div>
-        );
-      case 'reports':
-        // Accessible uniquement aux admins
-        if (profile?.role !== 'admin') {
-          return (
-            <div className="text-center py-12">
-              <h2 className="text-2xl font-bold text-red-600 mb-4">Accès Refusé</h2>
-              <p className="text-gray-600">Cette section est réservée aux administrateurs</p>
-            </div>
-          );
-        }
-        return (
-          <div className="text-center py-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Rapports & Statistiques</h2>
-            <p className="text-gray-600">Exportez les rapports financiers, de stock et de patients</p>
-            <p className="text-sm text-gray-500 mt-2">Cette fonctionnalité sera bientôt disponible</p>
-          </div>
-        );
-      default:
-        return <Dashboard />;
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar onNavigate={setCurrentPage} currentPage={currentPage} />
+      <Navbar />
       
       <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        {renderCurrentPage()}
+        <Routes>
+          {/* Route par défaut - Dashboard */}
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          
+          {/* Routes des patients - accessibles à tous les rôles authentifiés */}
+          <Route path="/patients" element={<PatientList />} />
+          <Route path="/patients/new" element={<PatientForm />} />
+          <Route path="/patients/:id/edit" element={<PatientForm />} />
+          <Route path="/patients/:id/view" element={<PatientDetail />} />
+          
+          {/* Routes des consultations - accessibles aux docteurs, admins et caissiers */}
+          <Route 
+            path="/consultations" 
+            element={
+              <ProtectedRoute allowedRoles={['admin', 'doctor', 'cashier']}>
+                <ConsultationList />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* Routes des produits - accessibles aux admins et caissiers */}
+          <Route 
+            path="/products" 
+            element={
+              <ProtectedRoute allowedRoles={['admin', 'cashier']}>
+                <ProductList />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* Routes réservées aux admins */}
+          <Route 
+            path="/users" 
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <ComingSoon 
+                  title="Gestion des Utilisateurs" 
+                  description="Cette fonctionnalité sera bientôt disponible" 
+                />
+              </ProtectedRoute>
+            } 
+          />
+          
+          <Route 
+            path="/reports" 
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <ComingSoon 
+                  title="Rapports & Statistiques" 
+                  description="Exportez les rapports financiers, de stock et de patients" 
+                />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* Routes réservées aux docteurs */}
+          <Route 
+            path="/my-consultations" 
+            element={
+              <ProtectedRoute allowedRoles={['doctor']}>
+                <ComingSoon 
+                  title="Mes Consultations" 
+                  description="Vos consultations personnelles et historique" 
+                />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* Routes pour les caissiers et admins */}
+          <Route 
+            path="/stock" 
+            element={
+              <ProtectedRoute allowedRoles={['admin', 'cashier']}>
+                <ComingSoon 
+                  title="Gestion du Stock" 
+                  description={
+                    profile?.role === 'admin' 
+                      ? 'Gérez les entrées/sorties et niveaux de stock' 
+                      : 'Consultez les stocks et effectuez les mouvements'
+                  } 
+                />
+              </ProtectedRoute>
+            } 
+          />
+          
+          <Route 
+            path="/invoices" 
+            element={
+              <ProtectedRoute allowedRoles={['admin', 'cashier']}>
+                <ComingSoon 
+                  title="Facturation" 
+                  description={
+                    profile?.role === 'admin' 
+                      ? 'Vue d\'ensemble de toutes les factures' 
+                      : 'Créez et gérez les factures des consultations'
+                  } 
+                />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* Route réservée aux caissiers */}
+          <Route 
+            path="/direct-billing" 
+            element={
+              <ProtectedRoute allowedRoles={['cashier']}>
+                <ComingSoon 
+                  title="Facturation Directe" 
+                  description="Créez des factures sans consultation préalable" 
+                />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* Route 404 - Page non trouvée */}
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
       </main>
-
-      {/* Modals */}
-      {showPatientForm && (
-        <PatientForm
-          patient={editingPatient}
-          onClose={handlePatientFormClose}
-          onSuccess={handlePatientFormSuccess}
-        />
-      )}
-
-      {viewingPatient && (
-        <PatientDetail
-          patient={viewingPatient}
-          onClose={() => setViewingPatient(null)}
-        />
-      )}
     </div>
   );
 }

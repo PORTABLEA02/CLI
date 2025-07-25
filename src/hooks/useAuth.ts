@@ -26,7 +26,7 @@ export function useAuth() {
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', 'b13429e8-4856-4f7d-8ec7-5a08bce1595e')
+        .eq('id', userId)
         .single();
 
       console.log('📊 Réponse de la requête profiles:', { data, error });
