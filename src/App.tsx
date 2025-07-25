@@ -7,6 +7,7 @@ import Dashboard from './components/dashboard/Dashboard';
 import PatientsPage from "./pages/PatientsPage";
 import ConsultationList from "./components/consultations/ConsultationList";
 import ProductList from "./components/products/ProductList";
+import InvoicesPage from "./pages/InvoicesPage";
 
 // Composant pour protéger les routes selon les rôles
 function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode; allowedRoles?: string[] }) {
@@ -164,14 +165,7 @@ function App() {
             path="/invoices" 
             element={
               <ProtectedRoute allowedRoles={['admin', 'cashier']}>
-                <ComingSoon 
-                  title="Facturation" 
-                  description={
-                    profile?.role === 'admin' 
-                      ? 'Vue d\'ensemble de toutes les factures' 
-                      : 'Créez et gérez les factures des consultations'
-                  } 
-                />
+                <InvoicesPage />
               </ProtectedRoute>
             } 
           />
