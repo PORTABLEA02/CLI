@@ -21,81 +21,28 @@ export function useAuth() {
   const fetchProfile = useCallback(async (userId: string) => {
     try {
       console.log('👤 Récupération du profil pour l\'utilisateur:', userId);
-      console.log('🔍 Début de la requête vers la table profiles...');
       
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', userId)
+        .eq('user_id', userId)
         .single();
 
-      console.log('📊 Réponse de la requête profiles:', { data, error });
 
-      if (!error) {
-        console.error('❌ Erreur lors de la récupération du profil:', {
-          message: error.message,
-          code: error.code,
-          details: error.details,
-          hint: error.hint,
-          userId
-        });
-        
-        // Si le profil n'existe pas, on peut essayer de le créer
-        if (error.code === 'PGRST116') {
-          console.warn('⚠️ Profil non trouvé pour l\'utilisateur:', userId);
-          console.log('💡 Suggestion: Vérifiez que le profil a été créé lors de l\'inscription');
-          
-          // Essayer de récupérer les informations utilisateur depuis auth
-          console.log('🔧 Tentative de récupération des données utilisateur...');
-          const { data: { user } } = await supabase.auth.getUser();
-          console.log('👤 Données utilisateur récupérées:', user);
-          
-          if (user && user.user_metadata) {
-            console.log('🔧 Tentative de création automatique du profil...');
-            const { data: newProfile, error: createError } = await supabase
-              .from('profiles')
-              .insert([
-                {
-                  user_id: userId,
-                  email: user.email || '',
-                  full_name: user.user_metadata.full_name || user.email || 'Utilisateur',
-                  role: user.user_metadata.role || 'cashier',
-                  is_active: true
-                },
-              ])
-              .select()
-              .single();
-
-            if (createError) {
-              console.error('❌ Erreur lors de la création automatique du profil:', createError);
-              throw createError;
-            }
-
-            console.log('✅ Profil créé automatiquement:', newProfile);
-            setProfile(newProfile);
-            return newProfile;
-          }
-        }
+      if (error) {
+        console.error('❌ Erreur lors de la récupération du profil:', error);
         
         throw error;
       }
 
       if (!data) {
-        console.warn('⚠️ Aucune donnée de profil retournée pour l\'utilisateur:', userId);
         throw new Error('Profil utilisateur introuvable');
       }
 
-      console.log('✅ Profil récupéré avec succès:', {
-        id: data.id,
-        email: data.email,
-        full_name: data.full_name,
-        role: data.role,
-        is_active: data.is_active
-      });
+      console.log('✅ Profil récupéré avec succès:', data.full_name);
 
       // Vérifier si le compte est actif
       if (!data.is_active) {
-        console.warn('⚠️ Compte utilisateur désactivé:', data.email);
         throw new Error('Votre compte a été désactivé. Contactez l\'administrateur.');
       }
 
@@ -103,32 +50,25 @@ export function useAuth() {
       return data;
     } catch (error) {
       console.error('❌ Erreur inattendue lors de la récupération du profil:', error);
-      console.error('🔍 Stack trace:', error instanceof Error ? error.stack : 'Pas de stack trace');
       throw error;
     }
   }, []);
 
   // Fonction pour gérer les changements de session
   const handleSessionChange = useCallback(async (newSession: Session | null) => {
-    console.log('🔄 Changement de session détecté:', newSession ? 'Session active' : 'Pas de session');
+    console.log('🔄 Changement de session:', newSession ? 'Utilisateur connecté' : 'Pas de session');
     
     setSession(newSession);
     setUser(newSession?.user ?? null);
 
     if (newSession?.user) {
       try {
-        console.log('🚀 Début de la récupération du profil...');
         await fetchProfile(newSession.user.id);
-        console.log('✅ Profil récupéré avec succès, fin du processus');
       } catch (error) {
-        console.error('❌ Impossible de récupérer le profil, déconnexion de l\'utilisateur');
-        console.error('🔍 Détails de l\'erreur:', error);
-        // En cas d'erreur de profil, on déconnecte l'utilisateur
-        await supabase.auth.signOut();
+        console.error('❌ Impossible de récupérer le profil:', error);
         clearAuthState();
       }
     } else {
-      console.log('🧹 Pas de session, nettoyage de l\'état');
       clearAuthState();
     }
   }, [fetchProfile, clearAuthState]);
@@ -139,26 +79,22 @@ export function useAuth() {
 
     const initializeAuth = async () => {
       try {
-        console.log('🚀 Initialisation de l\'authentification...');
+        console.log('🚀 Initialisation...');
         
         // Récupérer la session actuelle
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
-          console.error('❌ Erreur lors de la récupération de la session initiale:', {
-            message: error.message,
-            status: error.status
-          });
+          console.error('❌ Erreur session:', error.message);
           throw error;
         }
 
         if (mounted) {
-          console.log('📋 Session initiale:', session ? 'Utilisateur connecté' : 'Aucune session');
           await handleSessionChange(session);
           setInitialized(true);
         }
       } catch (error) {
-        console.error('❌ Erreur lors de l\'initialisation de l\'authentification:', error);
+        console.error('❌ Erreur initialisation:', error);
         if (mounted) {
           clearAuthState();
           setInitialized(true);
@@ -177,36 +113,12 @@ export function useAuth() {
       async (event, session) => {
         if (!mounted) return;
 
-        console.log('🔔 Événement d\'authentification:', event, session ? 'Session active' : 'Pas de session');
+        console.log('🔔 Auth event:', event);
         
         try {
-          switch (event) {
-            case 'SIGNED_IN':
-              console.log('✅ Utilisateur connecté');
-              await handleSessionChange(session);
-              break;
-              
-            case 'SIGNED_OUT':
-              console.log('👋 Utilisateur déconnecté');
-              await handleSessionChange(null);
-              break;
-              
-            case 'TOKEN_REFRESHED':
-              console.log('🔄 Token rafraîchi');
-              await handleSessionChange(session);
-              break;
-              
-            case 'USER_UPDATED':
-              console.log('👤 Utilisateur mis à jour');
-              await handleSessionChange(session);
-              break;
-              
-            default:
-              console.log('📝 Événement d\'authentification:', event);
-              await handleSessionChange(session);
-          }
+          await handleSessionChange(session);
         } catch (error) {
-          console.error('❌ Erreur lors du traitement de l\'événement d\'authentification:', error);
+          console.error('❌ Erreur auth event:', error);
           if (mounted) {
             clearAuthState();
           }
@@ -222,7 +134,7 @@ export function useAuth() {
 
   const signIn = async (email: string, password: string) => {
     try {
-      console.log('🔐 Tentative de connexion pour:', email);
+      console.log('🔐 Connexion:', email);
       setLoading(true);
       
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -231,11 +143,7 @@ export function useAuth() {
       });
       
       if (error) {
-        console.error('❌ Erreur de connexion:', {
-          message: error.message,
-          status: error.status,
-          email
-        });
+        console.error('❌ Erreur connexion:', error.message);
 
         // Messages d'erreur personnalisés
         let userMessage = 'Erreur de connexion';
@@ -256,12 +164,7 @@ export function useAuth() {
         return { data, error: { ...error, message: userMessage } };
       }
 
-      console.log('✅ Connexion réussie pour:', email);
-      console.log('📋 Données de connexion:', {
-        userId: data.user?.id,
-        email: data.user?.email,
-        sessionId: data.session?.access_token ? 'Token présent' : 'Pas de token'
-      });
+      console.log('✅ Connexion réussie');
       
       return { data, error: null };
     } catch (error) {
@@ -279,16 +182,13 @@ export function useAuth() {
 
   const signOut = async () => {
     try {
-      console.log('🚪 Tentative de déconnexion...');
+      console.log('🚪 Déconnexion...');
       setLoading(true);
       
       const { error } = await supabase.auth.signOut();
       
       if (error) {
-        console.error('❌ Erreur lors de la déconnexion:', {
-          message: error.message,
-          status: error.status
-        });
+        console.error('❌ Erreur déconnexion:', error.message);
         return { error };
       }
 
@@ -310,7 +210,7 @@ export function useAuth() {
 
   const signUp = async (email: string, password: string, fullName: string, role: string) => {
     try {
-      console.log('📝 Tentative d\'inscription pour:', email);
+      console.log('📝 Inscription:', email);
       setLoading(true);
       
       const { data, error } = await supabase.auth.signUp({
@@ -325,16 +225,12 @@ export function useAuth() {
       });
 
       if (error) {
-        console.error('❌ Erreur lors de l\'inscription:', {
-          message: error.message,
-          status: error.status,
-          email
-        });
+        console.error('❌ Erreur inscription:', error.message);
         return { data, error };
       }
 
       if (data.user) {
-        console.log('✅ Utilisateur créé, création du profil...');
+        console.log('✅ Création du profil...');
         
         // Créer le profil utilisateur
         const { error: profileError } = await supabase
@@ -350,12 +246,7 @@ export function useAuth() {
           ]);
 
         if (profileError) {
-          console.error('❌ Erreur lors de la création du profil:', {
-            message: profileError.message,
-            code: profileError.code,
-            details: profileError.details,
-            userId: data.user.id
-          });
+          console.error('❌ Erreur création profil:', profileError.message);
           
           // Supprimer l'utilisateur si la création du profil échoue
           await supabase.auth.admin.deleteUser(data.user.id);
@@ -368,7 +259,7 @@ export function useAuth() {
           };
         }
 
-        console.log('✅ Profil créé avec succès pour:', email);
+        console.log('✅ Profil créé avec succès');
       }
 
       return { data, error: null };

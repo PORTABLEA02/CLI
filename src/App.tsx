@@ -4,9 +4,7 @@ import { useAuth } from './hooks/useAuth';
 import LoginForm from './components/auth/LoginForm';
 import Navbar from './components/Layout/Navbar';
 import Dashboard from './components/dashboard/Dashboard';
-import PatientList from "./components/patients/PatientList";
-import PatientForm from "./components/patients/PatientForm";
-import PatientDetail from "./components/Patients/PatientDetail";
+import PatientsPage from "./pages/PatientsPage";
 import ConsultationList from "./components/consultations/ConsultationList";
 import ProductList from "./components/products/ProductList";
 
@@ -42,16 +40,6 @@ function App() {
 
   // Vérifier la validité de la session périodiquement
   useEffect(() => {
-    // Logs de debug uniquement en mode développement
-    if (import.meta.env.DEV) {
-      console.log('📦 État de l\'application :', {
-        user: user ? { id: user.id, email: user.email } : null,
-        profile: profile ? { id: profile.id, role: profile.role, full_name: profile.full_name } : null,
-        loading,
-        initialized
-      });
-    }
-
     if (user && initialized) {
       const checkSession = () => {
         if (!isSessionValid()) {
@@ -67,18 +55,13 @@ function App() {
     }
   }, [user, initialized, isSessionValid]);
 
-  if (loading || !initialized) {
+  if (!initialized) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">
-            {!initialized ? 'Initialisation de l\'application...' : 'Chargement du profil utilisateur...'}
-            {user && !profile && (
-              <span className="block text-sm mt-2 text-blue-600">
-                Récupération des informations utilisateur...
-              </span>
-            )}
+            Chargement...
           </p>
         </div>
       </div>
@@ -86,14 +69,8 @@ function App() {
   }
 
   if (!user || !profile) {
-    console.log('🔒 Utilisateur non authentifié, affichage du formulaire de connexion');
     return <LoginForm />;
   }
-
-  console.log('✅ Utilisateur authentifié:', {
-    email: user.email,
-    role: profile.role
-  });
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -106,10 +83,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           
           {/* Routes des patients - accessibles à tous les rôles authentifiés */}
-          <Route path="/patients" element={<PatientList />} />
-          <Route path="/patients/new" element={<PatientForm />} />
-          <Route path="/patients/:id/edit" element={<PatientForm />} />
-          <Route path="/patients/:id/view" element={<PatientDetail />} />
+          <Route path="/patients/*" element={<PatientsPage />} />
           
           {/* Routes des consultations - accessibles aux docteurs, admins et caissiers */}
           <Route 
