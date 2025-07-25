@@ -63,30 +63,42 @@ export function useAuth() {
 
     if (newSession?.user) {
       try {
+        setLoading(true);
         await fetchProfile(newSession.user.id);
       } catch (error) {
         console.error('❌ Impossible de récupérer le profil:', error);
         clearAuthState();
+      } finally {
+        setLoading(false);
       }
     } else {
       clearAuthState();
+      setLoading(false);
     }
   }, [fetchProfile, clearAuthState]);
 
   // Initialisation de l'authentification
   useEffect(() => {
     let mounted = true;
+    let authSubscription: any = null;
 
     const initializeAuth = async () => {
       try {
         console.log('🚀 Initialisation...');
+        setLoading(true);
         
         // Récupérer la session actuelle
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
           console.error('❌ Erreur session:', error.message);
-          throw error;
+          // Ne pas throw l'erreur, juste nettoyer l'état
+          if (mounted) {
+            clearAuthState();
+            setInitialized(true);
+            setLoading(false);
+          }
+          return;
         }
 
         if (mounted) {
@@ -98,39 +110,52 @@ export function useAuth() {
         if (mounted) {
           clearAuthState();
           setInitialized(true);
-        }
-      } finally {
-        if (mounted) {
           setLoading(false);
         }
       }
     };
 
-    initializeAuth();
+    const setupAuth = async () => {
+      await initializeAuth();
+      
+      // Écouter les changements d'authentification seulement après l'initialisation
+      if (mounted) {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(
+          async (event, session) => {
+            if (!mounted) return;
 
-    // Écouter les changements d'authentification
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (!mounted) return;
-
-        console.log('🔔 Auth event:', event);
-        
-        try {
-          await handleSessionChange(session);
-        } catch (error) {
-          console.error('❌ Erreur auth event:', error);
-          if (mounted) {
-            clearAuthState();
+            console.log('🔔 Auth event:', event);
+            
+            // Ignorer l'événement initial SIGNED_IN si on vient de s'initialiser
+            if (event === 'SIGNED_IN' && !initialized) {
+              console.log('🔄 Ignorer SIGNED_IN initial');
+              return;
+            }
+            
+            try {
+              await handleSessionChange(session);
+            } catch (error) {
+              console.error('❌ Erreur auth event:', error);
+              if (mounted) {
+                clearAuthState();
+                setLoading(false);
+              }
+            }
           }
-        }
+        );
+        authSubscription = subscription;
       }
-    );
+    };
+
+    setupAuth();
 
     return () => {
       mounted = false;
-      subscription.unsubscribe();
+      if (authSubscription) {
+        authSubscription.unsubscribe();
+      }
     };
-  }, [handleSessionChange, clearAuthState]);
+  }, [handleSessionChange, clearAuthState, initialized]);
 
   const signIn = async (email: string, password: string) => {
     try {

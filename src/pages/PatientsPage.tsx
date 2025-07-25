@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import PatientList from '../components/patients/PatientList';
 import PatientForm from '../components/patients/PatientForm';
-import PatientDetail from '../components/patients/PatientDetail';
+import PatientDetail from '../components/Patients/PatientDetail';
 import { Patient } from '../lib/supabase';
 
 export default function PatientsPage() {
