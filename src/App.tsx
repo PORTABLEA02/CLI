@@ -7,7 +7,7 @@ import Dashboard from './components/dashboard/Dashboard';
 import PatientsPage from "./pages/PatientsPage";
 import ConsultationsPage from "./pages/ConsultationsPage";
 import UsersPage from "./pages/UsersPage";
-import ProductList from "./components/products/ProductList";
+import ProductsPage from "./pages/ProductsPage";
 import InvoicesPage from "./pages/InvoicesPage";
 import StockPage from "./pages/StockPage";
 
@@ -103,7 +103,7 @@ function App() {
             path="/products" 
             element={
               <ProtectedRoute allowedRoles={['admin', 'cashier']}>
-                <ProductList />
+                <ProductsPage />
               </ProtectedRoute>
             } 
           />

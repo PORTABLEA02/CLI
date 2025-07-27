@@ -1,19 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Package, Euro, AlertTriangle, CheckCircle, Calendar } from 'lucide-react';
+import { Search, Package, Euro, AlertTriangle, CheckCircle, Calendar, Plus, Edit, Trash2 } from 'lucide-react';
 import { supabase, Product } from '../../lib/supabase';
 import { useAuth } from '../../hooks/useAuth';
+import ProductForm from './ProductForm';
 
-export default function ProductList() {
+interface ProductListProps {
+  onCreateProduct?: () => void;
+  onEditProduct?: (product: Product) => void;
+}
+
+export default function ProductList({ onCreateProduct, onEditProduct }: ProductListProps) {
   const { profile } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'medical' | 'medication'>('all');
   const [filterStock, setFilterStock] = useState<'all' | 'in_stock' | 'low_stock' | 'out_of_stock'>('all');
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [showForm, setShowForm] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [refreshTrigger]);
 
   const fetchProducts = async () => {
     try {
@@ -97,6 +106,47 @@ export default function ProductList() {
     return expiry < today;
   };
 
+  const handleCreateProduct = () => {
+    setSelectedProduct(null);
+    setShowForm(true);
+  };
+
+  const handleEditProduct = (product: Product) => {
+    setSelectedProduct(product);
+    setShowForm(true);
+  };
+
+  const handleCloseForm = () => {
+    setShowForm(false);
+    setSelectedProduct(null);
+  };
+
+  const handleSuccess = () => {
+    setRefreshTrigger(prev => prev + 1);
+    handleCloseForm();
+  };
+
+  const handleDeleteProduct = async (product: Product) => {
+    if (!confirm(`Êtes-vous sûr de vouloir supprimer le produit "${product.name}" ? Cette action est irréversible.`)) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', product.id);
+
+      if (error) throw error;
+
+      console.log('Produit supprimé avec succès');
+      setRefreshTrigger(prev => prev + 1);
+    } catch (error) {
+      console.error('Erreur lors de la suppression du produit:', error);
+      alert('Erreur lors de la suppression du produit. Il est peut-être utilisé dans des consultations ou factures.');
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -106,17 +156,29 @@ export default function ProductList() {
   }
 
   return (
+    <>
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-900">
           Produits Médicaux & Médicaments
         </h2>
-        <div className="text-sm text-gray-600">
-          {profile?.role === 'cashier' && (
-            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
-              Mode Consultation - Facturation
-            </span>
+        <div className="flex items-center space-x-4">
+          {profile?.role === 'admin' && (
+            <button
+              onClick={handleCreateProduct}
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Nouveau Produit
+            </button>
           )}
+          <div className="text-sm text-gray-600">
+            {profile?.role === 'cashier' && (
+              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                Mode Consultation - Facturation
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
@@ -189,6 +251,11 @@ export default function ProductList() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Expiration
                   </th>
+                  {profile?.role === 'admin' && (
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  )}
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -276,6 +343,26 @@ export default function ProductList() {
                           <span className="text-sm text-gray-500">N/A</span>
                         )}
                       </td>
+                      {profile?.role === 'admin' && (
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <div className="flex items-center justify-end space-x-2">
+                            <button
+                              onClick={() => handleEditProduct(product)}
+                              className="text-blue-600 hover:text-blue-900 p-1 rounded"
+                              title="Modifier"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteProduct(product)}
+                              className="text-red-600 hover:text-red-900 p-1 rounded"
+                              title="Supprimer"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      )}
                     </tr>
                   );
                 })}
@@ -344,5 +431,14 @@ export default function ProductList() {
         </div>
       </div>
     </div>
+
+    {showForm && (
+      <ProductForm
+        product={selectedProduct}
+        onClose={handleCloseForm}
+        onSuccess={handleSuccess}
+      />
+    )}
+    </>
   );
 }
