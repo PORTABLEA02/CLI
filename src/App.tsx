@@ -9,6 +9,7 @@ import ConsultationsPage from "./pages/ConsultationsPage";
 import UsersPage from "./pages/UsersPage";
 import ProductList from "./components/products/ProductList";
 import InvoicesPage from "./pages/InvoicesPage";
+import StockPage from "./pages/StockPage";
 
 // Composant pour protéger les routes selon les rôles
 function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode; allowedRoles?: string[] }) {
@@ -147,14 +148,7 @@ function App() {
             path="/stock" 
             element={
               <ProtectedRoute allowedRoles={['admin', 'cashier']}>
-                <ComingSoon 
-                  title="Gestion du Stock" 
-                  description={
-                    profile?.role === 'admin' 
-                      ? 'Gérez les entrées/sorties et niveaux de stock' 
-                      : 'Consultez les stocks et effectuez les mouvements'
-                  } 
-                />
+                <StockPage />
               </ProtectedRoute>
             } 
           />
