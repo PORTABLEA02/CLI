@@ -1,9 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Calendar, User, Stethoscope, Euro, CheckCircle, XCircle } from 'lucide-react';
+import { Search, Calendar, User, Stethoscope, Euro, CheckCircle, XCircle, Plus, Edit, Eye } from 'lucide-react';
 import { supabase, Consultation } from '../../lib/supabase';
 import { useAuth } from '../../hooks/useAuth';
 
-export default function ConsultationList() {
+interface ConsultationListProps {
+  onCreateConsultation?: () => void;
+  onEditConsultation?: (consultation: Consultation) => void;
+  onViewConsultation?: (consultation: Consultation) => void;
+}
+
+export default function ConsultationList({ 
+  onCreateConsultation, 
+  onEditConsultation, 
+  onViewConsultation 
+}: ConsultationListProps) {
   const { profile } = useAuth();
   const [consultations, setConsultations] = useState<Consultation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -75,8 +85,19 @@ export default function ConsultationList() {
             <span className="text-sm font-normal text-gray-600 ml-2">(Lecture seule)</span>
           )}
         </h2>
-        <div className="text-sm text-gray-600">
-          Total: {filteredConsultations.length} consultation{filteredConsultations.length > 1 ? 's' : ''}
+        <div className="flex items-center space-x-4">
+          {(profile?.role === 'doctor' || profile?.role === 'admin') && onCreateConsultation && (
+            <button
+              onClick={onCreateConsultation}
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Nouvelle Consultation
+            </button>
+          )}
+          <div className="text-sm text-gray-600">
+            Total: {filteredConsultations.length} consultation{filteredConsultations.length > 1 ? 's' : ''}
+          </div>
         </div>
       </div>
 
@@ -135,6 +156,11 @@ export default function ConsultationList() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Statut
                   </th>
+                  {(profile?.role === 'doctor' || profile?.role === 'admin') && (
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  )}
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -213,6 +239,30 @@ export default function ConsultationList() {
                         )}
                       </div>
                     </td>
+                    {(profile?.role === 'doctor' || profile?.role === 'admin') && (
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div className="flex items-center justify-end space-x-2">
+                          {onViewConsultation && (
+                            <button
+                              onClick={() => onViewConsultation(consultation)}
+                              className="text-blue-600 hover:text-blue-900 p-1 rounded"
+                              title="Voir détails"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </button>
+                          )}
+                          {onEditConsultation && !consultation.is_invoiced && (
+                            <button
+                              onClick={() => onEditConsultation(consultation)}
+                              className="text-gray-600 hover:text-gray-900 p-1 rounded"
+                              title="Modifier"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>

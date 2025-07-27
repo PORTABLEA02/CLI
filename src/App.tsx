@@ -5,7 +5,7 @@ import LoginForm from './components/auth/LoginForm';
 import Navbar from './components/Layout/Navbar';
 import Dashboard from './components/dashboard/Dashboard';
 import PatientsPage from "./pages/PatientsPage";
-import ConsultationList from "./components/consultations/ConsultationList";
+import ConsultationsPage from "./pages/ConsultationsPage";
 import ProductList from "./components/products/ProductList";
 import InvoicesPage from "./pages/InvoicesPage";
 
@@ -91,7 +91,7 @@ function App() {
             path="/consultations" 
             element={
               <ProtectedRoute allowedRoles={['admin', 'doctor', 'cashier']}>
-                <ConsultationList />
+                <ConsultationsPage />
               </ProtectedRoute>
             } 
           />

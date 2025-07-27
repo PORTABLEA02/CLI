@@ -84,14 +84,16 @@ export function useAuth() {
 
     const initializeAuth = async () => {
       try {
-        console.log('🚀 Initialisation...');
+        console.log('🚀 Initialisation: Tentative de récupération de session...');
         setLoading(true);
-        
+       
         // Récupérer la session actuelle
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
-          console.error('❌ Erreur session:', error.message);
+          console.error('❌ Erreur lors de la récupération de session:', error.message);
+          // Ajoutez plus de détails sur l'erreur si disponible
+          console.error('Détails de l\'erreur getSession:', error);
           // Ne pas throw l'erreur, juste nettoyer l'état
           if (mounted) {
             clearAuthState();
@@ -99,6 +101,15 @@ export function useAuth() {
             setLoading(false);
           }
           return;
+        }
+
+        if (session) {
+          console.log('✅ Session récupérée avec succès:', session);
+          console.log('Expires at:', new Date(session.expires_at * 1000).toLocaleString());
+          console.log('Access Token (début):', session.access_token.substring(0, 10) + '...');
+          console.log('Refresh Token (début):', session.refresh_token ? session.refresh_token.substring(0, 10) + '...' : 'N/A');
+        } else {
+          console.log('⚠️ Aucune session active trouvée par getSession().');
         }
 
         if (mounted) {
@@ -126,12 +137,6 @@ export function useAuth() {
 
             console.log('🔔 Auth event:', event);
             
-            // Ignorer l'événement initial SIGNED_IN si on vient de s'initialiser
-            if (event === 'SIGNED_IN' && !initialized) {
-              console.log('🔄 Ignorer SIGNED_IN initial');
-              return;
-            }
-            
             try {
               await handleSessionChange(session);
             } catch (error) {
@@ -155,7 +160,7 @@ export function useAuth() {
         authSubscription.unsubscribe();
       }
     };
-  }, [handleSessionChange, clearAuthState, initialized]);
+  }, [handleSessionChange, clearAuthState]);
 
   const signIn = async (email: string, password: string) => {
     try {
