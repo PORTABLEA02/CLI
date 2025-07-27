@@ -90,7 +90,7 @@ export default function Navbar() {
         return [
           ...baseItems,
           { path: '/patients', label: 'Patients', icon: User },
-          { path: '/consultations', label: 'Consultations (Lecture)', icon: Stethoscope },
+          { path: '/consultations-readonly', label: 'Consultations (Lecture)', icon: Stethoscope },
           { path: '/invoices', label: 'Factures', icon: CreditCard },
           { path: '/products', label: 'Produits Médicaux', icon: Activity },
           { path: '/stock', label: 'Stock', icon: Activity },

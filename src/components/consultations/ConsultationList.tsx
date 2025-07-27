@@ -19,6 +19,10 @@ export default function ConsultationList({
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterInvoiced, setFilterInvoiced] = useState<'all' | 'invoiced' | 'not_invoiced'>('all');
+  
+  // Vérifier si l'utilisateur est en mode lecture seule (caissier)
+  const isReadOnly = profile?.role === 'cashier';
+  const canCreateEdit = profile?.role === 'doctor' || profile?.role === 'admin';
 
   useEffect(() => {
     fetchConsultations();
@@ -81,12 +85,12 @@ export default function ConsultationList({
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-900">
           Consultations
-          {profile?.role === 'cashier' && (
+          {isReadOnly && (
             <span className="text-sm font-normal text-gray-600 ml-2">(Lecture seule)</span>
           )}
         </h2>
         <div className="flex items-center space-x-4">
-          {(profile?.role === 'doctor' || profile?.role === 'admin') && onCreateConsultation && (
+          {canCreateEdit && onCreateConsultation && (
             <button
               onClick={onCreateConsultation}
               className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
@@ -156,7 +160,7 @@ export default function ConsultationList({
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Statut
                   </th>
-                  {(profile?.role === 'doctor' || profile?.role === 'admin') && (
+                  {canCreateEdit && (
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Actions
                     </th>
@@ -239,7 +243,7 @@ export default function ConsultationList({
                         )}
                       </div>
                     </td>
-                    {(profile?.role === 'doctor' || profile?.role === 'admin') && (
+                    {canCreateEdit && (
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex items-center justify-end space-x-2">
                           {onViewConsultation && (
@@ -258,6 +262,21 @@ export default function ConsultationList({
                               title="Modifier"
                             >
                               <Edit className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    )}
+                    {isReadOnly && (
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div className="flex items-center justify-end space-x-2">
+                          {onViewConsultation && (
+                            <button
+                              onClick={() => onViewConsultation(consultation)}
+                              className="text-blue-600 hover:text-blue-900 p-1 rounded"
+                              title="Voir détails"
+                            >
+                              <Eye className="w-4 h-4" />
                             </button>
                           )}
                         </div>

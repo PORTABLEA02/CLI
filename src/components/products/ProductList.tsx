@@ -246,7 +246,7 @@ export default function ProductList({ onCreateProduct, onEditProduct }: ProductL
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Expiration
                   </th>
-                  {profile?.role === 'admin' && (
+                  {(profile?.role === 'admin' || profile?.role === 'cashier') && (
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Actions
                     </th>
@@ -338,7 +338,7 @@ export default function ProductList({ onCreateProduct, onEditProduct }: ProductL
                           <span className="text-sm text-gray-500">N/A</span>
                         )}
                       </td>
-                      {profile?.role === 'admin' && (
+                      {(profile?.role === 'admin' || profile?.role === 'cashier') && (
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <div className="flex items-center justify-end space-x-2">
                             <button

@@ -89,11 +89,11 @@ function App() {
           {/* Routes des patients - accessibles à tous les rôles authentifiés */}
           <Route path="/patients/*" element={<PatientsPage />} />
           
-          {/* Routes des consultations - accessibles aux docteurs, admins et caissiers */}
+          {/* Routes des consultations - accessibles aux docteurs et admins */}
           <Route 
             path="/consultations" 
             element={
-              <ProtectedRoute allowedRoles={['admin', 'doctor', 'cashier']}>
+              <ProtectedRoute allowedRoles={['admin', 'doctor']}>
                 <ConsultationsPage />
               </ProtectedRoute>
             } 
@@ -181,6 +181,16 @@ function App() {
                   title="Facturation Directe" 
                   description="Créez des factures sans consultation préalable" 
                 />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* Route pour les caissiers - Consultations en lecture seule */}
+          <Route 
+            path="/consultations-readonly" 
+            element={
+              <ProtectedRoute allowedRoles={['cashier']}>
+                <ConsultationsPage />
               </ProtectedRoute>
             } 
           />
