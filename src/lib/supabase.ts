@@ -124,3 +124,18 @@ export interface StockMovement {
   product?: Product;
   user?: Profile;
 }
+
+export interface SystemSettings {
+  id: string;
+  clinic_name: string;
+  clinic_address?: string;
+  clinic_phone?: string;
+  clinic_email?: string;
+  currency: string;
+  currency_symbol: string;
+  tax_rate: number;
+  invoice_footer?: string;
+  logo_url?: string;
+  created_at: string;
+  updated_at: string;
+}

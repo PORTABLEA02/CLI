@@ -10,6 +10,7 @@ import UsersPage from "./pages/UsersPage";
 import ProductsPage from "./pages/ProductsPage";
 import InvoicesPage from "./pages/InvoicesPage";
 import StockPage from "./pages/StockPage";
+import SystemSettingsPage from "./pages/SystemSettingsPage";
 
 // Composant pour protéger les routes selon les rôles
 function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode; allowedRoles?: string[] }) {
@@ -126,6 +127,15 @@ function App() {
                   title="Rapports & Statistiques" 
                   description="Exportez les rapports financiers, de stock et de patients" 
                 />
+              </ProtectedRoute>
+            } 
+          />
+          
+          <Route 
+            path="/system-settings" 
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <SystemSettingsPage />
               </ProtectedRoute>
             } 
           />

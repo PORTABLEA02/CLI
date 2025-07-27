@@ -77,6 +77,7 @@ export default function Navbar() {
           { path: '/stock', label: 'Gestion Stock', icon: Activity },
           { path: '/invoices', label: 'Factures', icon: CreditCard },
           { path: '/reports', label: 'Rapports', icon: Activity },
+          { path: '/system-settings', label: 'Configuration', icon: User },
         ];
       case 'doctor':
         return [

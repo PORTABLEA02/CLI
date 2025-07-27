@@ -3,6 +3,7 @@ import { X, FileText, User, Calendar, Euro, Download, Edit, Trash2 } from 'lucid
 import { supabase, Invoice, InvoiceItem } from '../../lib/supabase';
 import { useAuth } from '../../hooks/useAuth';
 import { downloadInvoicePDF } from '../../utils/pdfGenerator';
+import { useSystemSettings } from '../../hooks/useSystemSettings';
 
 interface InvoiceDetailProps {
   invoice: Invoice;
@@ -12,6 +13,7 @@ interface InvoiceDetailProps {
 
 export default function InvoiceDetail({ invoice, onClose, onEdit }: InvoiceDetailProps) {
   const { profile } = useAuth();
+  const { settings: systemSettings } = useSystemSettings();
   const [items, setItems] = useState<InvoiceItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -88,7 +90,7 @@ export default function InvoiceDetail({ invoice, onClose, onEdit }: InvoiceDetai
   };
 
   const generatePDF = () => {
-    downloadInvoicePDF(invoice, items);
+    downloadInvoicePDF(invoice, items, systemSettings);
   };
 
   return (
