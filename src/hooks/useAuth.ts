@@ -8,6 +8,7 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
   const [session, setSession] = useState<Session | null>(null);
   const [initialized, setInitialized] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
 
   // Fonction pour nettoyer l'état lors de la déconnexion
   const clearAuthState = useCallback(() => {
@@ -76,6 +77,31 @@ export function useAuth() {
       setLoading(false);
     }
   }, [fetchProfile, clearAuthState]);
+
+  // Fonction pour gérer la visibilité de la page
+  const handleVisibilityChange = useCallback(() => {
+    const isCurrentlyVisible = !document.hidden;
+    setIsVisible(isCurrentlyVisible);
+    
+    if (isCurrentlyVisible && session) {
+      console.log('👁️ Page redevenue visible, vérification de la session...');
+      // Vérifier si la session est toujours valide
+      const now = Math.floor(Date.now() / 1000);
+      const expiresAt = session.expires_at || 0;
+      
+      if (expiresAt <= now) {
+        console.warn('⚠️ Session expirée détectée lors du retour sur la page');
+        clearAuthState();
+      } else {
+        // Rafraîchir la session si elle expire bientôt (dans moins de 5 minutes)
+        const timeUntilExpiry = expiresAt - now;
+        if (timeUntilExpiry < 300) {
+          console.log('🔄 Rafraîchissement préventif de la session...');
+          supabase.auth.refreshSession();
+        }
+      }
+    }
+  }, [session, clearAuthState]);
 
   // Initialisation de l'authentification
   useEffect(() => {
@@ -161,6 +187,46 @@ export function useAuth() {
       }
     };
   }, [handleSessionChange, clearAuthState]);
+
+  // Écouter les changements de visibilité de la page
+  useEffect(() => {
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [handleVisibilityChange]);
+
+  // Écouter les événements de focus/blur de la fenêtre
+  useEffect(() => {
+    const handleFocus = () => {
+      console.log('🎯 Fenêtre a retrouvé le focus');
+      setIsVisible(true);
+      if (session) {
+        // Vérifier la validité de la session
+        const now = Math.floor(Date.now() / 1000);
+        const expiresAt = session.expires_at || 0;
+        
+        if (expiresAt <= now) {
+          console.warn('⚠️ Session expirée détectée lors du focus');
+          clearAuthState();
+        }
+      }
+    };
+
+    const handleBlur = () => {
+      console.log('😴 Fenêtre a perdu le focus');
+      setIsVisible(false);
+    };
+
+    window.addEventListener('focus', handleFocus);
+    window.addEventListener('blur', handleBlur);
+    
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('blur', handleBlur);
+    };
+  }, [session, clearAuthState]);
 
   const signIn = async (email: string, password: string) => {
     try {
@@ -334,16 +400,44 @@ export function useAuth() {
     return expiresAt > now;
   }, [session]);
 
+  // Fonction pour forcer le rafraîchissement de la session
+  const refreshSession = useCallback(async () => {
+    try {
+      console.log('🔄 Rafraîchissement manuel de la session...');
+      const { data, error } = await supabase.auth.refreshSession();
+      
+      if (error) {
+        console.error('❌ Erreur lors du rafraîchissement:', error);
+        clearAuthState();
+        return false;
+      }
+      
+      if (data.session) {
+        console.log('✅ Session rafraîchie avec succès');
+        await handleSessionChange(data.session);
+        return true;
+      }
+      
+      return false;
+    } catch (error) {
+      console.error('❌ Erreur inattendue lors du rafraîchissement:', error);
+      clearAuthState();
+      return false;
+    }
+  }, [clearAuthState, handleSessionChange]);
+
   return {
     user,
     profile,
     session,
     loading: loading || !initialized,
     initialized,
+    isVisible,
     signIn,
     signOut,
     signUp,
     refreshProfile,
     isSessionValid,
+    refreshSession,
   };
 }

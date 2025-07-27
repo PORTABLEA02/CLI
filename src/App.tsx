@@ -40,7 +40,7 @@ function ComingSoon({ title, description }: { title: string; description: string
 }
 
 function App() {
-  const { user, profile, loading, initialized, isSessionValid } = useAuth();
+  const { user, profile, loading, initialized, isSessionValid, isVisible, refreshSession } = useAuth();
 
   // Vérifier la validité de la session périodiquement
   useEffect(() => {
@@ -58,6 +58,24 @@ function App() {
       return () => clearInterval(interval);
     }
   }, [user, initialized, isSessionValid]);
+
+  // Gérer le retour sur l'onglet
+  useEffect(() => {
+    if (isVisible && user && initialized) {
+      console.log('👁️ Application redevenue visible, vérification de l\'état...');
+      
+      // Vérifier si la session est toujours valide
+      if (!isSessionValid()) {
+        console.warn('⚠️ Session expirée détectée lors du retour sur l\'onglet');
+        // Tenter un rafraîchissement de la session
+        refreshSession().then((success) => {
+          if (!success) {
+            console.error('❌ Impossible de rafraîchir la session, déconnexion nécessaire');
+          }
+        });
+      }
+    }
+  }, [isVisible, user, initialized, isSessionValid, refreshSession]);
 
   if (!initialized) {
     return (
