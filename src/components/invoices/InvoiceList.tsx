@@ -89,7 +89,7 @@ export default function InvoiceList({ onCreateInvoice, onEditInvoice, onViewInvo
   const getTotalRevenue = () => {
     return filteredInvoices
       .filter(invoice => invoice.status === 'paid')
-      .reduce((sum, invoice) => sum + invoice.total_amount, 0);
+      .reduce((sum, invoice) => sum + (invoice.total_amount || 0), 0);
   };
 
   if (loading) {

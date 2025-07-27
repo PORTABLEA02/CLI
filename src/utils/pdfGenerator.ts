@@ -1,7 +1,6 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { Invoice, InvoiceItem } from '../lib/supabase';
-import { useSystemSettings } from '../hooks/useSystemSettings';
 
 export const generateInvoicePDF = (invoice: Invoice, items: InvoiceItem[], systemSettings?: any) => {
   const doc = new jsPDF();

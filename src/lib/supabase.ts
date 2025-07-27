@@ -97,6 +97,7 @@ export interface Invoice {
   updated_at: string;
   patient?: Patient;
   consultation?: Consultation;
+  cashier?: Profile;
   items?: InvoiceItem[];
 }
 

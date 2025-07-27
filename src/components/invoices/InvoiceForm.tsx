@@ -218,6 +218,7 @@ export default function InvoiceForm({ invoice, onClose, onSuccess }: InvoiceForm
       const invoiceData = {
         ...formData,
         cashier_id: profile?.id,
+        issue_date: new Date().toISOString(),
         due_date: formData.due_date || null,
       };
 

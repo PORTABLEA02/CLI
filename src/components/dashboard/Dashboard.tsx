@@ -64,7 +64,7 @@ export default function Dashboard() {
         .eq('status', 'paid')
         .gte('created_at', firstDayOfMonth);
 
-      const totalRevenue = revenueData?.reduce((sum, invoice) => sum + invoice.total_amount, 0) || 0;
+      const totalRevenue = revenueData?.reduce((sum, invoice) => sum + (invoice.total_amount || 0), 0) || 0;
 
       // Stock faible
       console.log('Vérification du stock faible...');
