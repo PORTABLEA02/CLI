@@ -89,10 +89,26 @@ export default function StockMovementForm({ onClose, onSuccess, product }: Stock
       // Mettre à jour le stock du produit
       const stockChange = formData.movement_type === 'in' ? formData.quantity : -formData.quantity;
       
+      // Récupérer le stock actuel
+      const { data: currentProduct, error: fetchError } = await supabase
+        .from('products')
+        .select('current_stock')
+        .eq('id', formData.product_id)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      const newStock = currentProduct.current_stock + stockChange;
+      
+      // Vérifier que le stock ne devient pas négatif
+      if (newStock < 0) {
+        throw new Error('Cette opération rendrait le stock négatif');
+      }
+
       const { error: updateError } = await supabase
         .from('products')
         .update({
-          current_stock: supabase.sql`current_stock + ${stockChange}`,
+          current_stock: newStock,
           updated_at: new Date().toISOString()
         })
         .eq('id', formData.product_id);
