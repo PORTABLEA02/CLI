@@ -86,10 +86,10 @@ export function useAuth() {
       try {
         console.log('🚀 Initialisation: Tentative de récupération de session...');
         setLoading(true);
-       
+       console.log('🚀 Initialisation: setloadin.')
         // Récupérer la session actuelle
         const { data: { session }, error } = await supabase.auth.getSession();
-        
+         console.log('🚀 Initialisation: tttt.')
         if (error) {
           console.error('❌ Erreur lors de la récupération de session:', error.message);
           // Ajoutez plus de détails sur l'erreur si disponible
