@@ -68,11 +68,15 @@ export default function Dashboard() {
 
       // Stock faible
       console.log('Vérification du stock faible...');
-      const { data: lowStockProducts } = await supabase
+      const { data: allProducts } = await supabase
         .from('products')
         .select('*')
-        .filter('current_stock', 'lt', 'min_stock_level')
         .eq('is_active', true);
+
+      // Filtrer les produits avec stock faible côté client
+      const lowStockProducts = allProducts?.filter(product => 
+        product.current_stock <= product.min_stock_level
+      ) || [];
 
       // Consultations récentes
       console.log('Récupération des consultations récentes...');

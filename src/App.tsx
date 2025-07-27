@@ -6,6 +6,7 @@ import Navbar from './components/Layout/Navbar';
 import Dashboard from './components/dashboard/Dashboard';
 import PatientsPage from "./pages/PatientsPage";
 import ConsultationsPage from "./pages/ConsultationsPage";
+import UsersPage from "./pages/UsersPage";
 import ProductList from "./components/products/ProductList";
 import InvoicesPage from "./pages/InvoicesPage";
 
@@ -111,10 +112,7 @@ function App() {
             path="/users" 
             element={
               <ProtectedRoute allowedRoles={['admin']}>
-                <ComingSoon 
-                  title="Gestion des Utilisateurs" 
-                  description="Cette fonctionnalité sera bientôt disponible" 
-                />
+                <UsersPage />
               </ProtectedRoute>
             } 
           />
