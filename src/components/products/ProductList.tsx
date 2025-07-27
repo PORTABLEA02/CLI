@@ -163,7 +163,7 @@ export default function ProductList({ onCreateProduct, onEditProduct }: ProductL
           Produits Médicaux & Médicaments
         </h2>
         <div className="flex items-center space-x-4">
-          {profile?.role === 'admin' && (
+          {(profile?.role === 'admin' || profile?.role === 'cashier') && (
             <button
               onClick={handleCreateProduct}
               className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
@@ -173,11 +173,6 @@ export default function ProductList({ onCreateProduct, onEditProduct }: ProductL
             </button>
           )}
           <div className="text-sm text-gray-600">
-            {profile?.role === 'cashier' && (
-              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
-                Mode Consultation - Facturation
-              </span>
-            )}
           </div>
         </div>
       </div>
@@ -353,13 +348,15 @@ export default function ProductList({ onCreateProduct, onEditProduct }: ProductL
                             >
                               <Edit className="w-4 h-4" />
                             </button>
-                            <button
-                              onClick={() => handleDeleteProduct(product)}
-                              className="text-red-600 hover:text-red-900 p-1 rounded"
-                              title="Supprimer"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
+                            {profile?.role === 'admin' && (
+                              <button
+                                onClick={() => handleDeleteProduct(product)}
+                                className="text-red-600 hover:text-red-900 p-1 rounded"
+                                title="Supprimer"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            )}
                           </div>
                         </td>
                       )}

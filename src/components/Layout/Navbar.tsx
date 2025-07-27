@@ -91,7 +91,7 @@ export default function Navbar() {
           { path: '/patients', label: 'Patients', icon: User },
           { path: '/consultations', label: 'Consultations (Lecture)', icon: Stethoscope },
           { path: '/invoices', label: 'Factures', icon: CreditCard },
-          { path: '/products', label: 'Produits', icon: Activity },
+          { path: '/products', label: 'Produits Médicaux', icon: Activity },
           { path: '/stock', label: 'Stock', icon: Activity },
           { path: '/direct-billing', label: 'Facturation Directe', icon: CreditCard },
         ];
