@@ -99,7 +99,6 @@ export default function Navbar() {
             ]
           },
           { path: '/invoices', label: 'Factures', shortLabel: 'Factures', icon: CreditCard },
-          { path: '/reports', label: 'Rapports', shortLabel: 'Rapports', icon: Activity },
         ];
       case 'doctor':
         return [
@@ -113,7 +112,6 @@ export default function Navbar() {
               { path: '/consultations', label: 'Consultations', shortLabel: 'Consultations', icon: Stethoscope },
             ]
           },
-          { path: '/my-consultations', label: 'Mes Consultations', shortLabel: 'Mes Consult.', icon: Stethoscope },
         ];
       case 'cashier':
         return [
@@ -137,7 +135,6 @@ export default function Navbar() {
             ]
           },
           { path: '/invoices', label: 'Factures', shortLabel: 'Factures', icon: CreditCard },
-          { path: '/direct-billing', label: 'Facturation Directe', shortLabel: 'Fact. Directe', icon: CreditCard },
         ];
       default:
         return baseItems;

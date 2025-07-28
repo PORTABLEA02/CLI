@@ -28,17 +28,6 @@ function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode;
   return <>{children}</>;
 }
 
-// Composant pour les pages non implémentées
-function ComingSoon({ title, description }: { title: string; description: string }) {
-  return (
-    <div className="text-center py-12">
-      <h2 className="text-2xl font-bold text-gray-900 mb-4">{title}</h2>
-      <p className="text-gray-600">{description}</p>
-      <p className="text-sm text-gray-500 mt-2">Cette fonctionnalité sera bientôt disponible</p>
-    </div>
-  );
-}
-
 function App() {
   const { user, profile, loading, initialized, isSessionValid, isVisible, refreshSession } = useAuth();
 
@@ -138,35 +127,10 @@ function App() {
           />
           
           <Route 
-            path="/reports" 
-            element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <ComingSoon 
-                  title="Rapports & Statistiques" 
-                  description="Exportez les rapports financiers, de stock et de patients" 
-                />
-              </ProtectedRoute>
-            } 
-          />
-          
-          <Route 
             path="/system-settings" 
             element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <SystemSettingsPage />
-              </ProtectedRoute>
-            } 
-          />
-          
-          {/* Routes réservées aux docteurs */}
-          <Route 
-            path="/my-consultations" 
-            element={
-              <ProtectedRoute allowedRoles={['doctor']}>
-                <ComingSoon 
-                  title="Mes Consultations" 
-                  description="Vos consultations personnelles et historique" 
-                />
               </ProtectedRoute>
             } 
           />
@@ -186,19 +150,6 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['admin', 'cashier']}>
                 <InvoicesPage />
-              </ProtectedRoute>
-            } 
-          />
-          
-          {/* Route réservée aux caissiers */}
-          <Route 
-            path="/direct-billing" 
-            element={
-              <ProtectedRoute allowedRoles={['cashier']}>
-                <ComingSoon 
-                  title="Facturation Directe" 
-                  description="Créez des factures sans consultation préalable" 
-                />
               </ProtectedRoute>
             } 
           />
