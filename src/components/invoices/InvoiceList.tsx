@@ -117,25 +117,25 @@ export default function InvoiceList({ onCreateInvoice, onEditInvoice, onViewInvo
 
       {/* Filtres et recherche */}
       <div className="bg-white p-4 rounded-lg border border-gray-200 space-y-4">
-        <div className="flex flex-col sm:flex-row lg:flex-row gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Barre de recherche */}
-          <div className="relative flex-1">
+          <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="text"
               placeholder="Rechercher par numéro, patient, téléphone ou email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 sm:py-3 w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
+              className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
 
           {/* Filtre par statut */}
-          <div className="sm:w-48 lg:w-64">
+          <div>
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value as 'all' | 'draft' | 'paid' | 'cancelled')}
-              className="w-full px-3 py-2 sm:py-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="all">Tous les statuts</option>
               <option value="draft">Brouillons</option>
@@ -149,7 +149,7 @@ export default function InvoiceList({ onCreateInvoice, onEditInvoice, onViewInvo
       {/* Liste des factures */}
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         {filteredInvoices.length > 0 ? (
-          <div className="hidden lg:block overflow-x-auto">
+          <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
@@ -256,76 +256,6 @@ export default function InvoiceList({ onCreateInvoice, onEditInvoice, onViewInvo
               </tbody>
             </table>
           </div>
-          
-          {/* Version mobile/tablette - cartes */}
-          <div className="lg:hidden divide-y divide-gray-200">
-            {filteredInvoices.map((invoice) => (
-              <div key={invoice.id} className="p-3 sm:p-4 hover:bg-gray-50">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center mb-2">
-                      <FileText className="w-4 h-4 mr-2 text-gray-400 flex-shrink-0" />
-                      <span className="text-base sm:text-lg font-medium text-gray-900 truncate">{invoice.invoice_number}</span>
-                    </div>
-                    <h3 className="text-sm sm:text-base font-medium text-gray-900 truncate mb-1">
-                      {invoice.patient?.first_name} {invoice.patient?.last_name}
-                    </h3>
-                    {invoice.patient?.phone && (
-                      <p className="text-xs sm:text-sm text-gray-600 truncate">{invoice.patient.phone}</p>
-                    )}
-                  </div>
-                  
-                  <div className="flex items-center space-x-1 sm:space-x-2 ml-2 sm:ml-4">
-                    <button
-                      onClick={() => onViewInvoice(invoice)}
-                      className="p-1.5 sm:p-2 text-blue-600 hover:text-blue-900 hover:bg-blue-50 rounded-full"
-                      title="Voir détails"
-                    >
-                      <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
-                    </button>
-                    {(profile?.role === 'admin' || profile?.role === 'cashier') && invoice.status === 'draft' && (
-                      <button
-                        onClick={() => onEditInvoice(invoice)}
-                        className="p-1.5 sm:p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-full"
-                        title="Modifier"
-                      >
-                        <Edit className="w-4 h-4 sm:w-5 sm:h-5" />
-                      </button>
-                    )}
-                    <button
-                      onClick={() => {/* TODO: Implement PDF download */}}
-                      className="p-1.5 sm:p-2 text-green-600 hover:text-green-900 hover:bg-green-50 rounded-full"
-                      title="Télécharger PDF"
-                    >
-                      <Download className="w-4 h-4 sm:w-5 sm:h-5" />
-                    </button>
-                  </div>
-                </div>
-                
-                <div className="space-y-1 sm:space-y-2">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-1 sm:space-y-0">
-                    <div className="flex items-center text-xs sm:text-sm text-gray-600">
-                      <Calendar className="w-4 h-4 mr-1" />
-                      <span>{new Date(invoice.issue_date).toLocaleDateString('fr-FR')}</span>
-                    </div>
-                    <div className="flex items-center text-base sm:text-lg font-medium text-green-600">
-                      <Euro className="w-4 h-4 mr-1" />
-                      <span>{invoice.total_amount.toFixed(2)}€</span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-1 sm:space-y-0">
-                    <span className={`inline-flex items-center px-2 sm:px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(invoice.status)} self-start`}>
-                      {getStatusText(invoice.status)}
-                    </span>
-                    <div className="text-xs sm:text-sm text-gray-600">
-                      {invoice.cashier?.full_name || 'N/A'}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
         ) : (
           <div className="text-center py-12">
             <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
@@ -340,50 +270,50 @@ export default function InvoiceList({ onCreateInvoice, onEditInvoice, onViewInvo
       </div>
 
       {/* Statistiques rapides */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <div className="bg-white p-4 lg:p-6 rounded-lg border border-gray-200">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs sm:text-sm font-medium text-gray-600 leading-tight">Total Factures</p>
-              <p className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">{invoices.length}</p>
+              <p className="text-sm font-medium text-gray-600">Total Factures</p>
+              <p className="text-2xl font-bold text-gray-900">{invoices.length}</p>
             </div>
-            <FileText className="w-6 h-6 lg:w-8 lg:h-8 text-blue-500" />
+            <FileText className="w-8 h-8 text-blue-500" />
           </div>
         </div>
         
-        <div className="bg-white p-4 lg:p-6 rounded-lg border border-gray-200">
+        <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs sm:text-sm font-medium text-gray-600 leading-tight">Payées</p>
-              <p className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600">
+              <p className="text-sm font-medium text-gray-600">Payées</p>
+              <p className="text-2xl font-bold text-green-600">
                 {invoices.filter(i => i.status === 'paid').length}
               </p>
             </div>
-            <Euro className="w-6 h-6 lg:w-8 lg:h-8 text-green-500" />
+            <Euro className="w-8 h-8 text-green-500" />
           </div>
         </div>
         
-        <div className="bg-white p-4 lg:p-6 rounded-lg border border-gray-200">
+        <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs sm:text-sm font-medium text-gray-600 leading-tight">Brouillons</p>
-              <p className="text-lg sm:text-xl lg:text-2xl font-bold text-yellow-600">
+              <p className="text-sm font-medium text-gray-600">Brouillons</p>
+              <p className="text-2xl font-bold text-yellow-600">
                 {invoices.filter(i => i.status === 'draft').length}
               </p>
             </div>
-            <FileText className="w-6 h-6 lg:w-8 lg:h-8 text-yellow-500" />
+            <FileText className="w-8 h-8 text-yellow-500" />
           </div>
         </div>
         
-        <div className="bg-white p-4 lg:p-6 rounded-lg border border-gray-200">
+        <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs sm:text-sm font-medium text-gray-600 leading-tight">Revenus</p>
-              <p className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600 break-all">
+              <p className="text-sm font-medium text-gray-600">Revenus</p>
+              <p className="text-2xl font-bold text-green-600">
                 {getTotalRevenue().toFixed(2)}€
               </p>
             </div>
-            <Euro className="w-6 h-6 lg:w-8 lg:h-8 text-green-500" />
+            <Euro className="w-8 h-8 text-green-500" />
           </div>
         </div>
       </div>

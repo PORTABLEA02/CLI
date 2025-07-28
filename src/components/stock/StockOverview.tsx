@@ -110,220 +110,150 @@ export default function StockOverview({ onRefresh }: StockOverviewProps) {
 
         {/* Statistiques */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-white p-4 lg:p-6 rounded-lg border border-gray-200">
+          <div className="bg-white p-4 rounded-lg border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Total Produits</p>
-                <p className="text-xl lg:text-2xl font-bold text-gray-900">{products.length}</p>
+                <p className="text-2xl font-bold text-gray-900">{products.length}</p>
               </div>
-              <Package className="w-6 h-6 lg:w-8 lg:h-8 text-blue-500" />
+              <Package className="w-8 h-8 text-blue-500" />
             </div>
           </div>
           
-          <div className="bg-white p-4 lg:p-6 rounded-lg border border-gray-200">
+          <div className="bg-white p-4 rounded-lg border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">En Stock</p>
-                <p className="text-xl lg:text-2xl font-bold text-green-600">{stats.inStock}</p>
+                <p className="text-2xl font-bold text-green-600">{stats.inStock}</p>
               </div>
-              <CheckCircle className="w-6 h-6 lg:w-8 lg:h-8 text-green-500" />
+              <CheckCircle className="w-8 h-8 text-green-500" />
             </div>
           </div>
           
-          <div className="bg-white p-4 lg:p-6 rounded-lg border border-gray-200">
+          <div className="bg-white p-4 rounded-lg border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Stock Faible</p>
-                <p className="text-xl lg:text-2xl font-bold text-yellow-600">{stats.lowStock}</p>
+                <p className="text-2xl font-bold text-yellow-600">{stats.lowStock}</p>
               </div>
-              <AlertTriangle className="w-6 h-6 lg:w-8 lg:h-8 text-yellow-500" />
+              <AlertTriangle className="w-8 h-8 text-yellow-500" />
             </div>
           </div>
           
-          <div className="bg-white p-4 lg:p-6 rounded-lg border border-gray-200">
+          <div className="bg-white p-4 rounded-lg border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Rupture</p>
-                <p className="text-xl lg:text-2xl font-bold text-red-600">{stats.outOfStock}</p>
+                <p className="text-2xl font-bold text-red-600">{stats.outOfStock}</p>
               </div>
-              <AlertTriangle className="w-6 h-6 lg:w-8 lg:h-8 text-red-500" />
+              <AlertTriangle className="w-8 h-8 text-red-500" />
             </div>
           </div>
         </div>
 
         {/* Filtre */}
         <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <div className="sm:w-64">
-            <select
-              value={filterStock}
-              onChange={(e) => setFilterStock(e.target.value as 'all' | 'in_stock' | 'low_stock' | 'out_of_stock')}
-              className="w-full px-3 py-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-base"
-            >
-              <option value="all">Tous les produits</option>
-              <option value="in_stock">En stock</option>
-              <option value="low_stock">Stock faible</option>
-              <option value="out_of_stock">Rupture de stock</option>
-            </select>
-          </div>
+          <select
+            value={filterStock}
+            onChange={(e) => setFilterStock(e.target.value as 'all' | 'in_stock' | 'low_stock' | 'out_of_stock')}
+            className="px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="all">Tous les produits</option>
+            <option value="in_stock">En stock</option>
+            <option value="low_stock">Stock faible</option>
+            <option value="out_of_stock">Rupture de stock</option>
+          </select>
         </div>
 
         {/* Liste des produits */}
         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
           {filteredProducts.length > 0 ? (
-            <>
-              <div className="hidden lg:block overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Produit
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Stock Actuel
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Stock Minimum
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Statut
-                      </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredProducts.map((product) => {
-                      const stockStatus = getStockStatus(product);
-                      
-                      return (
-                        <tr key={product.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center">
-                              <Package className="w-5 h-5 mr-3 text-gray-400" />
-                              <div>
-                                <div className="text-sm font-medium text-gray-900">
-                                  {product.name}
-                                </div>
-                                {product.description && (
-                                  <div className="text-sm text-gray-500">
-                                    {product.description}
-                                  </div>
-                                )}
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Produit
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Stock Actuel
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Stock Minimum
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Statut
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredProducts.map((product) => {
+                    const stockStatus = getStockStatus(product);
+                    
+                    return (
+                      <tr key={product.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <Package className="w-5 h-5 mr-3 text-gray-400" />
+                            <div>
+                              <div className="text-sm font-medium text-gray-900">
+                                {product.name}
                               </div>
+                              {product.description && (
+                                <div className="text-sm text-gray-500">
+                                  {product.description}
+                                </div>
+                              )}
                             </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-bold text-gray-900">
-                              {product.current_stock} {product.unit}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-600">
-                              {product.min_stock_level} {product.unit}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${stockStatus.bgColor} ${stockStatus.color}`}>
-                              {stockStatus.status === 'in_stock' && <CheckCircle className="w-3 h-3 mr-1" />}
-                              {stockStatus.status !== 'in_stock' && <AlertTriangle className="w-3 h-3 mr-1" />}
-                              {stockStatus.text}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <div className="flex items-center justify-end space-x-2">
-                              <button
-                                onClick={() => handleQuickMovement(product, 'in')}
-                                className="inline-flex items-center px-2 py-1 bg-green-100 text-green-700 text-xs rounded hover:bg-green-200 transition-colors"
-                                title="Entrée de stock"
-                              >
-                                <TrendingUp className="w-3 h-3 mr-1" />
-                                Entrée
-                              </button>
-                              <button
-                                onClick={() => handleQuickMovement(product, 'out')}
-                                className="inline-flex items-center px-2 py-1 bg-red-100 text-red-700 text-xs rounded hover:bg-red-200 transition-colors"
-                                title="Sortie de stock"
-                                disabled={product.current_stock === 0}
-                              >
-                                <TrendingDown className="w-3 h-3 mr-1" />
-                                Sortie
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-              
-              {/* Version mobile/tablette - cartes */}
-              <div className="lg:hidden divide-y divide-gray-200">
-                {filteredProducts.map((product) => {
-                  const stockStatus = getStockStatus(product);
-                  
-                  return (
-                    <div key={product.id} className="p-4 hover:bg-gray-50">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-center flex-1 min-w-0">
-                          <Package className="w-5 h-5 mr-3 text-gray-400 flex-shrink-0" />
-                          <div className="flex-1 min-w-0">
-                            <h3 className="text-base font-medium text-gray-900 truncate">{product.name}</h3>
-                            {product.description && (
-                              <p className="text-sm text-gray-500 truncate">{product.description}</p>
-                            )}
                           </div>
-                        </div>
-                        
-                        <div className="flex items-center space-x-2 ml-4">
-                          <button
-                            onClick={() => handleQuickMovement(product, 'in')}
-                            className="inline-flex items-center px-2 py-1 bg-green-100 text-green-700 text-xs rounded hover:bg-green-200 transition-colors"
-                            title="Entrée de stock"
-                          >
-                            <TrendingUp className="w-3 h-3 mr-1" />
-                            <span className="hidden sm:inline">Entrée</span>
-                          </button>
-                          <button
-                            onClick={() => handleQuickMovement(product, 'out')}
-                            className="inline-flex items-center px-2 py-1 bg-red-100 text-red-700 text-xs rounded hover:bg-red-200 transition-colors"
-                            title="Sortie de stock"
-                            disabled={product.current_stock === 0}
-                          >
-                            <TrendingDown className="w-3 h-3 mr-1" />
-                            <span className="hidden sm:inline">Sortie</span>
-                          </button>
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-3 gap-4 mb-3">
-                        <div>
-                          <p className="text-xs text-gray-500 mb-1">Stock actuel</p>
-                          <p className="text-sm font-bold text-gray-900">
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-bold text-gray-900">
                             {product.current_stock} {product.unit}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-500 mb-1">Stock minimum</p>
-                          <p className="text-sm text-gray-600">
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-600">
                             {product.min_stock_level} {product.unit}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-500 mb-1">Statut</p>
-                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${stockStatus.bgColor} ${stockStatus.color}`}>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${stockStatus.bgColor} ${stockStatus.color}`}>
                             {stockStatus.status === 'in_stock' && <CheckCircle className="w-3 h-3 mr-1" />}
                             {stockStatus.status !== 'in_stock' && <AlertTriangle className="w-3 h-3 mr-1" />}
                             {stockStatus.text}
                           </span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <div className="flex items-center justify-end space-x-2">
+                            <button
+                              onClick={() => handleQuickMovement(product, 'in')}
+                              className="inline-flex items-center px-2 py-1 bg-green-100 text-green-700 text-xs rounded hover:bg-green-200 transition-colors"
+                              title="Entrée de stock"
+                            >
+                              <TrendingUp className="w-3 h-3 mr-1" />
+                              Entrée
+                            </button>
+                            <button
+                              onClick={() => handleQuickMovement(product, 'out')}
+                              className="inline-flex items-center px-2 py-1 bg-red-100 text-red-700 text-xs rounded hover:bg-red-200 transition-colors"
+                              title="Sortie de stock"
+                              disabled={product.current_stock === 0}
+                            >
+                              <TrendingDown className="w-3 h-3 mr-1" />
+                              Sortie
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           ) : (
             <div className="text-center py-12">
               <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
