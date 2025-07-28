@@ -93,6 +93,7 @@ export default function InvoiceDetail({ invoice, onClose, onEdit }: InvoiceDetai
     downloadInvoicePDF(invoice, items, systemSettings);
   };
 
+  const currencySymbol = systemSettings?.currency_symbol || 'FCFA';
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-screen overflow-y-auto">
@@ -242,13 +243,13 @@ export default function InvoiceDetail({ invoice, onClose, onEdit }: InvoiceDetai
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center text-sm font-medium text-gray-900">
                             <Euro className="w-4 h-4 mr-1 text-green-600" />
-                            {item.unit_price.toFixed(2)}€
+                            {item.unit_price.toFixed(2)} {currencySymbol}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center text-sm font-bold text-green-600">
                             <Euro className="w-4 h-4 mr-1" />
-                            {item.total_price.toFixed(2)}€
+                            {item.total_price.toFixed(2)} {currencySymbol}
                           </div>
                         </td>
                       </tr>
@@ -262,7 +263,7 @@ export default function InvoiceDetail({ invoice, onClose, onEdit }: InvoiceDetai
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center text-lg font-bold text-green-600">
                           <Euro className="w-5 h-5 mr-1" />
-                          {invoice.total_amount.toFixed(2)}€
+                          {invoice.total_amount.toFixed(2)} {currencySymbol}
                         </div>
                       </td>
                     </tr>

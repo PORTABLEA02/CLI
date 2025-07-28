@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Plus, FileText, Euro, Calendar, User, Eye, Edit, Download } from 'lucide-react';
 import { supabase, Invoice } from '../../lib/supabase';
 import { useAuth } from '../../hooks/useAuth';
+import { useCurrency } from '../../hooks/useSystemSettings';
 
 interface InvoiceListProps {
   onCreateInvoice: () => void;
@@ -11,6 +12,7 @@ interface InvoiceListProps {
 
 export default function InvoiceList({ onCreateInvoice, onEditInvoice, onViewInvoice }: InvoiceListProps) {
   const { profile } = useAuth();
+  const currencySymbol = useCurrency();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -219,7 +221,7 @@ export default function InvoiceList({ onCreateInvoice, onEditInvoice, onViewInvo
                     <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center text-sm font-medium text-green-600">
                         <Euro className="w-4 h-4 mr-1" />
-                        {invoice.total_amount.toFixed(2)}€
+                        {invoice.total_amount.toFixed(2)} {currencySymbol}
                       </div>
                       {/* Afficher le statut sur mobile */}
                       <div className="sm:hidden mt-1">
@@ -324,7 +326,7 @@ export default function InvoiceList({ onCreateInvoice, onEditInvoice, onViewInvo
             <div>
               <p className="text-sm font-medium text-gray-600">Revenus</p>
               <p className="text-2xl font-bold text-green-600">
-                {getTotalRevenue().toFixed(2)}€
+                {getTotalRevenue().toFixed(2)} {currencySymbol}
               </p>
             </div>
             <Euro className="w-8 h-8 text-green-500" />

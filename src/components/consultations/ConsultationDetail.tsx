@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Stethoscope, User, Calendar, Euro, Package, FileText, Phone, Mail } from 'lucide-react';
 import { supabase, Consultation } from '../../lib/supabase';
+import { useCurrency } from '../../hooks/useSystemSettings';
 
 interface ConsultationDetailProps {
   consultation: Consultation;
@@ -19,6 +20,7 @@ interface ConsultationProduct {
 }
 
 export default function ConsultationDetail({ consultation, onClose }: ConsultationDetailProps) {
+  const currencySymbol = useCurrency();
   const [products, setProducts] = useState<ConsultationProduct[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -147,7 +149,7 @@ export default function ConsultationDetail({ consultation, onClose }: Consultati
                   <span className="text-sm text-gray-600">Tarif:</span>
                   <span className="font-medium text-green-600 flex items-center">
                     <Euro className="w-4 h-4 mr-1" />
-                    {consultation.consultation_fee}€
+                    {consultation.consultation_fee} {currencySymbol}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -226,13 +228,13 @@ export default function ConsultationDetail({ consultation, onClose }: Consultati
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center text-sm font-medium text-gray-900">
                             <Euro className="w-4 h-4 mr-1 text-green-600" />
-                            {product.unit_price.toFixed(2)}€
+                            {product.unit_price.toFixed(2)} {currencySymbol}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center text-sm font-bold text-green-600">
                             <Euro className="w-4 h-4 mr-1" />
-                            {(product.quantity * product.unit_price).toFixed(2)}€
+                            {(product.quantity * product.unit_price).toFixed(2)} {currencySymbol}
                           </div>
                         </td>
                       </tr>
@@ -246,7 +248,7 @@ export default function ConsultationDetail({ consultation, onClose }: Consultati
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center text-sm font-bold text-green-600">
                           <Euro className="w-4 h-4 mr-1" />
-                          {getTotalProductsCost().toFixed(2)}€
+                          {getTotalProductsCost().toFixed(2)} {currencySymbol}
                         </div>
                       </td>
                     </tr>

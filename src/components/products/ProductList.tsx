@@ -3,6 +3,7 @@ import { Search, Package, Euro, AlertTriangle, CheckCircle, Calendar, Plus, Edit
 import { supabase, Product } from '../../lib/supabase';
 import { useAuth } from '../../hooks/useAuth';
 import ProductForm from './ProductForm';
+import { useCurrency } from '../../hooks/useSystemSettings';
 
 interface ProductListProps {
   onCreateProduct?: () => void;
@@ -11,6 +12,7 @@ interface ProductListProps {
 
 export default function ProductList({ onCreateProduct, onEditProduct }: ProductListProps) {
   const { profile } = useAuth();
+  const currencySymbol = useCurrency();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -304,7 +306,7 @@ export default function ProductList({ onCreateProduct, onEditProduct }: ProductL
                         <div className="flex items-center text-sm font-medium text-gray-900">
                           <Euro className="w-4 h-4 mr-1 text-green-600" />
                           <div>
-                            <div>{product.unit_price}€</div>
+                            <div>{product.unit_price} {currencySymbol}</div>
                             <div className="text-xs text-gray-500">/ {product.unit}</div>
                           </div>
                         </div>

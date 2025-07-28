@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Save, Plus, Trash2, Search, User, Stethoscope } from 'lucide-react';
 import { supabase, Invoice, Patient, Consultation, Product, InvoiceItem } from '../../lib/supabase';
 import { useAuth } from '../../hooks/useAuth';
+import { useCurrency } from '../../hooks/useSystemSettings';
 
 interface InvoiceFormProps {
   invoice?: Invoice | null;
@@ -21,6 +22,7 @@ interface InvoiceItemForm {
 
 export default function InvoiceForm({ invoice, onClose, onSuccess }: InvoiceFormProps) {
   const { profile } = useAuth();
+  const currencySymbol = useCurrency();
   const [formData, setFormData] = useState({
     patient_id: '',
     consultation_id: '',
@@ -369,7 +371,7 @@ export default function InvoiceForm({ invoice, onClose, onSuccess }: InvoiceForm
                   <option value="">Sélectionner une consultation</option>
                   {consultations.map((consultation) => (
                     <option key={consultation.id} value={consultation.id}>
-                      {new Date(consultation.consultation_date).toLocaleDateString('fr-FR')} - {consultation.diagnosis} ({consultation.consultation_fee}€)
+                      {new Date(consultation.consultation_date).toLocaleDateString('fr-FR')} - {consultation.diagnosis} ({consultation.consultation_fee} {currencySymbol})
                     </option>
                   ))}
                 </select>
@@ -435,7 +437,7 @@ export default function InvoiceForm({ invoice, onClose, onSuccess }: InvoiceForm
                       <option value="">Produit personnalisé</option>
                       {products.map((product) => (
                         <option key={product.id} value={product.id}>
-                          {product.name} ({product.unit_price}€)
+                          {product.name} ({product.unit_price} {currencySymbol})
                         </option>
                       ))}
                     </select>
@@ -487,7 +489,7 @@ export default function InvoiceForm({ invoice, onClose, onSuccess }: InvoiceForm
                   <div className="col-span-1">
                     <div className="text-xs font-medium text-gray-700 mb-1">Total</div>
                     <div className="text-sm font-bold text-green-600">
-                      {item.total_price.toFixed(2)}€
+                      {item.total_price.toFixed(2)} {currencySymbol}
                     </div>
                   </div>
 
@@ -509,7 +511,7 @@ export default function InvoiceForm({ invoice, onClose, onSuccess }: InvoiceForm
               <div className="flex justify-between items-center">
                 <span className="text-lg font-semibold text-gray-900">Total de la facture:</span>
                 <span className="text-2xl font-bold text-blue-600">
-                  {formData.total_amount.toFixed(2)}€
+                  {formData.total_amount.toFixed(2)} {currencySymbol}
                 </span>
               </div>
             </div>

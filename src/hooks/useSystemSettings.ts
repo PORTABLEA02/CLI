@@ -1,6 +1,12 @@
 import { useState, useEffect } from 'react';
 import { supabase, SystemSettings } from '../lib/supabase';
 
+// Hook pour obtenir le symbole de devise
+export function useCurrency() {
+  const { settings } = useSystemSettings();
+  return settings?.currency_symbol || 'FCFA';
+}
+
 export function useSystemSettings() {
   const [settings, setSettings] = useState<SystemSettings | null>(null);
   const [loading, setLoading] = useState(true);

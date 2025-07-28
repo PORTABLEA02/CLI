@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Users, FileText, Package, TrendingUp, AlertTriangle, Calendar } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../hooks/useAuth';
+import { useCurrency } from '../../hooks/useSystemSettings';
 
 interface DashboardStats {
   patientsCount: number;
@@ -15,6 +16,7 @@ interface DashboardStats {
 
 export default function Dashboard() {
   const { profile } = useAuth();
+  const currencySymbol = useCurrency();
   const [stats, setStats] = useState<DashboardStats>({
     patientsCount: 0,
     consultationsToday: 0,
@@ -151,7 +153,7 @@ export default function Dashboard() {
     },
     {
       title: 'Revenus ce Mois',
-      value: `${stats.totalRevenue.toFixed(2)}€`,
+      value: `${stats.totalRevenue.toFixed(2)} ${currencySymbol}`,
       icon: TrendingUp,
       color: 'yellow',
       visible: profile?.role === 'admin',

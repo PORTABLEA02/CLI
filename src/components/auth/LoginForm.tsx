@@ -127,7 +127,7 @@ export default function LoginForm() {
         
         <div className="text-center">
           <p className="text-xs text-gray-500">
-            Système de gestion de clinique médicale
+            SYG Clinique Médicale Finagnon
           </p>
         </div>
       </div>

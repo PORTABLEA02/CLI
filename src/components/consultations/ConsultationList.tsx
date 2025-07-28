@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Calendar, User, Stethoscope, Euro, CheckCircle, XCircle, Plus, Edit, Eye } from 'lucide-react';
 import { supabase, Consultation } from '../../lib/supabase';
 import { useAuth } from '../../hooks/useAuth';
+import { useCurrency } from '../../hooks/useSystemSettings';
 
 interface ConsultationListProps {
   onCreateConsultation?: () => void;
@@ -15,6 +16,7 @@ export default function ConsultationList({
   onViewConsultation 
 }: ConsultationListProps) {
   const { profile } = useAuth();
+  const currencySymbol = useCurrency();
   const [consultations, setConsultations] = useState<Consultation[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -223,7 +225,7 @@ export default function ConsultationList({
                         <div className="sm:hidden mt-2 space-y-1">
                           <div className="flex items-center text-xs font-medium text-green-600">
                             <Euro className="w-3 h-3 mr-1" />
-                            {consultation.consultation_fee}€
+                            {consultation.consultation_fee} {currencySymbol}
                           </div>
                           <div className="flex items-center">
                             {consultation.is_invoiced ? (
@@ -254,7 +256,7 @@ export default function ConsultationList({
                     <td className="hidden sm:table-cell px-4 lg:px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center text-sm font-medium text-green-600">
                         <Euro className="w-4 h-4 mr-1" />
-                        {consultation.consultation_fee}€
+                        {consultation.consultation_fee} {currencySymbol}
                       </div>
                     </td>
                     <td className="hidden lg:table-cell px-4 lg:px-6 py-4 whitespace-nowrap">
