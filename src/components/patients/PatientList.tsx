@@ -84,21 +84,21 @@ export default function PatientList({ onCreatePatient, onEditPatient, onViewPati
       </div>
 
       {/* Barre de recherche */}
-      <div className="relative mb-4">
+      <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
         <input
           type="text"
           placeholder="Rechercher par nom, téléphone ou email..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10 pr-4 py-3 w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-base"
+          className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
         />
       </div>
 
       {/* Liste des patients */}
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         {filteredPatients.length > 0 ? (
-          <div className="hidden md:block overflow-x-auto">
+          <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
@@ -184,61 +184,6 @@ export default function PatientList({ onCreatePatient, onEditPatient, onViewPati
                 ))}
               </tbody>
             </table>
-          </div>
-          
-          <>
-            {/* Version mobile - cartes */}
-          <div className="md:hidden divide-y divide-gray-200">
-            {/* Version mobile - cartes */}
-            {filteredPatients.map((patient) => (
-              <div key={patient.id} className="p-4 hover:bg-gray-50">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-medium text-gray-900 truncate">
-                      {patient.first_name} {patient.last_name}
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      {calculateAge(patient.birth_date)} ans • {patient.gender === 'M' ? 'Masculin' : 'Féminin'}
-                    </p>
-                  </div>
-                  <div className="flex items-center space-x-2 ml-4">
-                    <button
-                      onClick={() => onViewPatient(patient)}
-                      className="p-2 text-blue-600 hover:text-blue-900 hover:bg-blue-50 rounded-full"
-                      title="Voir détails"
-                    >
-                      <Eye className="w-5 h-5" />
-                    </button>
-                    <button
-                      onClick={() => onEditPatient(patient)}
-                      className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-full"
-                      title="Modifier"
-                    >
-                      <Edit className="w-5 h-5" />
-                    </button>
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  {patient.phone && (
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Phone className="w-4 h-4 mr-2 flex-shrink-0" />
-                      <span className="truncate">{patient.phone}</span>
-                    </div>
-                  )}
-                  {patient.email && (
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Mail className="w-4 h-4 mr-2 flex-shrink-0" />
-                      <span className="truncate">{patient.email}</span>
-                    </div>
-                  )}
-                  <div className="flex items-center text-sm text-gray-600">
-                    <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
-                    <span>Inscrit le {new Date(patient.created_at).toLocaleDateString('fr-FR')}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
           </div>
         ) : (
           <div className="text-center py-12">

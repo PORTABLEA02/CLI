@@ -163,25 +163,25 @@ export default function UserList({ onCreateUser, onEditUser }: UserListProps) {
 
       {/* Filtres et recherche */}
       <div className="bg-white p-4 rounded-lg border border-gray-200 space-y-4">
-        <div className="flex flex-col lg:flex-row gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Barre de recherche */}
-          <div className="relative flex-1">
+          <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="text"
               placeholder="Rechercher par nom, email ou téléphone..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-3 w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-base"
+              className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
 
           {/* Filtre par rôle */}
-          <div className="lg:w-48">
+          <div>
             <select
               value={filterRole}
               onChange={(e) => setFilterRole(e.target.value as 'all' | 'admin' | 'doctor' | 'cashier')}
-              className="w-full px-3 py-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-base"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="all">Tous les rôles</option>
               <option value="admin">Administrateurs</option>
@@ -191,11 +191,11 @@ export default function UserList({ onCreateUser, onEditUser }: UserListProps) {
           </div>
 
           {/* Filtre par statut */}
-          <div className="lg:w-48">
+          <div>
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value as 'all' | 'active' | 'inactive')}
-              className="w-full px-3 py-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-base"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="all">Tous les statuts</option>
               <option value="active">Actifs</option>
@@ -208,7 +208,7 @@ export default function UserList({ onCreateUser, onEditUser }: UserListProps) {
       {/* Liste des utilisateurs */}
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         {filteredUsers.length > 0 ? (
-          <div className="hidden lg:block overflow-x-auto">
+          <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
@@ -322,95 +322,6 @@ export default function UserList({ onCreateUser, onEditUser }: UserListProps) {
               </tbody>
             </table>
           </div>
-          
-          {/* Version mobile/tablette - cartes */}
-          <div className="lg:hidden divide-y divide-gray-200">
-            {filteredUsers.map((user) => (
-              <div key={user.id} className="p-4 hover:bg-gray-50">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center flex-1 min-w-0">
-                    <div className="flex-shrink-0 h-10 w-10">
-                      <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                        <User className="w-5 h-5 text-gray-600" />
-                      </div>
-                    </div>
-                    <div className="ml-3 flex-1 min-w-0">
-                      <h3 className="text-base font-medium text-gray-900 truncate">
-                        {user.full_name}
-                      </h3>
-                      <p className="text-sm text-gray-500 truncate">
-                        ID: {user.id.substring(0, 8)}...
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2 ml-4">
-                    <button
-                      onClick={() => onEditUser(user)}
-                      className="p-2 text-blue-600 hover:text-blue-900 hover:bg-blue-50 rounded-full"
-                      title="Modifier"
-                    >
-                      <Edit className="w-5 h-5" />
-                    </button>
-                    <button
-                      onClick={() => toggleUserStatus(user.id, user.is_active)}
-                      className={`p-2 rounded-full ${
-                        user.is_active 
-                          ? 'text-red-600 hover:text-red-900 hover:bg-red-50' 
-                          : 'text-green-600 hover:text-green-900 hover:bg-green-50'
-                      }`}
-                      title={user.is_active ? 'Désactiver' : 'Activer'}
-                    >
-                      {user.is_active ? <ShieldX className="w-5 h-5" /> : <ShieldCheck className="w-5 h-5" />}
-                    </button>
-                    {user.id !== profile?.id && (
-                      <button
-                        onClick={() => deleteUser(user.id)}
-                        className="p-2 text-red-600 hover:text-red-900 hover:bg-red-50 rounded-full"
-                        title="Supprimer"
-                      >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
-                    )}
-                  </div>
-                </div>
-                
-                <div className="space-y-2 mb-3">
-                  <div className="flex items-center text-sm text-gray-600">
-                    <Mail className="w-4 h-4 mr-2 flex-shrink-0" />
-                    <span className="truncate">{user.email}</span>
-                  </div>
-                  {user.phone && (
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Phone className="w-4 h-4 mr-2 flex-shrink-0" />
-                      <span>{user.phone}</span>
-                    </div>
-                  )}
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="flex items-center">
-                      {getRoleIcon(user.role)}
-                      <span className={`ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleColor(user.role)}`}>
-                        {getRoleDisplayName(user.role)}
-                      </span>
-                    </div>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      user.is_active 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-red-100 text-red-800'
-                    }`}>
-                      {user.is_active ? 'Actif' : 'Inactif'}
-                    </span>
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    {new Date(user.created_at).toLocaleDateString('fr-FR')}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
         ) : (
           <div className="text-center py-12">
             <User className="w-12 h-12 text-gray-400 mx-auto mb-4" />
@@ -426,49 +337,49 @@ export default function UserList({ onCreateUser, onEditUser }: UserListProps) {
 
       {/* Statistiques rapides */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white p-4 lg:p-6 rounded-lg border border-gray-200">
+        <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Total Utilisateurs</p>
-              <p className="text-xl lg:text-2xl font-bold text-gray-900">{users.length}</p>
+              <p className="text-2xl font-bold text-gray-900">{users.length}</p>
             </div>
-            <User className="w-6 h-6 lg:w-8 lg:h-8 text-blue-500" />
+            <User className="w-8 h-8 text-blue-500" />
           </div>
         </div>
         
-        <div className="bg-white p-4 lg:p-6 rounded-lg border border-gray-200">
+        <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Administrateurs</p>
-              <p className="text-xl lg:text-2xl font-bold text-red-600">
+              <p className="text-2xl font-bold text-red-600">
                 {users.filter(u => u.role === 'admin').length}
               </p>
             </div>
-            <ShieldCheck className="w-6 h-6 lg:w-8 lg:h-8 text-red-500" />
+            <ShieldCheck className="w-8 h-8 text-red-500" />
           </div>
         </div>
         
-        <div className="bg-white p-4 lg:p-6 rounded-lg border border-gray-200">
+        <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Docteurs</p>
-              <p className="text-xl lg:text-2xl font-bold text-blue-600">
+              <p className="text-2xl font-bold text-blue-600">
                 {users.filter(u => u.role === 'doctor').length}
               </p>
             </div>
-            <Shield className="w-6 h-6 lg:w-8 lg:h-8 text-blue-500" />
+            <Shield className="w-8 h-8 text-blue-500" />
           </div>
         </div>
         
-        <div className="bg-white p-4 lg:p-6 rounded-lg border border-gray-200">
+        <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Caissiers</p>
-              <p className="text-xl lg:text-2xl font-bold text-green-600">
+              <p className="text-2xl font-bold text-green-600">
                 {users.filter(u => u.role === 'cashier').length}
               </p>
             </div>
-            <User className="w-6 h-6 lg:w-8 lg:h-8 text-green-500" />
+            <User className="w-8 h-8 text-green-500" />
           </div>
         </div>
       </div>

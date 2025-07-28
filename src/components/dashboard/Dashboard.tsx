@@ -188,20 +188,20 @@ export default function Dashboard() {
       </div>
 
       {/* Cartes de statistiques */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {statCards.map((card, index) => {
           const Icon = card.icon;
           const colorClasses = getColorClasses(card.color).split(' ');
           
           return (
-            <div key={index} className="bg-white rounded-lg border border-gray-200 p-4 lg:p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div key={index} className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs sm:text-sm font-medium text-gray-600">{card.title}</p>
-                  <p className="text-xl sm:text-2xl font-bold text-gray-900 mt-1">{card.value}</p>
+                  <p className="text-sm font-medium text-gray-600">{card.title}</p>
+                  <p className="text-2xl font-bold text-gray-900 mt-1">{card.value}</p>
                 </div>
-                <div className={`p-2 sm:p-3 rounded-full ${colorClasses[2]}`}>
-                  <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${colorClasses[1]}`} />
+                <div className={`p-3 rounded-full ${colorClasses[2]}`}>
+                  <Icon className={`w-6 h-6 ${colorClasses[1]}`} />
                 </div>
               </div>
             </div>
@@ -209,11 +209,11 @@ export default function Dashboard() {
         })}
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Consultations récentes */}
         {profile?.role === 'doctor' && (
-          <div className="bg-white rounded-lg border border-gray-200 p-4 lg:p-6">
-            <h3 className="text-base lg:text-lg font-semibold text-gray-900 mb-4 flex items-center">
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
               <Calendar className="w-5 h-5 mr-2 text-blue-600" />
               Mes Consultations Récentes
             </h3>
@@ -222,14 +222,14 @@ export default function Dashboard() {
                 stats.recentConsultations
                   .filter(consultation => consultation.doctor_id === profile?.id)
                   .map((consultation) => (
-                  <div key={consultation.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 bg-gray-50 rounded-lg space-y-2 sm:space-y-0">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-900 truncate">
+                  <div key={consultation.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                      <p className="font-medium text-gray-900">
                         {consultation.patient?.first_name} {consultation.patient?.last_name}
                       </p>
-                      <p className="text-sm text-gray-600 truncate">{consultation.diagnosis}</p>
+                      <p className="text-sm text-gray-600">{consultation.diagnosis}</p>
                     </div>
-                    <div className="text-left sm:text-right flex-shrink-0">
+                    <div className="text-right">
                       <p className="text-sm text-gray-600">
                         {new Date(consultation.consultation_date).toLocaleDateString('fr-FR')}
                       </p>
@@ -245,26 +245,26 @@ export default function Dashboard() {
         
         {/* Consultations récentes pour admin */}
         {profile?.role === 'admin' && (
-          <div className="bg-white rounded-lg border border-gray-200 p-4 lg:p-6">
-            <h3 className="text-base lg:text-lg font-semibold text-gray-900 mb-4 flex items-center">
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
               <Calendar className="w-5 h-5 mr-2 text-blue-600" />
               Consultations Récentes (Toutes)
             </h3>
             <div className="space-y-3">
               {stats.recentConsultations.length > 0 ? (
                 stats.recentConsultations.map((consultation) => (
-                  <div key={consultation.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 bg-gray-50 rounded-lg space-y-2 sm:space-y-0">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-900 truncate">
+                  <div key={consultation.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                      <p className="font-medium text-gray-900">
                         {consultation.patient?.first_name} {consultation.patient?.last_name}
                       </p>
-                      <p className="text-sm text-gray-600 truncate">{consultation.diagnosis}</p>
+                      <p className="text-sm text-gray-600">{consultation.diagnosis}</p>
                     </div>
-                    <div className="text-left sm:text-right flex-shrink-0">
+                    <div className="text-right">
                       <p className="text-sm text-gray-600">
                         {new Date(consultation.consultation_date).toLocaleDateString('fr-FR')}
                       </p>
-                      <p className="text-sm font-medium text-gray-900 truncate">
+                      <p className="text-sm font-medium text-gray-900">
                         Dr. {consultation.doctor?.full_name}
                       </p>
                     </div>
@@ -279,22 +279,22 @@ export default function Dashboard() {
 
         {/* Stock faible */}
         {(profile?.role === 'cashier' || profile?.role === 'admin') && (
-          <div className="bg-white rounded-lg border border-gray-200 p-4 lg:p-6">
-            <h3 className="text-base lg:text-lg font-semibold text-gray-900 mb-4 flex items-center">
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
               <AlertTriangle className="w-5 h-5 mr-2 text-red-600" />
               Stock Faible
             </h3>
             <div className="space-y-3">
               {stats.lowStockProducts.length > 0 ? (
                 stats.lowStockProducts.map((product) => (
-                  <div key={product.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 bg-red-50 rounded-lg border border-red-200 space-y-2 sm:space-y-0">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-900 truncate">{product.name}</p>
+                  <div key={product.id} className="flex items-center justify-between p-3 bg-red-50 rounded-lg border border-red-200">
+                    <div>
+                      <p className="font-medium text-gray-900">{product.name}</p>
                       <p className="text-sm text-gray-600">
                         {product.type === 'medical' ? 'Produit médical' : 'Médicament'}
                       </p>
                     </div>
-                    <div className="text-left sm:text-right flex-shrink-0">
+                    <div className="text-right">
                       <p className="text-sm font-bold text-red-600">
                         {product.current_stock} {product.unit}
                       </p>
