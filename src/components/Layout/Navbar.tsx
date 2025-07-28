@@ -71,30 +71,72 @@ export default function Navbar() {
       case 'admin':
         return [
           ...baseItems,
-          { path: '/users', label: 'Gestion Utilisateurs', shortLabel: 'Utilisateurs', icon: User },
-          { path: '/patients', label: 'Patients', shortLabel: 'Patients', icon: User },
-          { path: '/consultations', label: 'Consultations', shortLabel: 'Consultations', icon: Stethoscope },
-          { path: '/products', label: 'Produits Médicaux', shortLabel: 'Produits', icon: Activity },
-          { path: '/stock', label: 'Gestion Stock', shortLabel: 'Stock', icon: Activity },
+          // Administration
+          { 
+            type: 'group',
+            label: 'Administration',
+            items: [
+              { path: '/users', label: 'Gestion Utilisateurs', shortLabel: 'Utilisateurs', icon: User },
+              { path: '/system-settings', label: 'Configuration', shortLabel: 'Config', icon: User },
+            ]
+          },
+          // Patients et consultations
+          { 
+            type: 'group',
+            label: 'Patients et consultations',
+            items: [
+              { path: '/patients', label: 'Patients', shortLabel: 'Patients', icon: User },
+              { path: '/consultations', label: 'Consultations', shortLabel: 'Consultations', icon: Stethoscope },
+            ]
+          },
+          // Gestion des produits
+          { 
+            type: 'group',
+            label: 'Gestion des produits',
+            items: [
+              { path: '/products', label: 'Produits Médicaux', shortLabel: 'Produits', icon: Activity },
+              { path: '/stock', label: 'Gestion Stock', shortLabel: 'Stock', icon: Activity },
+            ]
+          },
           { path: '/invoices', label: 'Factures', shortLabel: 'Factures', icon: CreditCard },
           { path: '/reports', label: 'Rapports', shortLabel: 'Rapports', icon: Activity },
-          { path: '/system-settings', label: 'Configuration', shortLabel: 'Config', icon: User },
         ];
       case 'doctor':
         return [
           ...baseItems,
-          { path: '/patients', label: 'Patients', shortLabel: 'Patients', icon: User },
-          { path: '/consultations', label: 'Consultations', shortLabel: 'Consultations', icon: Stethoscope },
+          // Patients et consultations
+          { 
+            type: 'group',
+            label: 'Patients et consultations',
+            items: [
+              { path: '/patients', label: 'Patients', shortLabel: 'Patients', icon: User },
+              { path: '/consultations', label: 'Consultations', shortLabel: 'Consultations', icon: Stethoscope },
+            ]
+          },
           { path: '/my-consultations', label: 'Mes Consultations', shortLabel: 'Mes Consult.', icon: Stethoscope },
         ];
       case 'cashier':
         return [
           ...baseItems,
-          { path: '/patients', label: 'Patients', shortLabel: 'Patients', icon: User },
-          { path: '/consultations-readonly', label: 'Consultations (Lecture)', shortLabel: 'Consult. (L)', icon: Stethoscope },
+          // Patients et consultations
+          { 
+            type: 'group',
+            label: 'Patients et consultations',
+            items: [
+              { path: '/patients', label: 'Patients', shortLabel: 'Patients', icon: User },
+              { path: '/consultations-readonly', label: 'Consultations (Lecture)', shortLabel: 'Consult. (L)', icon: Stethoscope },
+            ]
+          },
+          // Gestion des produits
+          { 
+            type: 'group',
+            label: 'Gestion des produits',
+            items: [
+              { path: '/products', label: 'Produits Médicaux', shortLabel: 'Produits', icon: Activity },
+              { path: '/stock', label: 'Stock', shortLabel: 'Stock', icon: Activity },
+            ]
+          },
           { path: '/invoices', label: 'Factures', shortLabel: 'Factures', icon: CreditCard },
-          { path: '/products', label: 'Produits Médicaux', shortLabel: 'Produits', icon: Activity },
-          { path: '/stock', label: 'Stock', shortLabel: 'Stock', icon: Activity },
           { path: '/direct-billing', label: 'Facturation Directe', shortLabel: 'Fact. Directe', icon: CreditCard },
         ];
       default:
@@ -114,24 +156,60 @@ export default function Navbar() {
             </div>
             
             <div className="hidden lg:ml-8 lg:flex lg:space-x-2 xl:space-x-6">
-              {getNavigationItems().map((item) => {
-                const Icon = item.icon;
-                const isActive = location.pathname === item.path;
-                return (
-                  <button
-                    key={item.path}
-                    onClick={() => navigate(item.path)}
-                    className={`inline-flex items-center px-2 xl:px-3 py-2 text-xs xl:text-sm font-medium rounded-md transition-colors ${
-                      isActive
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                    }`}
-                  >
-                    <Icon className="w-3 h-3 lg:w-4 lg:h-4 mr-1 xl:mr-2" />
-                    <span className="hidden xl:inline">{item.label}</span>
-                    <span className="xl:hidden text-xs">{item.shortLabel || item.label.split(' ')[0]}</span>
-                  </button>
-                );
+              {getNavigationItems().map((item, index) => {
+                if (item.type === 'group') {
+                  return (
+                    <div key={index} className="relative group">
+                      <button className="inline-flex items-center px-2 xl:px-3 py-2 text-xs xl:text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors">
+                        <span className="hidden xl:inline">{item.label}</span>
+                        <span className="xl:hidden text-xs">{item.label.split(' ')[0]}</span>
+                        <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+                      <div className="absolute left-0 mt-1 w-56 bg-white border border-gray-200 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                        <div className="py-1">
+                          {item.items.map((subItem) => {
+                            const Icon = subItem.icon;
+                            const isActive = location.pathname === subItem.path;
+                            return (
+                              <button
+                                key={subItem.path}
+                                onClick={() => navigate(subItem.path)}
+                                className={`w-full flex items-center px-4 py-2 text-sm transition-colors ${
+                                  isActive
+                                    ? 'bg-blue-100 text-blue-700'
+                                    : 'text-gray-700 hover:bg-gray-50'
+                                }`}
+                              >
+                                <Icon className="w-4 h-4 mr-3" />
+                                {subItem.label}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                } else {
+                  const Icon = item.icon;
+                  const isActive = location.pathname === item.path;
+                  return (
+                    <button
+                      key={item.path}
+                      onClick={() => navigate(item.path)}
+                      className={`inline-flex items-center px-2 xl:px-3 py-2 text-xs xl:text-sm font-medium rounded-md transition-colors ${
+                        isActive
+                          ? 'bg-blue-100 text-blue-700'
+                          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                      }`}
+                    >
+                      <Icon className="w-3 h-3 lg:w-4 lg:h-4 mr-1 xl:mr-2" />
+                      <span className="hidden xl:inline">{item.label}</span>
+                      <span className="xl:hidden text-xs">{item.shortLabel || item.label.split(' ')[0]}</span>
+                    </button>
+                  );
+                }
               })}
             </div>
           </div>
@@ -194,26 +272,57 @@ export default function Navbar() {
               </div>
 
               {/* Navigation mobile */}
-              {getNavigationItems().map((item) => {
-                const Icon = item.icon;
-                const isActive = location.pathname === item.path;
-                return (
-                  <button
-                    key={item.path}
-                    onClick={() => {
-                      navigate(item.path);
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className={`w-full flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
-                      isActive
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                    }`}
-                  >
-                    <Icon className="w-5 h-5 mr-3 flex-shrink-0" />
-                    {item.label}
-                  </button>
-                );
+              {getNavigationItems().map((item, index) => {
+                if (item.type === 'group') {
+                  return (
+                    <div key={index} className="space-y-1">
+                      <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                        {item.label}
+                      </div>
+                      {item.items.map((subItem) => {
+                        const Icon = subItem.icon;
+                        const isActive = location.pathname === subItem.path;
+                        return (
+                          <button
+                            key={subItem.path}
+                            onClick={() => {
+                              navigate(subItem.path);
+                              setIsMobileMenuOpen(false);
+                            }}
+                            className={`w-full flex items-center px-6 py-2 text-sm font-medium rounded-lg transition-colors ${
+                              isActive
+                                ? 'bg-blue-100 text-blue-700'
+                                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                            }`}
+                          >
+                            <Icon className="w-4 h-4 mr-3 flex-shrink-0" />
+                            {subItem.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  );
+                } else {
+                  const Icon = item.icon;
+                  const isActive = location.pathname === item.path;
+                  return (
+                    <button
+                      key={item.path}
+                      onClick={() => {
+                        navigate(item.path);
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className={`w-full flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
+                        isActive
+                          ? 'bg-blue-100 text-blue-700'
+                          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                      }`}
+                    >
+                      <Icon className="w-5 h-5 mr-3 flex-shrink-0" />
+                      {item.label}
+                    </button>
+                  );
+                }
               })}
 
               {/* Déconnexion mobile */}
