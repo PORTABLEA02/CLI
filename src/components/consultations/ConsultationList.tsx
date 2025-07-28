@@ -142,31 +142,31 @@ export default function ConsultationList({
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Date
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Patient
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="hidden md:table-cell px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Docteur
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Diagnostic
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="hidden sm:table-cell px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Tarif
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="hidden lg:table-cell px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Statut
                   </th>
                   {canCreateEdit && (
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 lg:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Actions
                     </th>
                   )}
                   {isReadOnly && (
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 lg:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Actions
                     </th>
                   )}
@@ -175,14 +175,14 @@ export default function ConsultationList({
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredConsultations.map((consultation) => (
                   <tr key={consultation.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center text-sm text-gray-900">
                         <Calendar className="w-4 h-4 mr-2 text-gray-400" />
                         <div>
-                          <div className="font-medium">
+                          <div className="font-medium text-xs lg:text-sm">
                             {new Date(consultation.consultation_date).toLocaleDateString('fr-FR')}
                           </div>
-                          <div className="text-gray-500">
+                          <div className="text-gray-500 text-xs">
                             {new Date(consultation.consultation_date).toLocaleTimeString('fr-FR', {
                               hour: '2-digit',
                               minute: '2-digit'
@@ -191,49 +191,73 @@ export default function ConsultationList({
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 lg:px-6 py-4">
                       <div className="flex items-center">
                         <User className="w-4 h-4 mr-2 text-gray-400" />
                         <div>
                           <div className="text-sm font-medium text-gray-900">
                             {consultation.patient?.first_name} {consultation.patient?.last_name}
                           </div>
+                          {/* Afficher le docteur sur mobile */}
+                          <div className="md:hidden text-xs text-gray-600 mt-1">
+                            Dr. {consultation.doctor?.full_name}
+                          </div>
                           {consultation.patient?.phone && (
-                            <div className="text-sm text-gray-500">
+                            <div className="text-xs text-gray-500 mt-1">
                               {consultation.patient.phone}
                             </div>
                           )}
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="hidden md:table-cell px-4 lg:px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center text-sm text-gray-900">
                         <Stethoscope className="w-4 h-4 mr-2 text-blue-500" />
                         Dr. {consultation.doctor?.full_name}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-gray-900 max-w-xs">
+                    <td className="px-4 lg:px-6 py-4">
+                      <div className="text-sm text-gray-900 max-w-xs lg:max-w-sm">
                         <div className="font-medium">{consultation.diagnosis}</div>
+                        {/* Afficher le tarif et statut sur mobile */}
+                        <div className="sm:hidden mt-2 space-y-1">
+                          <div className="flex items-center text-xs font-medium text-green-600">
+                            <Euro className="w-3 h-3 mr-1" />
+                            {consultation.consultation_fee}€
+                          </div>
+                          <div className="flex items-center">
+                            {consultation.is_invoiced ? (
+                              <div className="flex items-center text-green-600">
+                                <CheckCircle className="w-3 h-3 mr-1" />
+                                <span className="text-xs font-medium">Facturée</span>
+                              </div>
+                            ) : (
+                              <div className="flex items-center text-yellow-600">
+                                <XCircle className="w-3 h-3 mr-1" />
+                                <span className="text-xs font-medium">Non facturée</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
                         {consultation.treatment && (
-                          <div className="text-gray-600 mt-1 text-xs">
+                          <div className="text-gray-600 mt-1 text-xs truncate">
                             Traitement: {consultation.treatment}
                           </div>
                         )}
                         {consultation.notes && (
-                          <div className="text-gray-500 mt-1 text-xs">
+                          <div className="text-gray-500 mt-1 text-xs truncate">
                             Notes: {consultation.notes}
                           </div>
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="hidden sm:table-cell px-4 lg:px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center text-sm font-medium text-green-600">
                         <Euro className="w-4 h-4 mr-1" />
                         {consultation.consultation_fee}€
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="hidden lg:table-cell px-4 lg:px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         {consultation.is_invoiced ? (
                           <div className="flex items-center text-green-600">
@@ -249,12 +273,12 @@ export default function ConsultationList({
                       </div>
                     </td>
                     {canCreateEdit && (
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex items-center justify-end space-x-2">
                           {onViewConsultation && (
                             <button
                               onClick={() => onViewConsultation(consultation)}
-                              className="text-blue-600 hover:text-blue-900 p-1 rounded"
+                              className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
                               title="Voir détails"
                             >
                               <Eye className="w-4 h-4" />
@@ -263,7 +287,7 @@ export default function ConsultationList({
                           {onEditConsultation && !consultation.is_invoiced && (
                             <button
                               onClick={() => onEditConsultation(consultation)}
-                              className="text-gray-600 hover:text-gray-900 p-1 rounded"
+                              className="text-gray-600 hover:text-gray-900 p-1 rounded hover:bg-gray-50"
                               title="Modifier"
                             >
                               <Edit className="w-4 h-4" />
@@ -273,11 +297,11 @@ export default function ConsultationList({
                       </td>
                     )}
                     {isReadOnly && onViewConsultation && (
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex items-center justify-end space-x-2">
                           <button
                             onClick={() => onViewConsultation(consultation)}
-                            className="text-blue-600 hover:text-blue-900 p-1 rounded"
+                            className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
                             title="Voir détails"
                           >
                             <Eye className="w-4 h-4" />

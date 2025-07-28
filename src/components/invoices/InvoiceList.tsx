@@ -153,25 +153,25 @@ export default function InvoiceList({ onCreateInvoice, onEditInvoice, onViewInvo
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Numéro
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Patient
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="hidden md:table-cell px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Date d'émission
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Montant
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="hidden sm:table-cell px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Statut
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="hidden lg:table-cell px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Caissier
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 lg:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -179,7 +179,7 @@ export default function InvoiceList({ onCreateInvoice, onEditInvoice, onViewInvo
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredInvoices.map((invoice) => (
                   <tr key={invoice.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <FileText className="w-4 h-4 mr-2 text-gray-400" />
                         <div className="text-sm font-medium text-gray-900">
@@ -187,48 +187,62 @@ export default function InvoiceList({ onCreateInvoice, onEditInvoice, onViewInvo
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 lg:px-6 py-4">
                       <div className="flex items-center">
                         <User className="w-4 h-4 mr-2 text-gray-400" />
                         <div>
                           <div className="text-sm font-medium text-gray-900">
                             {invoice.patient?.first_name} {invoice.patient?.last_name}
                           </div>
+                          {/* Afficher la date et le caissier sur mobile */}
+                          <div className="md:hidden text-xs text-gray-500 mt-1 space-y-1">
+                            <div className="flex items-center">
+                              <Calendar className="w-3 h-3 mr-1" />
+                              {new Date(invoice.issue_date).toLocaleDateString('fr-FR')}
+                            </div>
+                            <div>Caissier: {invoice.cashier?.full_name || 'N/A'}</div>
+                          </div>
                           {invoice.patient?.phone && (
-                            <div className="text-sm text-gray-500">
+                            <div className="text-xs text-gray-500 mt-1">
                               {invoice.patient.phone}
                             </div>
                           )}
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="hidden md:table-cell px-4 lg:px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center text-sm text-gray-900">
                         <Calendar className="w-4 h-4 mr-2 text-gray-400" />
                         {new Date(invoice.issue_date).toLocaleDateString('fr-FR')}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center text-sm font-medium text-green-600">
                         <Euro className="w-4 h-4 mr-1" />
                         {invoice.total_amount.toFixed(2)}€
                       </div>
+                      {/* Afficher le statut sur mobile */}
+                      <div className="sm:hidden mt-1">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(invoice.status)}`}>
+                          {getStatusText(invoice.status)}
+                        </span>
+                      </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="hidden sm:table-cell px-4 lg:px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(invoice.status)}`}>
                         {getStatusText(invoice.status)}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="hidden lg:table-cell px-4 lg:px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
                         {invoice.cashier?.full_name || 'N/A'}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center justify-end space-x-2">
                         <button
                           onClick={() => onViewInvoice(invoice)}
-                          className="text-blue-600 hover:text-blue-900 p-1 rounded"
+                          className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
                           title="Voir détails"
                         >
                           <Eye className="w-4 h-4" />
@@ -236,7 +250,7 @@ export default function InvoiceList({ onCreateInvoice, onEditInvoice, onViewInvo
                         {(profile?.role === 'admin' || profile?.role === 'cashier') && invoice.status === 'draft' && (
                           <button
                             onClick={() => onEditInvoice(invoice)}
-                            className="text-gray-600 hover:text-gray-900 p-1 rounded"
+                            className="text-gray-600 hover:text-gray-900 p-1 rounded hover:bg-gray-50"
                             title="Modifier"
                           >
                             <Edit className="w-4 h-4" />
@@ -244,7 +258,7 @@ export default function InvoiceList({ onCreateInvoice, onEditInvoice, onViewInvo
                         )}
                         <button
                           onClick={() => {/* TODO: Implement PDF download */}}
-                          className="text-green-600 hover:text-green-900 p-1 rounded"
+                          className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50"
                           title="Télécharger PDF"
                         >
                           <Download className="w-4 h-4" />

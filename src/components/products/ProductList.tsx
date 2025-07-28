@@ -179,9 +179,9 @@ export default function ProductList({ onCreateProduct, onEditProduct }: ProductL
 
       {/* Filtres et recherche */}
       <div className="bg-white p-4 rounded-lg border border-gray-200 space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {/* Barre de recherche */}
-          <div className="relative">
+          <div className="relative sm:col-span-2 lg:col-span-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="text"
@@ -228,26 +228,26 @@ export default function ProductList({ onCreateProduct, onEditProduct }: ProductL
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Produit
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="hidden md:table-cell px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Type
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Prix Unitaire
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="hidden sm:table-cell px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Stock
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Statut
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="hidden lg:table-cell px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Expiration
                   </th>
                   {(profile?.role === 'admin' || profile?.role === 'cashier') && (
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 lg:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Actions
                     </th>
                   )}
@@ -261,27 +261,37 @@ export default function ProductList({ onCreateProduct, onEditProduct }: ProductL
                   
                   return (
                     <tr key={product.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-4 lg:px-6 py-4">
                         <div className="flex items-center">
                           <Package className="w-5 h-5 mr-3 text-gray-400" />
                           <div>
                             <div className="text-sm font-medium text-gray-900">
                               {product.name}
                             </div>
+                            {/* Afficher le type sur mobile */}
+                            <div className="md:hidden mt-1">
+                              <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                                product.type === 'medical' 
+                                  ? 'bg-blue-100 text-blue-800' 
+                                  : 'bg-purple-100 text-purple-800'
+                              }`}>
+                                {getTypeDisplayName(product.type)}
+                              </span>
+                            </div>
                             {product.description && (
-                              <div className="text-sm text-gray-500">
+                              <div className="text-xs text-gray-500 mt-1 truncate">
                                 {product.description}
                               </div>
                             )}
                             {product.barcode && (
-                              <div className="text-xs text-gray-400 font-mono">
+                              <div className="text-xs text-gray-400 font-mono mt-1">
                                 Code: {product.barcode}
                               </div>
                             )}
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="hidden md:table-cell px-4 lg:px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           product.type === 'medical' 
                             ? 'bg-blue-100 text-blue-800' 
@@ -290,14 +300,16 @@ export default function ProductList({ onCreateProduct, onEditProduct }: ProductL
                           {getTypeDisplayName(product.type)}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center text-sm font-medium text-gray-900">
                           <Euro className="w-4 h-4 mr-1 text-green-600" />
-                          {product.unit_price}€
-                          <span className="text-gray-500 ml-1">/ {product.unit}</span>
+                          <div>
+                            <div>{product.unit_price}€</div>
+                            <div className="text-xs text-gray-500">/ {product.unit}</div>
+                          </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="hidden sm:table-cell px-4 lg:px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">
                           <div className="font-medium">
                             {product.current_stock} {product.unit}
@@ -307,14 +319,18 @@ export default function ProductList({ onCreateProduct, onEditProduct }: ProductL
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${stockStatus.bgColor} ${stockStatus.color}`}>
                           {stockStatus.status === 'in_stock' && <CheckCircle className="w-3 h-3 mr-1" />}
                           {stockStatus.status !== 'in_stock' && <AlertTriangle className="w-3 h-3 mr-1" />}
                           {stockStatus.text}
                         </span>
+                        {/* Afficher le stock sur mobile */}
+                        <div className="sm:hidden text-xs text-gray-600 mt-1">
+                          Stock: {product.current_stock} {product.unit}
+                        </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="hidden lg:table-cell px-4 lg:px-6 py-4 whitespace-nowrap">
                         {product.expiry_date ? (
                           <div className="flex items-center">
                             <Calendar className="w-4 h-4 mr-1 text-gray-400" />
@@ -339,11 +355,11 @@ export default function ProductList({ onCreateProduct, onEditProduct }: ProductL
                         )}
                       </td>
                       {(profile?.role === 'admin' || profile?.role === 'cashier') && (
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <div className="flex items-center justify-end space-x-2">
                             <button
                               onClick={() => handleEditProduct(product)}
-                              className="text-blue-600 hover:text-blue-900 p-1 rounded"
+                              className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
                               title="Modifier"
                             >
                               <Edit className="w-4 h-4" />
@@ -351,7 +367,7 @@ export default function ProductList({ onCreateProduct, onEditProduct }: ProductL
                             {profile?.role === 'admin' && (
                               <button
                                 onClick={() => handleDeleteProduct(product)}
-                                className="text-red-600 hover:text-red-900 p-1 rounded"
+                                className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
                                 title="Supprimer"
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -380,50 +396,50 @@ export default function ProductList({ onCreateProduct, onEditProduct }: ProductL
       </div>
 
       {/* Statistiques rapides */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Total Produits</p>
-              <p className="text-2xl font-bold text-gray-900">{products.length}</p>
+              <p className="text-xs lg:text-sm font-medium text-gray-600">Total Produits</p>
+              <p className="text-xl lg:text-2xl font-bold text-gray-900">{products.length}</p>
             </div>
-            <Package className="w-8 h-8 text-blue-500" />
+            <Package className="w-6 h-6 lg:w-8 lg:h-8 text-blue-500" />
           </div>
         </div>
         
         <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">En Stock</p>
-              <p className="text-2xl font-bold text-green-600">
+              <p className="text-xs lg:text-sm font-medium text-gray-600">En Stock</p>
+              <p className="text-xl lg:text-2xl font-bold text-green-600">
                 {products.filter(p => p.current_stock > p.min_stock_level).length}
               </p>
             </div>
-            <CheckCircle className="w-8 h-8 text-green-500" />
+            <CheckCircle className="w-6 h-6 lg:w-8 lg:h-8 text-green-500" />
           </div>
         </div>
         
         <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Stock Faible</p>
-              <p className="text-2xl font-bold text-yellow-600">
+              <p className="text-xs lg:text-sm font-medium text-gray-600">Stock Faible</p>
+              <p className="text-xl lg:text-2xl font-bold text-yellow-600">
                 {products.filter(p => p.current_stock <= p.min_stock_level && p.current_stock > 0).length}
               </p>
             </div>
-            <AlertTriangle className="w-8 h-8 text-yellow-500" />
+            <AlertTriangle className="w-6 h-6 lg:w-8 lg:h-8 text-yellow-500" />
           </div>
         </div>
         
         <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Rupture</p>
-              <p className="text-2xl font-bold text-red-600">
+              <p className="text-xs lg:text-sm font-medium text-gray-600">Rupture</p>
+              <p className="text-xl lg:text-2xl font-bold text-red-600">
                 {products.filter(p => p.current_stock === 0).length}
               </p>
             </div>
-            <AlertTriangle className="w-8 h-8 text-red-500" />
+            <AlertTriangle className="w-6 h-6 lg:w-8 lg:h-8 text-red-500" />
           </div>
         </div>
       </div>

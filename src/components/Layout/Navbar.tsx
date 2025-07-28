@@ -106,17 +106,14 @@ export default function Navbar() {
     <nav className="bg-white shadow-md border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
-          {/* Logo et titre */}
-          <div className="flex items-center flex-shrink-0">
+          <div className="flex items-center">
             <div className="flex-shrink-0 flex items-center">
               <Activity className="w-8 h-8 text-blue-600" />
-              <h1 className="ml-2 text-xl font-bold text-gray-900">CliniqueManager</h1>
+              <h1 className="ml-2 text-xl font-bold text-gray-900 hidden sm:block">CliniqueManager</h1>
+              <h1 className="ml-2 text-lg font-bold text-gray-900 sm:hidden">CM</h1>
             </div>
-          </div>
-
-          {/* Navigation desktop */}
-          <div className="hidden md:flex md:items-center md:space-x-8">
-            <div className="flex space-x-8">
+            
+            <div className="hidden lg:ml-8 lg:flex lg:space-x-4 xl:space-x-8">
               {getNavigationItems().map((item) => {
                 const Icon = item.icon;
                 const isActive = location.pathname === item.path;
@@ -124,80 +121,79 @@ export default function Navbar() {
                   <button
                     key={item.path}
                     onClick={() => navigate(item.path)}
-                    className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                    className={`inline-flex items-center px-2 xl:px-3 py-2 text-xs xl:text-sm font-medium rounded-md transition-colors ${
                       isActive
                         ? 'bg-blue-100 text-blue-700'
                         : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                     }`}
                   >
                     <Icon className="w-4 h-4 mr-2" />
-                    {item.label}
+                    <span className="hidden xl:inline">{item.label}</span>
+                    <span className="xl:hidden">{item.label.split(' ')[0]}</span>
                   </button>
                 );
               })}
             </div>
           </div>
 
-          {/* Profil utilisateur et déconnexion - Desktop */}
-          <div className="hidden md:flex md:items-center md:space-x-4">
-            <div className="flex items-center space-x-3">
-              <div className="text-right">
+          <div className="flex items-center space-x-4">
+            {/* Menu mobile toggle */}
+            <div className="lg:hidden">
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
+              >
+                {isMobileMenuOpen ? (
+                  <X className="w-6 h-6" />
+                ) : (
+                  <Menu className="w-6 h-6" />
+                )}
+              </button>
+            </div>
+
+            <div className="hidden sm:flex items-center space-x-3">
+              <div className="text-right hidden md:block">
                 <p className="text-sm font-medium text-gray-900">{profile?.full_name}</p>
                 <p className={`text-xs px-2 py-1 rounded-full font-medium ${getRoleColor()}`}>
                   {getRoleDisplayName()}
                 </p>
               </div>
-              <div className="text-gray-400">
+              <div className="text-gray-400 md:hidden">
+                {getRoleIcon()}
+              </div>
+              <div className="text-gray-400 hidden md:block">
                 {getRoleIcon()}
               </div>
             </div>
             
             <button
               onClick={handleSignOut}
-              className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
+              className="hidden sm:inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
             >
               <LogOut className="w-4 h-4 mr-2" />
-              Déconnexion
-            </button>
-          </div>
-
-          {/* Bouton menu mobile */}
-          <div className="md:hidden flex items-center">
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
-              aria-expanded="false"
-            >
-              <span className="sr-only">Ouvrir le menu principal</span>
-              {isMobileMenuOpen ? (
-                <X className="block h-6 w-6" aria-hidden="true" />
-              ) : (
-                <Menu className="block h-6 w-6" aria-hidden="true" />
-              )}
+              <span className="hidden md:inline">Déconnexion</span>
             </button>
           </div>
         </div>
 
         {/* Menu mobile */}
         {isMobileMenuOpen && (
-          <div className="md:hidden">
+          <div className="lg:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-gray-200">
-              {/* Profil utilisateur - Mobile */}
-              <div className="flex items-center px-3 py-3 bg-gray-50 rounded-md mb-3">
-                <div className="flex items-center space-x-3">
-                  <div className="text-gray-400">
-                    {getRoleIcon()}
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">{profile?.full_name}</p>
-                    <p className={`text-xs px-2 py-1 rounded-full font-medium ${getRoleColor()}`}>
-                      {getRoleDisplayName()}
-                    </p>
-                  </div>
+              {/* Profil utilisateur mobile */}
+              <div className="flex items-center px-3 py-2 mb-3 bg-gray-50 rounded-md">
+                <div className="flex-shrink-0">
+                  {getRoleIcon()}
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm font-medium text-gray-900">{profile?.full_name}</p>
+                  <p className={`text-xs px-2 py-1 rounded-full font-medium ${getRoleColor()}`}>
+                    {getRoleDisplayName()}
+                  </p>
                 </div>
               </div>
 
-              {/* Navigation items - Mobile */}
+              {/* Navigation mobile */}
               {getNavigationItems().map((item) => {
                 const Icon = item.icon;
                 const isActive = location.pathname === item.path;
@@ -220,19 +216,17 @@ export default function Navbar() {
                 );
               })}
 
-              {/* Bouton déconnexion - Mobile */}
-              <div className="pt-4 border-t border-gray-200">
-                <button
-                  onClick={() => {
-                    handleSignOut();
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="w-full flex items-center px-3 py-2 text-sm font-medium text-red-600 hover:text-red-900 hover:bg-red-50 rounded-md transition-colors"
-                >
-                  <LogOut className="w-5 h-5 mr-3" />
-                  Déconnexion
-                </button>
-              </div>
+              {/* Déconnexion mobile */}
+              <button
+                onClick={() => {
+                  handleSignOut();
+                  setIsMobileMenuOpen(false);
+                }}
+                className="w-full flex items-center px-3 py-2 text-sm font-medium text-red-600 hover:text-red-900 hover:bg-red-50 rounded-md transition-colors mt-4 border-t border-gray-200 pt-4"
+              >
+                <LogOut className="w-5 h-5 mr-3" />
+                Déconnexion
+              </button>
             </div>
           </div>
         )}

@@ -102,19 +102,19 @@ export default function PatientList({ onCreatePatient, onEditPatient, onViewPati
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Patient
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="hidden md:table-cell px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Contact
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Âge/Sexe
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="hidden lg:table-cell px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Date d'inscription
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 lg:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -122,17 +122,32 @@ export default function PatientList({ onCreatePatient, onEditPatient, onViewPati
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredPatients.map((patient) => (
                   <tr key={patient.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 lg:px-6 py-4">
                       <div>
                         <div className="text-sm font-medium text-gray-900">
                           {patient.first_name} {patient.last_name}
                         </div>
+                        {/* Afficher le contact sur mobile */}
+                        <div className="md:hidden mt-1 space-y-1">
+                          {patient.phone && (
+                            <div className="flex items-center text-xs text-gray-600">
+                              <Phone className="w-3 h-3 mr-1" />
+                              {patient.phone}
+                            </div>
+                          )}
+                          {patient.email && (
+                            <div className="flex items-center text-xs text-gray-600">
+                              <Mail className="w-3 h-3 mr-1" />
+                              {patient.email}
+                            </div>
+                          )}
+                        </div>
                         {patient.medical_history && (
-                          <div className="text-sm text-gray-500">Antécédents médicaux</div>
+                          <div className="text-xs text-gray-500 mt-1">Antécédents médicaux</div>
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="hidden md:table-cell px-4 lg:px-6 py-4 whitespace-nowrap">
                       <div className="space-y-1">
                         {patient.phone && (
                           <div className="flex items-center text-sm text-gray-600">
@@ -148,7 +163,7 @@ export default function PatientList({ onCreatePatient, onEditPatient, onViewPati
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
                         {calculateAge(patient.birth_date)} ans
                       </div>
@@ -156,24 +171,24 @@ export default function PatientList({ onCreatePatient, onEditPatient, onViewPati
                         {patient.gender === 'M' ? 'Masculin' : 'Féminin'}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="hidden lg:table-cell px-4 lg:px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center text-sm text-gray-600">
                         <Calendar className="w-4 h-4 mr-1" />
                         {new Date(patient.created_at).toLocaleDateString('fr-FR')}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center justify-end space-x-2">
                         <button
                           onClick={() => onViewPatient(patient)}
-                          className="text-blue-600 hover:text-blue-900 p-1 rounded"
+                          className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
                           title="Voir détails"
                         >
                           <Eye className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => onEditPatient(patient)}
-                          className="text-gray-600 hover:text-gray-900 p-1 rounded"
+                          className="text-gray-600 hover:text-gray-900 p-1 rounded hover:bg-gray-50"
                           title="Modifier"
                         >
                           <Edit className="w-4 h-4" />
