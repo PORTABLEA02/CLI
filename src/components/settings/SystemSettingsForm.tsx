@@ -199,25 +199,25 @@ export default function SystemSettingsForm() {
 
       <form onSubmit={handleSubmit} className="bg-white rounded-lg border border-gray-200 p-6 space-y-6">
         {error && (
-          <div className="p-4 bg-red-100 border border-red-400 text-red-700 rounded-md">
+          <div className="p-3 sm:p-4 bg-red-100 border border-red-400 text-red-700 rounded-md text-sm">
             {error}
           </div>
         )}
 
         {success && (
-          <div className="p-4 bg-green-100 border border-green-400 text-green-700 rounded-md">
+          <div className="p-3 sm:p-4 bg-green-100 border border-green-400 text-green-700 rounded-md text-sm">
             {success}
           </div>
         )}
 
         {/* Informations de la clinique */}
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-            <Building className="w-5 h-5 mr-2 text-blue-600" />
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4 flex items-center">
+            <Building className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-blue-600" />
             Informations de la Clinique
           </h3>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2">
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Nom de la clinique *
@@ -228,7 +228,7 @@ export default function SystemSettingsForm() {
                 required
                 value={formData.clinic_name}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Nom de votre clinique"
               />
             </div>
@@ -243,7 +243,7 @@ export default function SystemSettingsForm() {
                 rows={3}
                 value={formData.clinic_address}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Adresse complète de la clinique"
               />
             </div>
@@ -258,7 +258,7 @@ export default function SystemSettingsForm() {
                 name="clinic_phone"
                 value={formData.clinic_phone}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                 placeholder="+33 1 23 45 67 89"
               />
             </div>
@@ -273,7 +273,7 @@ export default function SystemSettingsForm() {
                 name="clinic_email"
                 value={formData.clinic_email}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                 placeholder="contact@clinique.com"
               />
             </div>
@@ -282,12 +282,12 @@ export default function SystemSettingsForm() {
 
         {/* Configuration financière */}
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-            <DollarSign className="w-5 h-5 mr-2 text-green-600" />
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4 flex items-center">
+            <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-green-600" />
             Configuration Financière
           </h3>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-3">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Devise *
@@ -297,7 +297,7 @@ export default function SystemSettingsForm() {
                 required
                 value={formData.currency}
                 onChange={handleCurrencyChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
               >
                 {currencyOptions.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -317,7 +317,7 @@ export default function SystemSettingsForm() {
                 required
                 value={formData.currency_symbol}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                 placeholder="FCFA"
               />
             </div>
@@ -334,7 +334,7 @@ export default function SystemSettingsForm() {
                 step="0.01"
                 value={formData.tax_rate}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                 placeholder="0.00"
               />
             </div>
@@ -343,15 +343,15 @@ export default function SystemSettingsForm() {
 
         {/* Configuration des documents */}
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-            <FileText className="w-5 h-5 mr-2 text-purple-600" />
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4 flex items-center">
+            <FileText className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-purple-600" />
             Configuration des Documents
           </h3>
           
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                <Image className="w-4 h-4 inline mr-1" />
+                <Image className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1" />
                 URL du logo
               </label>
               <input
@@ -359,7 +359,7 @@ export default function SystemSettingsForm() {
                 name="logo_url"
                 value={formData.logo_url}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                 placeholder="https://exemple.com/logo.png"
               />
               <p className="text-xs text-gray-500 mt-1">
@@ -376,7 +376,7 @@ export default function SystemSettingsForm() {
                 rows={3}
                 value={formData.invoice_footer}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Merci de votre confiance - Système de gestion de clinique médicale"
               />
               <p className="text-xs text-gray-500 mt-1">
@@ -386,13 +386,13 @@ export default function SystemSettingsForm() {
           </div>
         </div>
 
-        <div className="flex justify-end pt-4">
+        <div className="flex justify-end pt-3 sm:pt-4">
           <button
             type="submit"
             disabled={saving}
-            className="inline-flex items-center px-6 py-3 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
+            className="inline-flex items-center px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
           >
-            <Save className="w-4 h-4 mr-2" />
+            <Save className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
             {saving ? 'Enregistrement...' : 'Enregistrer les paramètres'}
           </button>
         </div>

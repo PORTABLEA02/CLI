@@ -162,26 +162,29 @@ export default function UserList({ onCreateUser, onEditUser }: UserListProps) {
       </div>
 
       {/* Filtres et recherche */}
-      <div className="bg-white p-4 rounded-lg border border-gray-200 space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="bg-white p-3 sm:p-4 rounded-lg border border-gray-200 space-y-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {/* Barre de recherche */}
-          <div className="relative sm:col-span-2 lg:col-span-1">
+          <div className="relative lg:col-span-1 sm:col-span-2">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="text"
               placeholder="Rechercher par nom, email ou téléphone..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              className="pl-10 pr-4 py-2 w-full text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
 
           {/* Filtre par rôle */}
           <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1 sm:hidden">
+              Rôle
+            </label>
             <select
               value={filterRole}
               onChange={(e) => setFilterRole(e.target.value as 'all' | 'admin' | 'doctor' | 'cashier')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="all">Tous les rôles</option>
               <option value="admin">Administrateurs</option>
@@ -192,10 +195,13 @@ export default function UserList({ onCreateUser, onEditUser }: UserListProps) {
 
           {/* Filtre par statut */}
           <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1 sm:hidden">
+              Statut
+            </label>
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value as 'all' | 'active' | 'inactive')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="all">Tous les statuts</option>
               <option value="active">Actifs</option>
@@ -208,26 +214,26 @@ export default function UserList({ onCreateUser, onEditUser }: UserListProps) {
       {/* Liste des utilisateurs */}
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         {filteredUsers.length > 0 ? (
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto -mx-4 sm:mx-0">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-3 sm:px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Utilisateur
                   </th>
-                  <th className="hidden md:table-cell px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="hidden md:table-cell px-3 sm:px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Contact
                   </th>
-                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-3 sm:px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Rôle
                   </th>
-                  <th className="hidden sm:table-cell px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="hidden sm:table-cell px-3 sm:px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Statut
                   </th>
-                  <th className="hidden lg:table-cell px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="hidden lg:table-cell px-3 sm:px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Date de création
                   </th>
-                  <th className="px-4 lg:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-3 sm:px-4 lg:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -235,22 +241,22 @@ export default function UserList({ onCreateUser, onEditUser }: UserListProps) {
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredUsers.map((user) => (
                   <tr key={user.id} className="hover:bg-gray-50">
-                    <td className="px-4 lg:px-6 py-4">
+                    <td className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
                       <div className="flex items-center">
-                        <div className="flex-shrink-0 h-10 w-10">
-                          <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                            <User className="w-5 h-5 text-gray-600" />
+                        <div className="flex-shrink-0 h-8 w-8 sm:h-10 sm:w-10">
+                          <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                            <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
                           </div>
                         </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">
+                        <div className="ml-2 sm:ml-4 min-w-0 flex-1">
+                          <div className="text-xs sm:text-sm font-medium text-gray-900 truncate">
                             {user.full_name}
                           </div>
                           {/* Afficher le contact sur mobile */}
                           <div className="md:hidden mt-1 space-y-1">
-                            <div className="flex items-center text-xs text-gray-600">
+                            <div className="flex items-center text-xs text-gray-600 truncate">
                               <Mail className="w-3 h-3 mr-1" />
-                              {user.email}
+                              <span className="truncate">{user.email}</span>
                             </div>
                             {user.phone && (
                               <div className="flex items-center text-xs text-gray-600">
@@ -259,17 +265,17 @@ export default function UserList({ onCreateUser, onEditUser }: UserListProps) {
                               </div>
                             )}
                           </div>
-                          <div className="text-sm text-gray-500">
+                          <div className="text-xs sm:text-sm text-gray-500 truncate">
                             ID: {user.id.substring(0, 8)}...
                           </div>
                         </div>
                       </div>
                     </td>
-                    <td className="hidden md:table-cell px-4 lg:px-6 py-4 whitespace-nowrap">
+                    <td className="hidden md:table-cell px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
                       <div className="space-y-1">
-                        <div className="flex items-center text-sm text-gray-600">
+                        <div className="flex items-center text-sm text-gray-600 truncate">
                           <Mail className="w-4 h-4 mr-1" />
-                          {user.email}
+                          <span className="truncate">{user.email}</span>
                         </div>
                         {user.phone && (
                           <div className="flex items-center text-sm text-gray-600">
@@ -279,16 +285,16 @@ export default function UserList({ onCreateUser, onEditUser }: UserListProps) {
                         )}
                       </div>
                     </td>
-                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
+                    <td className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
                       <div className="flex items-center">
                         {getRoleIcon(user.role)}
-                        <span className={`ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleColor(user.role)}`}>
+                        <span className={`ml-1 sm:ml-2 inline-flex items-center px-2 sm:px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleColor(user.role)}`}>
                           {getRoleDisplayName(user.role)}
                         </span>
                       </div>
                       {/* Afficher le statut sur mobile */}
                       <div className="sm:hidden mt-2">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                           user.is_active 
                             ? 'bg-green-100 text-green-800' 
                             : 'bg-red-100 text-red-800'
@@ -297,8 +303,8 @@ export default function UserList({ onCreateUser, onEditUser }: UserListProps) {
                         </span>
                       </div>
                     </td>
-                    <td className="hidden sm:table-cell px-4 lg:px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    <td className="hidden sm:table-cell px-3 sm:px-4 lg:px-6 py-3 sm:py-4 whitespace-nowrap">
+                      <span className={`inline-flex items-center px-2 sm:px-2.5 py-0.5 rounded-full text-xs font-medium ${
                         user.is_active 
                           ? 'bg-green-100 text-green-800' 
                           : 'bg-red-100 text-red-800'
@@ -306,36 +312,36 @@ export default function UserList({ onCreateUser, onEditUser }: UserListProps) {
                         {user.is_active ? 'Actif' : 'Inactif'}
                       </span>
                     </td>
-                    <td className="hidden lg:table-cell px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="hidden lg:table-cell px-3 sm:px-4 lg:px-6 py-3 sm:py-4 whitespace-nowrap text-sm text-gray-500">
                       {new Date(user.created_at).toLocaleDateString('fr-FR')}
                     </td>
-                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex items-center justify-end space-x-2">
+                    <td className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex items-center justify-end space-x-1 sm:space-x-2">
                         <button
                           onClick={() => onEditUser(user)}
-                          className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
+                          className="text-blue-600 hover:text-blue-900 p-1 sm:p-1.5 rounded hover:bg-blue-50"
                           title="Modifier"
                         >
-                          <Edit className="w-4 h-4" />
+                          <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
                         </button>
                         <button
                           onClick={() => toggleUserStatus(user.id, user.is_active)}
-                          className={`p-1 rounded ${
+                          className={`p-1 sm:p-1.5 rounded ${
                             user.is_active 
                               ? 'text-red-600 hover:text-red-900' 
                               : 'text-green-600 hover:text-green-900'
                           }`}
                           title={user.is_active ? 'Désactiver' : 'Activer'}
                         >
-                          {user.is_active ? <ShieldX className="w-4 h-4" /> : <ShieldCheck className="w-4 h-4" />}
+                          {user.is_active ? <ShieldX className="w-3 h-3 sm:w-4 sm:h-4" /> : <ShieldCheck className="w-3 h-3 sm:w-4 sm:h-4" />}
                         </button>
                         {user.id !== profile?.id && (
                           <button
                             onClick={() => deleteUser(user.id)}
-                            className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
+                            className="text-red-600 hover:text-red-900 p-1 sm:p-1.5 rounded hover:bg-red-50"
                             title="Supprimer"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
                           </button>
                         )}
                       </div>
@@ -359,50 +365,50 @@ export default function UserList({ onCreateUser, onEditUser }: UserListProps) {
       </div>
 
       {/* Statistiques rapides */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+        <div className="bg-white p-3 sm:p-4 rounded-lg border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs lg:text-sm font-medium text-gray-600">Total Utilisateurs</p>
-              <p className="text-xl lg:text-2xl font-bold text-gray-900">{users.length}</p>
+              <p className="text-xs font-medium text-gray-600">Total</p>
+              <p className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">{users.length}</p>
             </div>
-            <User className="w-6 h-6 lg:w-8 lg:h-8 text-blue-500" />
+            <User className="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 text-blue-500" />
           </div>
         </div>
         
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
+        <div className="bg-white p-3 sm:p-4 rounded-lg border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs lg:text-sm font-medium text-gray-600">Administrateurs</p>
-              <p className="text-xl lg:text-2xl font-bold text-red-600">
+              <p className="text-xs font-medium text-gray-600">Admins</p>
+              <p className="text-lg sm:text-xl lg:text-2xl font-bold text-red-600">
                 {users.filter(u => u.role === 'admin').length}
               </p>
             </div>
-            <ShieldCheck className="w-6 h-6 lg:w-8 lg:h-8 text-red-500" />
+            <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 text-red-500" />
           </div>
         </div>
         
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
+        <div className="bg-white p-3 sm:p-4 rounded-lg border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs lg:text-sm font-medium text-gray-600">Docteurs</p>
-              <p className="text-xl lg:text-2xl font-bold text-blue-600">
+              <p className="text-xs font-medium text-gray-600">Docteurs</p>
+              <p className="text-lg sm:text-xl lg:text-2xl font-bold text-blue-600">
                 {users.filter(u => u.role === 'doctor').length}
               </p>
             </div>
-            <Shield className="w-6 h-6 lg:w-8 lg:h-8 text-blue-500" />
+            <Shield className="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 text-blue-500" />
           </div>
         </div>
         
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
+        <div className="bg-white p-3 sm:p-4 rounded-lg border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs lg:text-sm font-medium text-gray-600">Caissiers</p>
-              <p className="text-xl lg:text-2xl font-bold text-green-600">
+              <p className="text-xs font-medium text-gray-600">Caissiers</p>
+              <p className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600">
                 {users.filter(u => u.role === 'cashier').length}
               </p>
             </div>
-            <User className="w-6 h-6 lg:w-8 lg:h-8 text-green-500" />
+            <User className="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 text-green-500" />
           </div>
         </div>
       </div>
