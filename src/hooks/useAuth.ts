@@ -84,6 +84,7 @@ export function useAuth() {
     setIsVisible(isCurrentlyVisible);
     
     if (isCurrentlyVisible && session) {
+      window.location.reload();
       console.log('👁️ Page redevenue visible, vérification de la session...');
       // Vérifier si la session est toujours valide
       const now = Math.floor(Date.now() / 1000);
