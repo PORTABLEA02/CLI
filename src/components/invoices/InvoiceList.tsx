@@ -257,8 +257,8 @@ export default function InvoiceList({ onCreateInvoice, onEditInvoice, onViewInvo
             </table>
           </div>
           
-          {/* Version mobile/tablette - cartes */}
           <div className="lg:hidden divide-y divide-gray-200">
+            {/* Version mobile/tablette - cartes */}
             {filteredInvoices.map((invoice) => (
               <div key={invoice.id} className="p-4 hover:bg-gray-50">
                 <div className="flex items-start justify-between mb-3">

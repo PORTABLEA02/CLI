@@ -291,8 +291,10 @@ export default function ConsultationList({
             </table>
           </div>
           
-          {/* Version mobile/tablette - cartes */}
+          <>
+            {/* Version mobile/tablette - cartes */}
           <div className="lg:hidden divide-y divide-gray-200">
+            {/* Version mobile/tablette - cartes */}
             {filteredConsultations.map((consultation) => (
               <div key={consultation.id} className="p-4 hover:bg-gray-50">
                 <div className="flex items-start justify-between mb-3">

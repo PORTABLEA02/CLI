@@ -367,8 +367,8 @@ export default function ProductList({ onCreateProduct, onEditProduct }: ProductL
             </table>
           </div>
           
-          {/* Version mobile/tablette - cartes */}
           <div className="lg:hidden divide-y divide-gray-200">
+            {/* Version mobile/tablette - cartes */}
             {filteredProducts.map((product) => {
               const stockStatus = getStockStatus(product);
               const expiringSoon = isExpiringSoon(product.expiry_date);

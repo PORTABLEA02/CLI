@@ -186,8 +186,10 @@ export default function PatientList({ onCreatePatient, onEditPatient, onViewPati
             </table>
           </div>
           
-          {/* Version mobile - cartes */}
+          <>
+            {/* Version mobile - cartes */}
           <div className="md:hidden divide-y divide-gray-200">
+            {/* Version mobile - cartes */}
             {filteredPatients.map((patient) => (
               <div key={patient.id} className="p-4 hover:bg-gray-50">
                 <div className="flex items-center justify-between mb-3">
