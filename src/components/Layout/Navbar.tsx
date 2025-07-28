@@ -64,38 +64,38 @@ export default function Navbar() {
 
   const getNavigationItems = () => {
     const baseItems = [
-      { path: '/dashboard', label: 'Tableau de bord', icon: Activity },
+      { path: '/dashboard', label: 'Tableau de bord', shortLabel: 'Dashboard', icon: Activity },
     ];
 
     switch (profile?.role) {
       case 'admin':
         return [
           ...baseItems,
-          { path: '/users', label: 'Gestion Utilisateurs', icon: User },
-          { path: '/patients', label: 'Patients', icon: User },
-          { path: '/consultations', label: 'Consultations', icon: Stethoscope },
-          { path: '/products', label: 'Produits Médicaux', icon: Activity },
-          { path: '/stock', label: 'Gestion Stock', icon: Activity },
-          { path: '/invoices', label: 'Factures', icon: CreditCard },
-          { path: '/reports', label: 'Rapports', icon: Activity },
-          { path: '/system-settings', label: 'Configuration', icon: User },
+          { path: '/users', label: 'Gestion Utilisateurs', shortLabel: 'Utilisateurs', icon: User },
+          { path: '/patients', label: 'Patients', shortLabel: 'Patients', icon: User },
+          { path: '/consultations', label: 'Consultations', shortLabel: 'Consultations', icon: Stethoscope },
+          { path: '/products', label: 'Produits Médicaux', shortLabel: 'Produits', icon: Activity },
+          { path: '/stock', label: 'Gestion Stock', shortLabel: 'Stock', icon: Activity },
+          { path: '/invoices', label: 'Factures', shortLabel: 'Factures', icon: CreditCard },
+          { path: '/reports', label: 'Rapports', shortLabel: 'Rapports', icon: Activity },
+          { path: '/system-settings', label: 'Configuration', shortLabel: 'Config', icon: User },
         ];
       case 'doctor':
         return [
           ...baseItems,
-          { path: '/patients', label: 'Patients', icon: User },
-          { path: '/consultations', label: 'Consultations', icon: Stethoscope },
-          { path: '/my-consultations', label: 'Mes Consultations', icon: Stethoscope },
+          { path: '/patients', label: 'Patients', shortLabel: 'Patients', icon: User },
+          { path: '/consultations', label: 'Consultations', shortLabel: 'Consultations', icon: Stethoscope },
+          { path: '/my-consultations', label: 'Mes Consultations', shortLabel: 'Mes Consult.', icon: Stethoscope },
         ];
       case 'cashier':
         return [
           ...baseItems,
-          { path: '/patients', label: 'Patients', icon: User },
-          { path: '/consultations-readonly', label: 'Consultations (Lecture)', icon: Stethoscope },
-          { path: '/invoices', label: 'Factures', icon: CreditCard },
-          { path: '/products', label: 'Produits Médicaux', icon: Activity },
-          { path: '/stock', label: 'Stock', icon: Activity },
-          { path: '/direct-billing', label: 'Facturation Directe', icon: CreditCard },
+          { path: '/patients', label: 'Patients', shortLabel: 'Patients', icon: User },
+          { path: '/consultations-readonly', label: 'Consultations (Lecture)', shortLabel: 'Consult. (L)', icon: Stethoscope },
+          { path: '/invoices', label: 'Factures', shortLabel: 'Factures', icon: CreditCard },
+          { path: '/products', label: 'Produits Médicaux', shortLabel: 'Produits', icon: Activity },
+          { path: '/stock', label: 'Stock', shortLabel: 'Stock', icon: Activity },
+          { path: '/direct-billing', label: 'Facturation Directe', shortLabel: 'Fact. Directe', icon: CreditCard },
         ];
       default:
         return baseItems;
@@ -113,7 +113,7 @@ export default function Navbar() {
               <h1 className="ml-2 text-lg font-bold text-gray-900 sm:hidden">CM</h1>
             </div>
             
-            <div className="hidden lg:ml-8 lg:flex lg:space-x-4 xl:space-x-8">
+            <div className="hidden lg:ml-8 lg:flex lg:space-x-2 xl:space-x-6">
               {getNavigationItems().map((item) => {
                 const Icon = item.icon;
                 const isActive = location.pathname === item.path;
@@ -121,15 +121,15 @@ export default function Navbar() {
                   <button
                     key={item.path}
                     onClick={() => navigate(item.path)}
-                    className={`inline-flex items-center px-2 xl:px-3 py-2 text-xs xl:text-sm font-medium rounded-md transition-colors ${
+                    className={`inline-flex items-center px-1.5 xl:px-3 py-2 text-xs xl:text-sm font-medium rounded-md transition-colors ${
                       isActive
                         ? 'bg-blue-100 text-blue-700'
                         : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                     }`}
                   >
-                    <Icon className="w-4 h-4 mr-2" />
+                    <Icon className="w-4 h-4 mr-1.5 xl:mr-2" />
                     <span className="hidden xl:inline">{item.label}</span>
-                    <span className="xl:hidden">{item.label.split(' ')[0]}</span>
+                    <span className="xl:hidden">{item.shortLabel || item.label.split(' ')[0]}</span>
                   </button>
                 );
               })}
