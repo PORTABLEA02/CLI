@@ -163,7 +163,7 @@ export default function UserList({ onCreateUser, onEditUser }: UserListProps) {
 
       {/* Filtres et recherche */}
       <div className="bg-white p-4 rounded-lg border border-gray-200 space-y-4">
-        <div className="flex flex-col lg:flex-row gap-4">
+        <div className="flex flex-col sm:flex-row lg:flex-row gap-4">
           {/* Barre de recherche */}
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -172,16 +172,16 @@ export default function UserList({ onCreateUser, onEditUser }: UserListProps) {
               placeholder="Rechercher par nom, email ou téléphone..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-3 w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-base"
+              className="pl-10 pr-4 py-2 sm:py-3 w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
             />
           </div>
 
           {/* Filtre par rôle */}
-          <div className="lg:w-48">
+          <div className="sm:w-40 lg:w-48">
             <select
               value={filterRole}
               onChange={(e) => setFilterRole(e.target.value as 'all' | 'admin' | 'doctor' | 'cashier')}
-              className="w-full px-3 py-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-base"
+              className="w-full px-3 py-2 sm:py-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
             >
               <option value="all">Tous les rôles</option>
               <option value="admin">Administrateurs</option>
@@ -191,11 +191,11 @@ export default function UserList({ onCreateUser, onEditUser }: UserListProps) {
           </div>
 
           {/* Filtre par statut */}
-          <div className="lg:w-48">
+          <div className="sm:w-40 lg:w-48">
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value as 'all' | 'active' | 'inactive')}
-              className="w-full px-3 py-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-base"
+              className="w-full px-3 py-2 sm:py-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
             >
               <option value="all">Tous les statuts</option>
               <option value="active">Actifs</option>
@@ -206,7 +206,7 @@ export default function UserList({ onCreateUser, onEditUser }: UserListProps) {
       </div>
 
       {/* Liste des utilisateurs */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
         {filteredUsers.length > 0 ? (
           <div className="hidden lg:block overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
@@ -326,63 +326,63 @@ export default function UserList({ onCreateUser, onEditUser }: UserListProps) {
           {/* Version mobile/tablette - cartes */}
           <div className="lg:hidden divide-y divide-gray-200">
             {filteredUsers.map((user) => (
-              <div key={user.id} className="p-4 hover:bg-gray-50">
+              <div key={user.id} className="p-3 sm:p-4 hover:bg-gray-50">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center flex-1 min-w-0">
-                    <div className="flex-shrink-0 h-12 w-12">
-                      <div className="h-12 w-12 rounded-full bg-gray-300 flex items-center justify-center">
-                        <User className="w-6 h-6 text-gray-600" />
+                    <div className="flex-shrink-0 h-10 w-10 sm:h-12 sm:w-12">
+                      <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-gray-300 flex items-center justify-center">
+                        <User className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600" />
                       </div>
                     </div>
-                    <div className="ml-4 flex-1 min-w-0">
-                      <h3 className="text-lg font-medium text-gray-900 truncate">{user.full_name}</h3>
-                      <p className="text-sm text-gray-600 truncate">{user.email}</p>
+                    <div className="ml-3 sm:ml-4 flex-1 min-w-0">
+                      <h3 className="text-base sm:text-lg font-medium text-gray-900 truncate">{user.full_name}</h3>
+                      <p className="text-xs sm:text-sm text-gray-600 truncate">{user.email}</p>
                       {user.phone && (
-                        <p className="text-sm text-gray-600">{user.phone}</p>
+                        <p className="text-xs sm:text-sm text-gray-600 truncate">{user.phone}</p>
                       )}
                     </div>
                   </div>
                   
-                  <div className="flex items-center space-x-2 ml-4">
+                  <div className="flex items-center space-x-1 sm:space-x-2 ml-2 sm:ml-4">
                     <button
                       onClick={() => onEditUser(user)}
-                      className="p-2 text-blue-600 hover:text-blue-900 hover:bg-blue-50 rounded-full"
+                      className="p-1.5 sm:p-2 text-blue-600 hover:text-blue-900 hover:bg-blue-50 rounded-full"
                       title="Modifier"
                     >
-                      <Edit className="w-5 h-5" />
+                      <Edit className="w-4 h-4 sm:w-5 sm:h-5" />
                     </button>
                     <button
                       onClick={() => toggleUserStatus(user.id, user.is_active)}
-                      className={`p-2 rounded-full ${
+                      className={`p-1.5 sm:p-2 rounded-full ${
                         user.is_active 
                           ? 'text-red-600 hover:text-red-900 hover:bg-red-50' 
                           : 'text-green-600 hover:text-green-900 hover:bg-green-50'
                       }`}
                       title={user.is_active ? 'Désactiver' : 'Activer'}
                     >
-                      {user.is_active ? <ShieldX className="w-5 h-5" /> : <ShieldCheck className="w-5 h-5" />}
+                      {user.is_active ? <ShieldX className="w-4 h-4 sm:w-5 sm:h-5" /> : <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5" />}
                     </button>
                     {user.id !== profile?.id && (
                       <button
                         onClick={() => deleteUser(user.id)}
-                        className="p-2 text-red-600 hover:text-red-900 hover:bg-red-50 rounded-full"
+                        className="p-1.5 sm:p-2 text-red-600 hover:text-red-900 hover:bg-red-50 rounded-full"
                         title="Supprimer"
                       >
-                        <Trash2 className="w-5 h-5" />
+                        <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
                       </button>
                     )}
                   </div>
                 </div>
                 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
+                  <div className="flex items-center space-x-2 sm:space-x-3">
                     <div className="flex items-center">
                       {getRoleIcon(user.role)}
-                      <span className={`ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleColor(user.role)}`}>
+                      <span className={`ml-1 sm:ml-2 inline-flex items-center px-2 sm:px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleColor(user.role)}`}>
                         {getRoleDisplayName(user.role)}
                       </span>
                     </div>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    <span className={`inline-flex items-center px-2 sm:px-2.5 py-0.5 rounded-full text-xs font-medium ${
                       user.is_active 
                         ? 'bg-green-100 text-green-800' 
                         : 'bg-red-100 text-red-800'
@@ -391,7 +391,7 @@ export default function UserList({ onCreateUser, onEditUser }: UserListProps) {
                     </span>
                   </div>
                   
-                  <div className="text-sm text-gray-500">
+                  <div className="text-xs sm:text-sm text-gray-500">
                     {new Date(user.created_at).toLocaleDateString('fr-FR')}
                   </div>
                 </div>
@@ -412,12 +412,12 @@ export default function UserList({ onCreateUser, onEditUser }: UserListProps) {
       </div>
 
       {/* Statistiques rapides */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <div className="bg-white p-4 lg:p-6 rounded-lg border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Total Utilisateurs</p>
-              <p className="text-xl lg:text-2xl font-bold text-gray-900">{users.length}</p>
+              <p className="text-xs sm:text-sm font-medium text-gray-600 leading-tight">Total Utilisateurs</p>
+              <p className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">{users.length}</p>
             </div>
             <User className="w-6 h-6 lg:w-8 lg:h-8 text-blue-500" />
           </div>
@@ -426,8 +426,8 @@ export default function UserList({ onCreateUser, onEditUser }: UserListProps) {
         <div className="bg-white p-4 lg:p-6 rounded-lg border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Administrateurs</p>
-              <p className="text-xl lg:text-2xl font-bold text-red-600">
+              <p className="text-xs sm:text-sm font-medium text-gray-600 leading-tight">Administrateurs</p>
+              <p className="text-lg sm:text-xl lg:text-2xl font-bold text-red-600">
                 {users.filter(u => u.role === 'admin').length}
               </p>
             </div>
@@ -438,8 +438,8 @@ export default function UserList({ onCreateUser, onEditUser }: UserListProps) {
         <div className="bg-white p-4 lg:p-6 rounded-lg border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Docteurs</p>
-              <p className="text-xl lg:text-2xl font-bold text-blue-600">
+              <p className="text-xs sm:text-sm font-medium text-gray-600 leading-tight">Docteurs</p>
+              <p className="text-lg sm:text-xl lg:text-2xl font-bold text-blue-600">
                 {users.filter(u => u.role === 'doctor').length}
               </p>
             </div>
@@ -450,8 +450,8 @@ export default function UserList({ onCreateUser, onEditUser }: UserListProps) {
         <div className="bg-white p-4 lg:p-6 rounded-lg border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Caissiers</p>
-              <p className="text-xl lg:text-2xl font-bold text-green-600">
+              <p className="text-xs sm:text-sm font-medium text-gray-600 leading-tight">Caissiers</p>
+              <p className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600">
                 {users.filter(u => u.role === 'cashier').length}
               </p>
             </div>

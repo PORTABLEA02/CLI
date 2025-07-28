@@ -84,14 +84,14 @@ export default function PatientList({ onCreatePatient, onEditPatient, onViewPati
       </div>
 
       {/* Barre de recherche */}
-      <div className="relative mb-4">
+      <div className="bg-white p-4 rounded-lg border border-gray-200 mb-4">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
         <input
           type="text"
           placeholder="Rechercher par nom, téléphone ou email..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10 pr-4 py-3 w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-base"
+          className="pl-10 pr-4 py-2 sm:py-3 w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
         />
       </div>
 

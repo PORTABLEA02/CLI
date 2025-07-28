@@ -188,17 +188,17 @@ export default function Dashboard() {
       </div>
 
       {/* Cartes de statistiques */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-6">
         {statCards.map((card, index) => {
           const Icon = card.icon;
           const colorClasses = getColorClasses(card.color).split(' ');
           
           return (
-            <div key={index} className="bg-white rounded-lg border border-gray-200 p-4 lg:p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div key={index} className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 lg:p-6 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs sm:text-sm font-medium text-gray-600">{card.title}</p>
-                  <p className="text-xl sm:text-2xl font-bold text-gray-900 mt-1">{card.value}</p>
+                  <p className="text-xs sm:text-sm font-medium text-gray-600 leading-tight">{card.title}</p>
+                  <p className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mt-1 break-all">{card.value}</p>
                 </div>
                 <div className={`p-2 sm:p-3 rounded-full ${colorClasses[2]}`}>
                   <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${colorClasses[1]}`} />

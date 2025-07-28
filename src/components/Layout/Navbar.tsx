@@ -116,7 +116,7 @@ export default function Navbar() {
           </div>
 
           {/* Navigation desktop */}
-          <div className="hidden lg:flex lg:items-center lg:space-x-4">
+          <div className="hidden lg:flex lg:items-center lg:space-x-2 xl:space-x-4">
             {getNavigationItems().map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -124,14 +124,14 @@ export default function Navbar() {
                 <button
                   key={item.path}
                   onClick={() => navigate(item.path)}
-                  className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                  className={`inline-flex items-center px-2 xl:px-3 py-2 text-xs xl:text-sm font-medium rounded-md transition-colors ${
                     isActive
                       ? 'bg-blue-100 text-blue-700'
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                   }`}
                 >
                   <Icon className="w-4 h-4 mr-2" />
-                  <span className="hidden xl:inline">{item.label}</span>
+                  <span className="hidden xl:inline whitespace-nowrap">{item.label}</span>
                 </button>
               );
             })}
